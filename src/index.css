@@ -11,3 +11,28 @@ body {
   background: #bfe3f5;
   overflow: hidden;
 }
+
+/* 화면을 끌 때 브라우저가 스크롤이나 글자 선택을 하지 않게 막는다. */
+canvas {
+  /* 커서를 고양이 발바닥 그림으로 바꾼다. 숫자 두 개는 그림에서 클릭 지점의 위치다. */
+  cursor: url('/paw-32.png') 16 4, auto;
+  /* 해상도가 높은 화면에서는 64픽셀 그림을 써서 커서가 흐려지지 않게 한다. */
+  cursor: image-set(url('/paw-32.png') 1x, url('/paw-64.png') 2x) 16 4, auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #3a3a3c;
+  font-size: 14px;
+  white-space: nowrap;
+  pointer-events: none;
+}
