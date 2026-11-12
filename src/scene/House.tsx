@@ -2,7 +2,7 @@ import { Box } from './Box'
 import { Interior } from './Interior'
 import { palette } from './palette'
 import { FlutedGlass, Tuft, TwinColumn, scatter } from './Shapes'
-import { CEILING_HEIGHT, DECK_HEIGHT, FLOOR_HEIGHT, HOUSE, STAIRS, STEP_COUNT, STEP_HEIGHT } from './walkable'
+import { CAT_HOLE, CEILING_HEIGHT, DECK_HEIGHT, FLOOR_HEIGHT, HOUSE, STAIRS, STEP_COUNT, STEP_HEIGHT } from './walkable'
 
 /** 문 자리 위쪽 벽이 시작하는 높이 */
 const DOOR_HEIGHT = 2.7
@@ -147,6 +147,7 @@ export function House() {
   const bathDoor = HOUSE.bathDoor
   const toilet = HOUSE.toilet
   const toiletDoor = HOUSE.toiletDoor
+  const hole = CAT_HOLE
   const toiletWidth = toilet.maxX - toilet.minX
   const toiletDepth = toilet.maxZ - toilet.minZ
   const toiletCenterX = (toilet.minX + toilet.maxX) / 2
@@ -304,7 +305,27 @@ export function House() {
         <GlassWall along="z" at={HOUSE.minX} from={SIDE_GLASS_FROM} to={HOUSE.maxZ} panels={4} />
 
         {/* 거실과 침실 쪽 날개 사이의 칸막이 벽. 문 자리는 비우고 그 위만 막는다. */}
-        <Box size={[0.25, h, door.minZ - HOUSE.minZ]} position={[wing, h / 2, (HOUSE.minZ + door.minZ) / 2]} color={palette.wall} />
+        {/* 문 뒤쪽 벽에는 중간 높이에 고양이 통로를 뚫는다. 통로의 앞뒤와 아래위를 따로 막는다. */}
+        <Box size={[0.25, h, hole.minZ - HOUSE.minZ]} position={[wing, h / 2, (HOUSE.minZ + hole.minZ) / 2]} color={palette.wall} />
+        <Box size={[0.25, h, door.minZ - hole.maxZ]} position={[wing, h / 2, (hole.maxZ + door.minZ) / 2]} color={palette.wall} />
+        {/* 통로 아래위 벽은 틀의 면과 같은 높이에서 겹쳐 깜빡이지 않도록 1cm씩 물렸다. */}
+        <Box
+          size={[0.25, hole.bottom - 0.01, hole.maxZ - hole.minZ]}
+          position={[wing, (hole.bottom - 0.01) / 2, (hole.minZ + hole.maxZ) / 2]}
+          color={palette.wall}
+        />
+        <Box
+          size={[0.25, h - hole.top - 0.01, hole.maxZ - hole.minZ]}
+          position={[wing, (h + hole.top + 0.01) / 2, (hole.minZ + hole.maxZ) / 2]}
+          color={palette.wall}
+        />
+        {/* 통로를 두르는 원목 틀. 벽보다 두껍고 벽이 끝나는 면을 감싸도록 통로 가장자리에 걸쳐 놓는다. */}
+        {[hole.bottom - 0.03, hole.top + 0.03].map((y) => (
+          <Box key={y} size={[0.31, 0.06, hole.maxZ - hole.minZ + 0.06]} position={[wing, y, (hole.minZ + hole.maxZ) / 2]} color={palette.oak} />
+        ))}
+        {[hole.minZ, hole.maxZ].map((z) => (
+          <Box key={z} size={[0.31, hole.top - hole.bottom, 0.06]} position={[wing, (hole.bottom + hole.top) / 2, z]} color={palette.oak} />
+        ))}
         <Box size={[0.25, h, HOUSE.maxZ - door.maxZ]} position={[wing, h / 2, (door.maxZ + HOUSE.maxZ) / 2]} color={palette.wall} />
         <Box
           size={[0.25, h - DOOR_HEIGHT, door.maxZ - door.minZ]}

@@ -128,7 +128,8 @@ function go(cat: Cat, targetX: number, targetZ: number, jump: boolean) {
   for (let count = 0; count < 180; count += 1) {
     const distance = Math.hypot(targetX - cat.x, targetZ - cat.z)
     const arrived = distance < SPEED * FRAME
-    if (arrived && cat.y <= groundHeight(cat.x, cat.z, cat.y)) return
+    // 발이 바닥 높이와 같아졌을 때가 내려선 때다. 발판에 막 닿은 화면에서는 발이 아직 발판보다 조금 낮다.
+    if (arrived && near(cat.y, groundHeight(cat.x, cat.z, cat.y))) return
     if (arrived) frame(cat, 0, 0, false)
     else frame(cat, targetX - cat.x, targetZ - cat.z, jump && count === 0)
   }
@@ -213,6 +214,86 @@ check(
   under === -Infinity && tooLow === -Infinity && beside === -Infinity && near(almost, shelfTop) && near(above, shelfTop),
   '아래와 옆에서는 받치지 않고 0.1m 안으로 올라오거나 위에 있으면 받침',
 )
+
+// 제자리에서 한 번 뛰고 내려설 때까지 기다린다.
+function hop(cat: Cat) {
+  frame(cat, 0, 0, true)
+  for (let count = 0; count < 120 && !near(cat.y, groundHeight(cat.x, cat.z, cat.y)); count += 1) frame(cat, 0, 0, false)
+}
+
+// 길을 따라가면서 자리마다 기대한 높이에 섰는지 기록한다. 높이는 방바닥에서 잰 값이다.
+function follow(cat: Cat, legs: [string, number, number, boolean, number][]) {
+  const log: string[] = []
+  let passed = true
+  for (const [name, x, z, jump, top] of legs) {
+    go(cat, x, z, jump)
+    const arrived = Math.hypot(x - cat.x, z - cat.z) < 0.25 && near(cat.y, FLOOR + top)
+    log.push(`${name} ${arrived ? '도착' : `실패(높이 ${(cat.y - FLOOR).toFixed(2)})`}`)
+    if (!arrived) passed = false
+  }
+  return { passed, detail: log.join(' → ') }
+}
+
+// 10. 캣폴 옆에서 제자리 점프 다섯 번으로 맨 위 숨숨집(2.5m)까지 오른다. 거기서 한 번 더 뛰어 캣워크에 올라 곡선 책장 위까지 간다.
+const climber: Cat = { x: -5, z: -4.85, y: FLOOR, speed: 0 }
+const poleTops: number[] = []
+for (let count = 0; count < 5; count += 1) {
+  hop(climber)
+  poleTops.push(climber.y - FLOOR)
+}
+const poleOk = [0.5, 1, 1.5, 2, 2.5].every((top, index) => Math.abs(poleTops[index] - top) < 0.001)
+check('캣폴을 제자리 점프로 오름', poleOk, `발판 높이 ${poleTops.map((top) => top.toFixed(1)).join(', ')}`)
+const catwalk = follow(climber, [
+  ['숨숨집에서 뛰어 캣워크로', -4.2, -5.1, true, 3],
+  ['TV 위', 1.5, -5.1, false, 3],
+  ['뒤쪽 모서리', 6.5, -5.1, false, 3],
+  ['곡선 책장 위', 6.55, -1.2, false, 3],
+])
+check('캣폴에서 캣워크를 지나 곡선 책장 위까지', catwalk.passed, catwalk.detail)
+
+// 11. 캣워크 아래는 그대로 걸을 수 있다. 머리 위의 발판은 바닥으로 치지 않는다.
+const underBack = groundHeight(-5.8, -5.2, FLOOR)
+const underSide = groundHeight(6.5, -4, FLOOR)
+const onConsole = groundHeight(0, -5.1, FLOOR + 0.7)
+check(
+  '캣워크 아래 바닥과 낮은 장',
+  near(underBack, FLOOR) && near(underSide, FLOOR) && near(onConsole, FLOOR + 0.7),
+  `통유리창 앞 ${(underBack - FLOOR).toFixed(2)}m와 왼쪽 벽 앞 ${(underSide - FLOOR).toFixed(2)}m와 낮은 장 ${(onConsole - FLOOR).toFixed(2)}m`,
+)
+
+// 12. 통나무 스툴 둘을 밟고 벽 통로를 지나 침실 바닥까지 간다.
+const visitor: Cat = { x: 6, z: -0.7, y: FLOOR, speed: 0 }
+const passage = follow(visitor, [
+  ['낮은 스툴', 6.5, -0.7, true, 0.4],
+  ['높은 스툴', 6.5, -0.1, true, 0.75],
+  ['통로', 7, 0.7, true, 1.1],
+  ['침실 쪽 디딤판', 7.45, 0.7, false, 1.1],
+  ['침실 바닥', 8.4, 0.7, false, 0],
+])
+check('스툴을 밟고 벽 통로로 침실까지', passage.passed, passage.detail)
+
+// 13. 물결 스크래처에서도 통로로 오를 수 있고 바닥에서는 통로를 지나가지 못한다.
+const scratcher: Cat = { x: 6, z: 0.8, y: FLOOR, speed: 0 }
+const fromScratcher = follow(scratcher, [
+  ['물결 스크래처', 6.5, 0.8, true, 0.35],
+  ['통로', 7, 0.7, true, 1.1],
+])
+const crawler: Cat = { x: 6.3, z: 0.7, y: FLOOR, speed: 0 }
+go(crawler, 7.6, 0.7, false)
+const stoppedByWall = crawler.x < 6.9
+check('스크래처에서는 오르고 바닥에서는 못 지나감', fromScratcher.passed && stoppedByWall, `${fromScratcher.detail}. 바닥에서는 x ${crawler.x.toFixed(2)}에서 멈춤`)
+
+// 14. 침실 쪽 디딤판에서 계단 선반 둘을 밟고 침실 캣워크 끝까지 간다. 침실 바닥에서 디딤 상자로도 올라온다.
+const sleeper: Cat = { x: 8.2, z: 1.15, y: FLOOR, speed: 0 }
+const bedroomWalk = follow(sleeper, [
+  ['디딤 상자', 7.75, 1.15, true, 0.6],
+  ['디딤판', 7.5, 0.8, true, 1.1],
+  ['계단 선반 1.7m', 7.45, -0.1, true, 1.7],
+  ['계단 선반 2.3m', 7.5, -0.55, true, 2.3],
+  ['침실 캣워크', 8.2, -0.55, true, 2.6],
+  ['캣워크 끝', 12.7, -0.55, false, 2.6],
+])
+check('침실 디딤에서 침실 캣워크 끝까지', bedroomWalk.passed, bedroomWalk.detail)
 
 console.log(failed === 0 ? '\n모든 검사 통과' : `\n실패한 검사 ${failed}개`)
 process.exit(failed === 0 ? 0 : 1)

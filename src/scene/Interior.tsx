@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { CanvasTexture, Path, SRGBColorSpace, Shape } from 'three'
 import type { Group } from 'three'
 import { Box } from './Box'
+import { CatWays } from './CatWays'
 import { WingRooms } from './InteriorRooms'
 import { palette } from './palette'
 import { Cylinder, Extruded, FACE_X, Faucet, Glow, LAY_FLAT, arcBand } from './Shapes'
@@ -496,6 +497,7 @@ export function Interior() {
       <Lounge />
       <CeilingFan />
       <WingRooms />
+      <CatWays />
     </group>
   )
 }

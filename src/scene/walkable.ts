@@ -96,6 +96,50 @@ export const CABANA = {
   tie: 1.25,
 } as const
 
+/** 캣폴. 바닥에서 천장까지 닿는 기둥 둘레에 발판을 돌려 단다. top은 방바닥에서 잰 발판 윗면 높이다. */
+export const CAT_POLE = {
+  x: -5,
+  z: -5,
+  /** 둥근 발판의 반지름 */
+  radius: 0.25,
+  steps: [
+    { x: -5, z: -4.7, top: 0.5, hammock: false },
+    { x: -5.3, z: -5, top: 1.0, hammock: false },
+    { x: -5, z: -5.3, top: 1.5, hammock: false },
+    { x: -5, z: -4.7, top: 2.0, hammock: true },
+  ],
+  /** 맨 위의 숨숨집. 둥근 발판에 C자 모양 벽을 두른다. */
+  // 고양이 키가 0.55m쯤이라서 천장(3.5m)에 머리가 닿지 않도록 캣폴에서는 2.5m를 가장 높은 자리로 한다.
+  house: { x: -4.7, z: -5, top: 2.5, radius: 0.3 },
+  /** 기둥 맨 아래에 밧줄을 감은 스크래처 구간의 높이 */
+  scratchTop: 0.45,
+} as const
+
+/** 캣워크. 벽에 단 선반과 로프 구름다리다. top은 방바닥에서 잰 높이이고 bridge는 구름다리 구간이다. */
+export const CATWALK = {
+  /** 거실 뒤쪽 벽을 따라가는 구간. x 방향으로 길다. */
+  livingBack: { minX: -4.45, maxX: 6.5, minZ: -5.45, maxZ: -5.1, top: 3.0, bridge: [-2.7, -1.3] },
+  /** 거실 왼쪽 벽을 따라 곡선 책장 위까지 가는 구간. z 방향으로 길다. */
+  livingSide: { minX: 6.525, maxX: 6.875, minZ: -5.45, maxZ: -1.0, top: 3.0 },
+  /** 침대 머리 쪽 벽을 따라가는 구간. x 방향으로 길다. */
+  bedroom: { minX: 7.3, maxX: 12.9, minZ: -0.9, maxZ: -0.55, top: 2.6, bridge: [9.4, 10.6] },
+  /** 침실 왼쪽 벽의 계단 선반 둘. 통로에서 침실 캣워크로 올라가는 길이다. */
+  bedroomSteps: [
+    { minX: 7.125, maxX: 7.475, minZ: -0.6, maxZ: 0.2, top: 1.7 },
+    { minX: 7.125, maxX: 7.6, minZ: -0.9, maxZ: -0.5, top: 2.3 },
+  ],
+} as const
+
+/** 거실과 침실 사이 벽에 뚫은 고양이 통로. 높이는 방바닥에서 잰다. */
+export const CAT_HOLE = {
+  minZ: 0.35,
+  maxZ: 1.05,
+  bottom: 1.1,
+  top: 1.65,
+  /** 침실 쪽으로 내민 디딤판이 끝나는 x 좌표 */
+  ledgeMaxX: 7.6,
+} as const
+
 /** 수영장 물이 차 있는 범위. 지금은 들어갈 수 없다. 나중에 수영하는 동작을 넣을 때 이 범위를 쓴다. */
 export const POOL_WATER: Rect = { minX: -3.4, maxX: 3.4, minZ: 8.5, maxZ: 12.4 }
 
@@ -124,6 +168,8 @@ const WALK_AREAS: Rect[] = [
   { minX: 6.5, maxX: 7.5, minZ: 1.8, maxZ: 4.2 },
   // 침실
   { minX: 7.4, maxX: 13.6, minZ: -0.6, maxZ: 5.6 },
+  // 거실과 침실 사이 벽의 고양이 통로. 통로 아래 벽이 높이 1.1m 디딤이라서 그 높이로 올라와야 지나간다.
+  { minX: 6.5, maxX: 7.5, minZ: CAT_HOLE.minZ + 0.1, maxZ: CAT_HOLE.maxZ - 0.1 },
   // 침실과 욕실 사이 문 자리
   { minX: 7.9, maxX: 8.9, minZ: -1.5, maxZ: -0.5 },
   // 욕실
@@ -145,6 +191,8 @@ const BLOCKERS: Rect[] = [
   { minX: 12.2, maxX: 13.9, minZ: -3.05, maxZ: -2.75 },
   // 거실 뒤쪽의 아치 벽. 벽면보다 0.15m 앞까지 막아서 낮은 장 위에 섰을 때 몸이 벽에 묻히지 않게 한다.
   { minX: -4.6, maxX: 6.2, minZ: -5.9, maxZ: -5.3 },
+  // 캣폴의 기둥
+  { minX: CAT_POLE.x - 0.1, maxX: CAT_POLE.x + 0.1, minZ: CAT_POLE.z - 0.1, maxZ: CAT_POLE.z + 0.1 },
   // 변기 칸의 가림벽
   { minX: 8.35, maxX: 8.7, minZ: -8.35, maxZ: -6.9 },
   // 카바나 기둥 여섯 개
@@ -218,6 +266,14 @@ const SURFACES: Surface[] = [
 
   // 거실: 아치 벽 앞의 낮은 장
   onFloor(-4.4, 6.2, -5.45, -5.0, 0.7),
+  // 고양이 통로 아래의 벽. 통로 바닥 높이의 디딤이다.
+  onFloor(HOUSE.wingX - 0.125, HOUSE.wingX + 0.125, CAT_HOLE.minZ, CAT_HOLE.maxZ, CAT_HOLE.bottom),
+  // 통로로 올라가는 통나무 스툴 둘과 통로 아래의 물결 스크래처
+  onFloor(6.3, 6.8, -0.95, -0.45, 0.4),
+  onFloor(6.25, 6.85, -0.4, 0.2, 0.75),
+  onFloor(6.3, 6.75, 0.3, 1.5, 0.35),
+  // 침실 쪽 통로 옆의 디딤 상자와 방석. 통로 바로 아래가 아니라 문 쪽으로 붙여 놓았다.
+  onFloor(7.2, 7.7, 0.85, 1.45, 0.6),
   // 통나무 조명과 곡선 책장과 통나무 탁자
   onFloorAt(6.5, -5.45, 0.2, 1.8),
   onFloor(6.5, 6.85, -3, -1.1, 2.1),
@@ -262,8 +318,32 @@ export interface Floating extends Rect {
   top: number
 }
 
-// 자리는 4단계(고양이 동선)에서 채운다.
-const FLOATING: Floating[] = []
+// 방바닥에서 잰 높이로 떠 있는 발판을 적는다.
+function floatAt(minX: number, maxX: number, minZ: number, maxZ: number, top: number): Floating {
+  return { minX, maxX, minZ, maxZ, top: FLOOR_HEIGHT + top }
+}
+
+const FLOATING: Floating[] = [
+  // 캣폴의 발판과 해먹
+  ...CAT_POLE.steps.map((step) =>
+    floatAt(step.x - CAT_POLE.radius, step.x + CAT_POLE.radius, step.z - CAT_POLE.radius, step.z + CAT_POLE.radius, step.top),
+  ),
+  floatAt(
+    CAT_POLE.house.x - CAT_POLE.house.radius,
+    CAT_POLE.house.x + CAT_POLE.house.radius,
+    CAT_POLE.house.z - CAT_POLE.house.radius,
+    CAT_POLE.house.z + CAT_POLE.house.radius,
+    CAT_POLE.house.top,
+  ),
+  // 거실 캣워크
+  floatAt(CATWALK.livingBack.minX, CATWALK.livingBack.maxX, CATWALK.livingBack.minZ, CATWALK.livingBack.maxZ, CATWALK.livingBack.top),
+  floatAt(CATWALK.livingSide.minX, CATWALK.livingSide.maxX, CATWALK.livingSide.minZ, CATWALK.livingSide.maxZ, CATWALK.livingSide.top),
+  // 통로에서 침실 쪽으로 내민 디딤판
+  floatAt(HOUSE.wingX + 0.125, CAT_HOLE.ledgeMaxX, CAT_HOLE.minZ - 0.05, CAT_HOLE.maxZ + 0.05, CAT_HOLE.bottom),
+  // 침실 계단 선반과 침실 캣워크
+  ...CATWALK.bedroomSteps.map((step) => floatAt(step.minX, step.maxX, step.minZ, step.maxZ, step.top)),
+  floatAt(CATWALK.bedroom.minX, CATWALK.bedroom.maxX, CATWALK.bedroom.minZ, CATWALK.bedroom.maxZ, CATWALK.bedroom.top),
+]
 
 /** 높이가 있는 벽. 고양이 몸이 from과 to 사이 높이에 걸칠 때만 막는다. 높이는 데크 윗면에서 잰다. */
 // 벽 중간에 뚫은 고양이 통로의 위쪽 벽처럼 일부 높이만 막는 자리에 쓴다.
@@ -272,8 +352,17 @@ interface Barrier extends Rect {
   to: number
 }
 
-// 자리는 4단계(고양이 동선)에서 채운다.
-const BARRIERS: Barrier[] = []
+const BARRIERS: Barrier[] = [
+  // 고양이 통로 위쪽의 벽. 몸이 통로보다 높이 올라가 있으면 지나가지 못한다.
+  {
+    minX: HOUSE.wingX - 0.38,
+    maxX: HOUSE.wingX + 0.38,
+    minZ: CAT_HOLE.minZ,
+    maxZ: CAT_HOLE.maxZ,
+    from: FLOOR_HEIGHT + CAT_HOLE.top,
+    to: FLOOR_HEIGHT + CEILING_HEIGHT,
+  },
+]
 
 function contains(rect: Rect, x: number, z: number) {
   return x >= rect.minX && x <= rect.maxX && z >= rect.minZ && z <= rect.maxZ
