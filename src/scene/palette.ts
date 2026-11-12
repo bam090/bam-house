@@ -1,0 +1,25 @@
+// 공간에서 쓰는 색을 한곳에 모았다.
+// 색감을 바꾸고 싶을 때 이 파일만 고치면 된다.
+export const palette = {
+  wood: '#c9a57a',
+  woodDark: '#a8855c',
+  woodFloor: '#d9b88f',
+  wall: '#f6f1e7',
+  stone: '#ece4d4',
+  stoneDark: '#d8cfbd',
+  glass: '#cfeaf7',
+  water: '#3f9ad6',
+  sea: '#3a93d4',
+  foam: '#f4fbff',
+  sand: '#ecd9b0',
+  wetSand: '#d6bf93',
+  rock: '#a39683',
+  grass: '#86b96a',
+  leaf: '#3f8f4f',
+  leafLight: '#5aa85f',
+  trunk: '#8a6a4a',
+  slope: '#5f9c58',
+  hill: '#3f7a4c',
+  fabric: '#e8dcc6',
+  blue: '#6aa7d8',
+} as const
