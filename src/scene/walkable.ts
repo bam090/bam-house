@@ -105,6 +105,14 @@ export const STEP_UP = 0.25
 /** 점프 중에 발이 윗면보다 이만큼 낮아도 올라선 것으로 본다. */
 export const JUMP_GRACE = 0.1
 
+/** 고양이 몸이 차지하는 폭의 절반. 가구의 범위를 이만큼 넓혀서 계산한다. */
+// 고양이의 자리는 점 하나로 계산한다. 가구 범위를 넓히지 않으면 몸이 가구 속으로 파묻히고 좁은 의자에 올라서기도 어렵다.
+// 넓힌 범위 덕분에 오르지 못하는 가구 앞에서는 몸 폭만큼 떨어져서 멈추고 몸이 조금만 걸쳐도 그 가구 위에 선다.
+export const BODY = 0.22
+
+/** 고양이 몸의 높이. 높이가 있는 벽에 몸이 걸치는지 볼 때 쓴다. */
+export const CAT_HEIGHT = 0.4
+
 // 걸을 수 있는 구역. 방과 문 자리와 계단과 데크를 사각형으로 이어 붙였다.
 // 방은 벽 안쪽 면에서 조금 들여서 잡았다. 그래서 벽과 유리는 따로 적지 않아도 지나갈 수 없다.
 const WALK_AREAS: Rect[] = [
@@ -135,6 +143,8 @@ const BLOCKERS: Rect[] = [
   { minX: 11.1, maxX: 13.7, minZ: -5.7, maxZ: -4.4 },
   // 샤워 칸의 세로줄 유리 칸막이
   { minX: 12.2, maxX: 13.9, minZ: -3.05, maxZ: -2.75 },
+  // 거실 뒤쪽의 아치 벽. 벽면보다 0.15m 앞까지 막아서 낮은 장 위에 섰을 때 몸이 벽에 묻히지 않게 한다.
+  { minX: -4.6, maxX: 6.2, minZ: -5.9, maxZ: -5.3 },
   // 변기 칸의 가림벽
   { minX: 8.35, maxX: 8.7, minZ: -8.35, maxZ: -6.9 },
   // 카바나 기둥 여섯 개
@@ -206,10 +216,8 @@ const SURFACES: Surface[] = [
   onFloorAt(-4.75, 1.5, 0.2, 0.5),
   onFloorAt(-4.75, 3.1, 0.2, 0.5),
 
-  // 거실: 선반 벽은 TV 자리 아래 수납장에만 올라설 수 있고 선반 칸은 맨 위 선반 높이로 막힌다.
-  onFloor(-7.8, 6.2, -5.875, -5.425, 0.7),
-  onFloor(-7.8, -1.5, -5.875, -5.425, 3.1),
-  onFloor(4.5, 6.2, -5.875, -5.425, 3.1),
+  // 거실: 아치 벽 앞의 낮은 장
+  onFloor(-4.4, 6.2, -5.45, -5.0, 0.7),
   // 통나무 조명과 곡선 책장과 통나무 탁자
   onFloorAt(6.5, -5.45, 0.2, 1.8),
   onFloor(6.5, 6.85, -3, -1.1, 2.1),
@@ -247,27 +255,66 @@ const SURFACES: Surface[] = [
   onFloorAt(10.5, -6.6, 0.26, 0.5),
 ]
 
+/** 떠 있는 발판. 캣폴 발판과 캣워크처럼 아래가 비어 있는 것이다. top은 데크 윗면에서 잰 높이다. */
+// 아래를 걸어서 지나갈 수 있고 아래에서 점프하면 통과해서 올라선다.
+// 발보다 위에 있는 발판은 없는 것으로 보기 때문에 한 자리에 바닥과 발판이 위아래로 겹칠 수 있다.
+export interface Floating extends Rect {
+  top: number
+}
+
+// 자리는 4단계(고양이 동선)에서 채운다.
+const FLOATING: Floating[] = []
+
+/** 높이가 있는 벽. 고양이 몸이 from과 to 사이 높이에 걸칠 때만 막는다. 높이는 데크 윗면에서 잰다. */
+// 벽 중간에 뚫은 고양이 통로의 위쪽 벽처럼 일부 높이만 막는 자리에 쓴다.
+interface Barrier extends Rect {
+  from: number
+  to: number
+}
+
+// 자리는 4단계(고양이 동선)에서 채운다.
+const BARRIERS: Barrier[] = []
+
 function contains(rect: Rect, x: number, z: number) {
   return x >= rect.minX && x <= rect.maxX && z >= rect.minZ && z <= rect.maxZ
 }
 
+// 고양이 몸이 이 물건에 걸쳐 있는지 본다. 물건의 범위를 몸 폭의 절반만큼 넓혀서 검사한다.
 function onSurface(surface: Surface, x: number, z: number) {
-  if (!contains(surface, x, z)) return false
+  const outside =
+    x < surface.minX - BODY || x > surface.maxX + BODY || z < surface.minZ - BODY || z > surface.maxZ + BODY
+  if (outside) return false
   const arc = surface.arc
   if (!arc) return true
   const distance = Math.hypot(x - arc.x, z - arc.z)
   const degree = (Math.atan2(z - arc.z, x - arc.x) * 180) / Math.PI
-  return distance >= arc.inner && distance <= arc.outer && degree >= arc.from && degree <= arc.to
+  // 띠의 양 끝도 몸 폭만큼 넓힌다. 5도는 소파 반지름에서 약 0.22m다.
+  return (
+    distance >= arc.inner - BODY && distance <= arc.outer + BODY && degree >= arc.from - 5 && degree <= arc.to + 5
+  )
 }
 
-// 고양이가 서 있는 자리의 바닥 높이를 구한다. 그 자리에 있는 가장 높은 윗면을 돌려준다.
+// 고양이가 서 있는 자리의 바닥 높이를 구한다. 몸이 걸친 것 가운데 가장 높은 윗면을 돌려준다.
 // 데크는 DECK_HEIGHT이고 거실은 그보다 FLOOR_HEIGHT만큼 높으며 계단은 단마다 낮아진다.
-export function groundHeight(x: number, z: number) {
+// footY는 지금 발의 높이다. 떠 있는 발판은 발이 그 윗면에 닿을 만큼 올라왔을 때만 바닥으로 친다.
+// footY를 주지 않으면 떠 있는 발판을 뺀 높이를 돌려준다.
+export function groundHeight(x: number, z: number, footY = -Infinity) {
   let top = baseHeight(x, z)
   for (const surface of SURFACES) {
     if (surface.top > top && onSurface(surface, x, z)) top = surface.top
   }
-  return DECK_HEIGHT + top
+  return Math.max(DECK_HEIGHT + top, floatingHeight(x, z, footY))
+}
+
+// 발 아래에 있는 떠 있는 발판 가운데 가장 높은 윗면을 돌려준다. 없으면 -Infinity다.
+// floats를 따로 주면 그 목록으로 계산한다. 검사 스크립트가 쓴다.
+export function floatingHeight(x: number, z: number, footY: number, floats: Floating[] = FLOATING) {
+  let best = -Infinity
+  for (const float of floats) {
+    const top = DECK_HEIGHT + float.top
+    if (top > best && top <= footY + JUMP_GRACE && onSurface(float, x, z)) best = top
+  }
+  return best
 }
 
 // 가구를 뺀 바닥의 높이. 데크를 기준으로 잰다.
@@ -282,11 +329,14 @@ function baseHeight(x: number, z: number) {
   return 0
 }
 
-// 높이를 따지지 않고 그 자리에 설 수 있는지만 본다. 벽과 유리와 기둥과 물이 막는다.
-export function isWalkable(x: number, z: number) {
+// 그 자리에 설 수 있는지 본다. 벽과 유리와 기둥과 물이 막는다. 윗면 높이는 따지지 않는다.
+// footY는 발의 높이다. 높이가 있는 벽은 몸이 그 높이에 걸칠 때만 막는다. 주지 않으면 그 자리의 바닥 높이로 본다.
+export function isWalkable(x: number, z: number, footY = groundHeight(x, z)) {
   const insideArea = WALK_AREAS.some((area) => contains(area, x, z))
-  const blocked = BLOCKERS.some((blocker) => contains(blocker, x, z))
-  return insideArea && !blocked
+  if (!insideArea) return false
+  if (BLOCKERS.some((blocker) => contains(blocker, x, z))) return false
+  const foot = footY - DECK_HEIGHT
+  return !BARRIERS.some((barrier) => contains(barrier, x, z) && foot + CAT_HEIGHT > barrier.from && foot < barrier.to)
 }
 
 // 다음 위치로 갈 수 있으면 그 위치를 돌려준다.
@@ -300,9 +350,9 @@ export function resolveMove(
   nextZ: number,
   footY: number,
 ): [number, number] {
-  const grounded = footY <= groundHeight(currentX, currentZ) + 0.001
+  const grounded = footY <= groundHeight(currentX, currentZ, footY) + 0.001
   const reach = footY + (grounded ? STEP_UP : JUMP_GRACE)
-  const canStand = (x: number, z: number) => isWalkable(x, z) && groundHeight(x, z) <= reach
+  const canStand = (x: number, z: number) => isWalkable(x, z, footY) && groundHeight(x, z, footY) <= reach
   if (canStand(nextX, nextZ)) return [nextX, nextZ]
   if (canStand(nextX, currentZ)) return [nextX, currentZ]
   if (canStand(currentX, nextZ)) return [currentX, nextZ]

@@ -177,7 +177,8 @@ export function Player() {
     }
 
     // 지금 서 있는 자리의 바닥 높이. 거실과 계단은 테라스보다 높다.
-    const floor = groundHeight(group.position.x, group.position.z)
+    // 발 높이를 함께 넘겨서 머리 위에 떠 있는 발판은 바닥으로 치지 않게 한다.
+    const floor = groundHeight(group.position.x, group.position.z, group.position.y)
     // 계단을 오를 때는 바닥보다 낮아진 만큼 바로 올려 세운다.
     if (group.position.y < floor) {
       group.position.y = floor
@@ -191,8 +192,11 @@ export function Player() {
     }
     // 점프 중이거나 계단을 내려가서 발밑이 비었을 때는 중력으로 떨어진다.
     if (!grounded || verticalSpeed.current > 0) {
+      // 중력으로 줄어들기 전과 후의 속도를 평균해서 높이를 옮긴다.
+      // 이렇게 하면 화면이 느리게 그려지는 기기에서도 점프 높이가 0.75m로 같다.
+      const speedBefore = verticalSpeed.current
       verticalSpeed.current -= GRAVITY * delta
-      group.position.y = Math.max(floor, group.position.y + verticalSpeed.current * delta)
+      group.position.y = Math.max(floor, group.position.y + ((speedBefore + verticalSpeed.current) / 2) * delta)
       if (group.position.y === floor) verticalSpeed.current = 0
     }
 

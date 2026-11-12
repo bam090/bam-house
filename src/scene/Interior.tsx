@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Path, Shape } from 'three'
+import { CanvasTexture, Path, SRGBColorSpace, Shape } from 'three'
 import type { Group } from 'three'
 import { Box } from './Box'
 import { WingRooms } from './InteriorRooms'
@@ -10,9 +10,6 @@ import { CEILING_HEIGHT, HOUSE, SOFA } from './walkable'
 
 // 집 안의 가구를 그리는 파일이다. 좌표는 장면 좌표이고 높이는 거실 바닥에서 잰 값이다.
 // 자리와 크기는 docs/house-spec.md 4번과 같다. 걷기 규칙(walkable.ts)의 윗면 높이도 같은 값을 쓴다.
-
-/** 뒤쪽 벽 선반에서 TV를 걸 자리로 비워 둔 범위 */
-const TV_BAY = { minX: -1.5, maxX: 4.5, bottom: 0.7, top: 3.1 } as const
 
 // 거실 오른쪽 앞의 주방. 벽으로 막지 않고 조리대와 아일랜드 식탁으로 영역을 나눈다.
 function Kitchen() {
@@ -87,67 +84,257 @@ function Kitchen() {
   )
 }
 
-// 거실 뒤쪽 벽을 덮는 선반과 수납장. 가운데 TV 자리는 비워 둔다.
-function ShelfWall() {
-  const minX = HOUSE.minX + 0.2
-  const maxX = 6.2
-  const z = HOUSE.minZ + 0.35
-  const sections = [
-    { from: minX, to: TV_BAY.minX },
-    { from: TV_BAY.maxX, to: maxX },
-  ]
-  const shelfHeights = [1.3, 1.9, 2.5, 3.1]
+/** 아치 벽. 뒤쪽 벽 앞에 덧댄 크림색 벽체이고 통유리창 자리에는 세우지 않는다. */
+const ARCH_WALL = { minX: -4.6, maxX: 6.2, back: HOUSE.minZ + 0.125, front: -5.45 } as const
+
+/** 아치 벽감 셋. 폭과 꼭대기 높이가 서로 다르다. shelves는 선반 윗면의 높이다. */
+const NICHES = [
+  { minX: -4.3, maxX: -2.9, top: 2.9, shelves: [1.5, 2.0, 2.45], glow: true },
+  { minX: -2.5, maxX: -1.8, top: 2.5, shelves: [1.5, 2.0], glow: false },
+  { minX: 4.9, maxX: 5.9, top: 2.9, shelves: [1.5, 2.0, 2.45], glow: true },
+] as const
+
+/** 벽감 바닥의 높이. 낮은 장의 상판(0.7m)과 겹쳐 보이지 않도록 0.3m 위에서 시작한다. */
+const NICHE_BOTTOM = 1.0
+
+/** 낮은 장. 아치 벽 앞에 놓는다. */
+const CONSOLE = { minX: -4.4, maxX: 6.2, back: -5.45, front: -5.0, top: 0.7 } as const
+
+/** TV 화면. 가운데 x 좌표와 크기와 아랫변 높이다. */
+const TV = { x: 1.5, width: 3.6, height: 1.9, bottom: 0.9, frame: 0.12 } as const
+
+// 모서리가 둥근 네모 윤곽을 그린다. 낮은 장의 구멍과 TV 테두리에 쓴다.
+function roundedRect<T extends Path>(path: T, minX: number, minY: number, maxX: number, maxY: number, radius: number) {
+  path.moveTo(minX + radius, minY)
+  path.lineTo(maxX - radius, minY)
+  path.quadraticCurveTo(maxX, minY, maxX, minY + radius)
+  path.lineTo(maxX, maxY - radius)
+  path.quadraticCurveTo(maxX, maxY, maxX - radius, maxY)
+  path.lineTo(minX + radius, maxY)
+  path.quadraticCurveTo(minX, maxY, minX, maxY - radius)
+  path.lineTo(minX, minY + radius)
+  path.quadraticCurveTo(minX, minY, minX + radius, minY)
+  return path
+}
+
+// 거실 뒤쪽의 아치 벽. 크림색 벽체에 위가 둥근 벽감 셋을 파고 안에 나무 선반을 단다.
+function ArchWall() {
+  const { minX, maxX, back, front } = ARCH_WALL
+  const shape = useMemo(() => {
+    const wall = new Shape()
+    wall.moveTo(minX, 0)
+    wall.lineTo(maxX, 0)
+    wall.lineTo(maxX, CEILING_HEIGHT)
+    wall.lineTo(minX, CEILING_HEIGHT)
+    wall.lineTo(minX, 0)
+    for (const niche of NICHES) {
+      const radius = (niche.maxX - niche.minX) / 2
+      const hole = new Path()
+      hole.moveTo(niche.minX, NICHE_BOTTOM)
+      hole.lineTo(niche.maxX, NICHE_BOTTOM)
+      hole.lineTo(niche.maxX, niche.top - radius)
+      // 벽감의 위쪽은 반원이다.
+      hole.absarc((niche.minX + niche.maxX) / 2, niche.top - radius, radius, 0, Math.PI, false)
+      hole.lineTo(niche.minX, NICHE_BOTTOM)
+      wall.holes.push(hole)
+    }
+    return wall
+  }, [minX, maxX])
 
   return (
     <group>
-      {/* 선반 뒤판과 아래 수납장 */}
-      <Box size={[maxX - minX, 3.1, 0.04]} position={[(minX + maxX) / 2, 1.55, HOUSE.minZ + 0.15]} color={palette.oakLight} />
-      <Box size={[maxX - minX, 0.7, 0.45]} position={[(minX + maxX) / 2, 0.35, z]} color={palette.greige} />
-      {/* TV 자리. 4단계에서 여기에 대형 TV를 건다. */}
-      <Box
-        size={[TV_BAY.maxX - TV_BAY.minX, TV_BAY.top - TV_BAY.bottom, 0.05]}
-        position={[(TV_BAY.minX + TV_BAY.maxX) / 2, (TV_BAY.bottom + TV_BAY.top) / 2, HOUSE.minZ + 0.17]}
-        color={palette.wall}
-      />
-      {sections.map((section) => {
-        const width = section.to - section.from
-        const center = (section.from + section.to) / 2
-        const dividers = Math.max(2, Math.round(width / 1.2) + 1)
+      <Extruded shape={shape} depth={front - back} position={[0, 0, back]} color={palette.wall} />
+      {NICHES.map((niche) => {
+        const width = niche.maxX - niche.minX
+        const center = (niche.minX + niche.maxX) / 2
+        const radius = width / 2
+        const spring = niche.top - radius
         return (
-          <group key={section.from}>
-            {shelfHeights.map((y) => (
-              <Box key={y} size={[width, 0.05, 0.4]} position={[center, y, z]} color={palette.oak} />
-            ))}
-            {Array.from({ length: dividers }, (_, index) => (
-              <Box
-                key={index}
-                size={[0.05, 2.4, 0.4]}
-                position={[section.from + (width * index) / (dividers - 1), 1.9, z]}
-                color={palette.oak}
-              />
-            ))}
+          <group key={niche.minX}>
+            {/* 벽감 안쪽의 밝은 오크 뒤판 */}
+            <Box
+              size={[width, niche.top - NICHE_BOTTOM, 0.02]}
+              position={[center, (niche.top + NICHE_BOTTOM) / 2, back + 0.012]}
+              color={palette.oakLight}
+              castShadow={false}
+            />
+            {niche.shelves.map((top) => {
+              // 반원 구간에 걸친 선반은 벽감의 폭이 좁아지는 만큼 짧게 한다.
+              const rise = Math.max(0, top - spring)
+              const span = rise > 0 ? 2 * Math.sqrt(radius * radius - rise * rise) : width
+              return (
+                <Box
+                  key={top}
+                  size={[span, 0.04, front - back - 0.06]}
+                  position={[center, top - 0.02, (back + front) / 2]}
+                  color={palette.oak}
+                />
+              )
+            })}
+            {/* 맨 위 선반 아래의 간접 조명 띠 */}
+            {niche.glow && <Glow size={[width * 0.6, 0.02, 0.03]} position={[center, 2.4, back + 0.06]} />}
           </group>
         )
       })}
-      {/* 선반 위의 화병과 책 */}
-      {[-6.6, -4.3, -2.2, 5.0, 5.9].map((x, index) => (
-        <Cylinder
-          key={x}
-          radius={0.09}
-          radiusTop={0.05}
-          height={0.34}
-          position={[x, shelfHeights[index % 3] + 0.2, z]}
-          color={index % 2 === 0 ? palette.wall : palette.oak}
-        />
-      ))}
-      {[-5.5, -3.0, 5.5].map((x, index) => (
-        <Box
-          key={x}
-          size={[0.4, 0.24, 0.2]}
-          position={[x, shelfHeights[(index + 1) % 3] + 0.145, z]}
-          color={index === 1 ? palette.fabric : palette.green}
-        />
-      ))}
+    </group>
+  )
+}
+
+// 아치 벽 앞의 낮은 장. 앞면에 폭이 다른 둥근 구멍을 뚫고 앞 가장자리가 물결 모양인 통나무 상판을 얹는다.
+function LowConsole() {
+  const { minX, maxX, back, front, top } = CONSOLE
+  const shapes = useMemo(() => {
+    const body = roundedRect(new Shape(), minX, 0.04, maxX, top - 0.08, 0.1)
+    // 구멍의 폭을 번갈아 바꿔서 칸마다 모양이 다르게 한다.
+    const widths = [1.5, 0.7, 1.9, 0.8, 1.6, 0.7, 1.3]
+    let x = minX + 0.2
+    for (const width of widths) {
+      const height = width < 1 ? 0.36 : 0.4
+      const bottom = 0.14
+      body.holes.push(roundedRect(new Path(), x, bottom, x + width, bottom + height, height / 2 - 0.01))
+      x += width + 0.2
+    }
+
+    // 상판은 위에서 본 윤곽이다. 뒤쪽은 곧고 앞쪽은 물결 모양이다. 눕혀 쓰므로 점을 (x, -z)로 적는다.
+    const slab = new Shape()
+    slab.moveTo(minX - 0.05, -back)
+    slab.lineTo(maxX + 0.05, -back)
+    const steps = 48
+    for (let index = 0; index <= steps; index += 1) {
+      const px = maxX + 0.05 - ((maxX - minX + 0.1) * index) / steps
+      const wave = 0.035 * Math.sin(px * 1.9) + 0.02 * Math.sin(px * 4.3 + 1)
+      slab.lineTo(px, -(front + 0.03 + wave))
+    }
+    slab.lineTo(minX - 0.05, -back)
+    return { body, slab }
+  }, [minX, maxX, back, front, top])
+
+  return (
+    <group>
+      <Extruded shape={shapes.body} depth={front - back} position={[0, 0, back]} color={palette.sofaWood} />
+      <Box
+        size={[maxX - minX - 0.1, top - 0.2, 0.02]}
+        position={[(minX + maxX) / 2, top / 2 - 0.02, back + 0.012]}
+        color={palette.oakLight}
+        castShadow={false}
+      />
+      <Extruded shape={shapes.slab} depth={0.08} position={[0, top - 0.08, 0]} rotation={LAY_FLAT} color={palette.oak} />
+    </group>
+  )
+}
+
+// TV 화면에 띄우는 밤하우스 썸네일을 그린다. 그림 파일을 쓰지 않고 canvas에 직접 그린다.
+// canvas는 브라우저가 주는 2D 그림판이고 CanvasTexture는 그 그림을 3D 물체의 표면에 붙이는 Three.js 기능이다.
+function makeThumbnail() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1080
+  canvas.height = 570
+  const pen = canvas.getContext('2d')
+  if (pen) {
+    const { width, height } = canvas
+    // 하늘과 해
+    pen.fillStyle = '#cfeaf7'
+    pen.fillRect(0, 0, width, height)
+    pen.fillStyle = '#fbf3d6'
+    pen.beginPath()
+    pen.arc(880, 120, 54, 0, Math.PI * 2)
+    pen.fill()
+    // 바다. 먼 쪽은 짙고 물가는 옥색이다.
+    pen.fillStyle = palette.sea
+    pen.fillRect(0, 300, width, 80)
+    pen.fillStyle = palette.seaMid
+    pen.fillRect(0, 352, width, 40)
+    pen.fillStyle = palette.seaShallow
+    pen.fillRect(0, 380, width, 26)
+    // 모래사장과 잔디 언덕
+    pen.fillStyle = palette.sand
+    pen.fillRect(0, 400, width, 50)
+    pen.fillStyle = palette.grass
+    pen.beginPath()
+    pen.ellipse(400, 600, 760, 250, 0, 0, Math.PI * 2)
+    pen.fill()
+    // 언덕 위의 집. 얇은 지붕과 크림색 벽과 유리문
+    pen.fillStyle = palette.wall
+    pen.fillRect(250, 316, 330, 74)
+    pen.fillStyle = palette.glass
+    pen.fillRect(270, 330, 150, 60)
+    pen.fillStyle = palette.oak
+    pen.fillRect(232, 302, 366, 16)
+    pen.fillRect(340, 330, 6, 60)
+    pen.fillStyle = palette.stone
+    pen.fillRect(214, 390, 400, 14)
+    // 집 옆의 나무
+    pen.fillStyle = palette.leafDark
+    for (const [x, y, r] of [[170, 330, 46], [120, 372, 36], [660, 352, 40]]) {
+      pen.beginPath()
+      pen.arc(x, y, r, 0, Math.PI * 2)
+      pen.fill()
+    }
+    // 흰 고양이. 몸과 머리와 귀와 꼬리와 파란 눈
+    pen.fillStyle = palette.white
+    pen.beginPath()
+    pen.ellipse(860, 478, 46, 56, 0, 0, Math.PI * 2)
+    pen.fill()
+    pen.beginPath()
+    pen.arc(860, 404, 38, 0, Math.PI * 2)
+    pen.fill()
+    pen.beginPath()
+    pen.moveTo(828, 388)
+    pen.lineTo(834, 348)
+    pen.lineTo(858, 374)
+    pen.moveTo(892, 388)
+    pen.lineTo(886, 348)
+    pen.lineTo(862, 374)
+    pen.fill()
+    pen.lineWidth = 16
+    pen.lineCap = 'round'
+    pen.strokeStyle = palette.white
+    pen.beginPath()
+    pen.moveTo(900, 512)
+    pen.quadraticCurveTo(960, 500, 950, 440)
+    pen.stroke()
+    pen.fillStyle = palette.blue
+    for (const x of [846, 874]) {
+      pen.beginPath()
+      pen.arc(x, 402, 6, 0, Math.PI * 2)
+      pen.fill()
+    }
+    // 제목
+    pen.fillStyle = '#5a4a30'
+    pen.font = '700 96px "Helvetica Neue", Arial, sans-serif'
+    pen.textAlign = 'left'
+    pen.fillText('BAM HOUSE', 70, 170)
+  }
+  const texture = new CanvasTexture(canvas)
+  texture.colorSpace = SRGBColorSpace
+  return texture
+}
+
+// 아치 벽 가운데에 건 TV. 꿀색 오크 테두리 안에 썸네일 화면을 넣는다.
+function Television() {
+  const { x, width, height, bottom, frame } = TV
+  const z = ARCH_WALL.front
+  const thumbnail = useMemo(makeThumbnail, [])
+  const shape = useMemo(() => {
+    const outer = roundedRect(new Shape(), x - width / 2 - frame, bottom - frame, x + width / 2 + frame, bottom + height + frame, 0.1)
+    const hole = new Path()
+    hole.moveTo(x - width / 2, bottom)
+    hole.lineTo(x + width / 2, bottom)
+    hole.lineTo(x + width / 2, bottom + height)
+    hole.lineTo(x - width / 2, bottom + height)
+    hole.lineTo(x - width / 2, bottom)
+    outer.holes.push(hole)
+    return outer
+  }, [x, width, height, bottom, frame])
+
+  return (
+    <group>
+      <Extruded shape={shape} depth={0.07} position={[0, 0, z]} color={palette.oak} />
+      {/* 화면은 조명과 상관없이 제 색으로 보이게 한다. */}
+      <mesh position={[x, bottom + height / 2, z + 0.03]}>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial map={thumbnail} toneMapped={false} />
+      </mesh>
     </group>
   )
 }
@@ -208,7 +395,10 @@ function CurvedBookcase() {
   return (
     <group>
       <Extruded shape={shape} depth={0.35} position={[6.85, 0, 0]} rotation={FACE_X} color={palette.oak} />
-      <Box size={[0.02, 2, 1.8]} position={[6.835, 1.02, -2.05]} color={palette.oakLight} castShadow={false} />
+      {/* 칸마다 뒤판을 따로 댄다. 한 장으로 대면 책장의 둥근 모서리 밖으로 뒤판이 튀어나온다. */}
+      <Box size={[0.02, 0.62, 1.64]} position={[6.835, 0.41, -2.05]} color={palette.oakLight} castShadow={false} />
+      <Box size={[0.02, 0.69, 1.64]} position={[6.835, 1.175, -2.05]} color={palette.oakLight} castShadow={false} />
+      <Box size={[0.02, 0.44, 0.44]} position={[6.835, 1.8, -2]} color={palette.oakLight} castShadow={false} />
       {/* 칸 안의 책과 화병 */}
       <Box size={[0.2, 0.3, 0.5]} position={[6.7, 0.27, -2.4]} color={palette.fabric} />
       <Box size={[0.2, 0.24, 0.3]} position={[6.7, 0.24, -1.7]} color={palette.green} />
@@ -298,7 +488,9 @@ export function Interior() {
   return (
     <group>
       <Kitchen />
-      <ShelfWall />
+      <ArchWall />
+      <LowConsole />
+      <Television />
       <LogLamp />
       <CurvedBookcase />
       <Lounge />

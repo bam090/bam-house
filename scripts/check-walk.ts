@@ -1,14 +1,14 @@
 // 걷기 규칙이 정해 둔 조건을 지키는지 숫자로 검사하는 스크립트다.
 // 실행 방법: node scripts/check-walk.ts
 // 주요 지점의 바닥 높이와 지나갈 수 없는 자리를 보고 고양이를 실제 계산과 같은 순서로 움직여서 점프 길을 확인한다.
-import { DECK_HEIGHT, FLOOR_HEIGHT, POOL_WATER, groundHeight, isWalkable, resolveMove } from '../src/scene/walkable.ts'
+import { BODY, DECK_HEIGHT, FLOOR_HEIGHT, POOL_WATER, floatingHeight, groundHeight, isWalkable, resolveMove } from '../src/scene/walkable.ts'
 
 // Player.tsx와 같은 값이다. 그 파일의 값을 바꾸면 여기도 함께 바꾼다.
 const SPEED = 4
 const JUMP_SPEED = 4.6
 const GRAVITY = 14
-/** 한 화면의 시간. 1초에 60번 그리는 화면을 기준으로 한다. */
-const FRAME = 1 / 60
+/** 한 화면의 시간. 처음에는 1초에 60번 그리는 화면을 기준으로 한다. 느린 화면을 검사할 때 바꾼다. */
+let FRAME = 1 / 60
 
 let failed = 0
 function check(name: string, passed: boolean, detail: string) {
@@ -38,7 +38,8 @@ const heights: [string, number, number, number][] = [
   ['소파 등받이', 1.5, 1.3, FLOOR + 0.85],
   ['소파 안쪽 러그', 1.5, 0.2, FLOOR],
   ['통나무 탁자', 1.5, -0.85, FLOOR + 0.35],
-  ['TV 아래 수납장', 1.5, -5.5, FLOOR + 0.7],
+  ['TV 아래 낮은 장', 1.5, -5.2, FLOOR + 0.7],
+  ['통유리창 앞 바닥', -6, -5.4, FLOOR],
   ['침대', 11.4, 0.5, FLOOR + 0.5],
   ['협탁', 10.05, -0.5, FLOOR + 0.45],
   ['안락의자', 8.9, 4.6, FLOOR + 0.42],
@@ -73,6 +74,8 @@ const blocked: [string, number, number][] = [
   ['거실과 침실 사이 벽', 7, 0],
   ['변기 칸 미닫이문이 가린 쪽', 9.4, -6],
   ['뒤쪽 벽 바깥', 0, -6.2],
+  ['아치 벽', 0, -5.5],
+  ['통유리창 바깥', -6, -6.2],
 ]
 const open: [string, number, number][] = [
   ['거실과 침실 사이 문 자리', 7, 3],
@@ -105,7 +108,7 @@ function frame(cat: Cat, directionX: number, directionZ: number, jump: boolean) 
     cat.x = nextX
     cat.z = nextZ
   }
-  const floor = groundHeight(cat.x, cat.z)
+  const floor = groundHeight(cat.x, cat.z, cat.y)
   if (cat.y < floor) {
     cat.y = floor
     cat.speed = 0
@@ -113,8 +116,9 @@ function frame(cat: Cat, directionX: number, directionZ: number, jump: boolean) 
   const grounded = cat.y <= floor
   if (grounded && jump) cat.speed = JUMP_SPEED
   if (!grounded || cat.speed > 0) {
+    const speedBefore = cat.speed
     cat.speed -= GRAVITY * FRAME
-    cat.y = Math.max(floor, cat.y + cat.speed * FRAME)
+    cat.y = Math.max(floor, cat.y + ((speedBefore + cat.speed) / 2) * FRAME)
     if (cat.y === floor) cat.speed = 0
   }
 }
@@ -124,14 +128,13 @@ function go(cat: Cat, targetX: number, targetZ: number, jump: boolean) {
   for (let count = 0; count < 180; count += 1) {
     const distance = Math.hypot(targetX - cat.x, targetZ - cat.z)
     const arrived = distance < SPEED * FRAME
-    if (arrived && cat.y <= groundHeight(cat.x, cat.z)) return
+    if (arrived && cat.y <= groundHeight(cat.x, cat.z, cat.y)) return
     if (arrived) frame(cat, 0, 0, false)
     else frame(cat, targetX - cat.x, targetZ - cat.z, jump && count === 0)
   }
 }
 
 // 3. 꼭 되어야 하는 점프 길
-const cat: Cat = { x: -4.2, z: 1.5, y: FLOOR, speed: 0 }
 const route: [string, number, number, boolean, number][] = [
   ['아일랜드 의자', -4.75, 1.5, true, 0.5],
   ['아일랜드 식탁', -5.5, 1.5, true, 0.95],
@@ -140,15 +143,21 @@ const route: [string, number, number, boolean, number][] = [
   ['수전 꼭대기', -7.5, 0.5, true, 1.45],
   ['냉장고 위', -7.3, -0.4, true, 2.25],
 ]
-const routeLog: string[] = []
-let routePassed = true
-for (const [name, x, z, jump, top] of route) {
-  go(cat, x, z, jump)
-  const arrived = Math.hypot(x - cat.x, z - cat.z) < 0.1 && near(cat.y, FLOOR + top)
-  routeLog.push(`${name} ${arrived ? '도착' : `실패(높이 ${(cat.y - FLOOR).toFixed(2)})`}`)
-  if (!arrived) routePassed = false
+// 화면이 느리게 그려지는 기기에서도 되는지 1초에 60번과 30번과 20번으로 각각 확인한다.
+for (const rate of [60, 30, 20]) {
+  FRAME = 1 / rate
+  const cat: Cat = { x: -4.2, z: 1.5, y: FLOOR, speed: 0 }
+  const routeLog: string[] = []
+  let routePassed = true
+  for (const [name, x, z, jump, top] of route) {
+    go(cat, x, z, jump)
+    const arrived = Math.hypot(x - cat.x, z - cat.z) < 0.25 && near(cat.y, FLOOR + top)
+    routeLog.push(`${name} ${arrived ? '도착' : `실패(높이 ${(cat.y - FLOOR).toFixed(2)})`}`)
+    if (!arrived) routePassed = false
+  }
+  check(`거실 바닥에서 냉장고 위까지 점프 길(1초에 ${rate}번)`, routePassed, routeLog.join(' → '))
 }
-check('거실 바닥에서 냉장고 위까지 점프 길', routePassed, routeLog.join(' → '))
+FRAME = 1 / 60
 
 // 4. 바닥에서 바로 오를 수 없어야 하는 곳
 const direct: [string, number, number, number, number][] = [
@@ -172,12 +181,38 @@ const wentDown = near(walker.y, DECK_HEIGHT) && walker.z > 8.9
 check('계단을 걸어서 오르내림', wentUp && wentDown, `오르기는 ${wentUp ? '성공' : '실패'}이고 내려오기는 ${wentDown ? '성공' : '실패'}`)
 
 // 6. 화단(0.6m)은 걸어서는 오르지 못하고 점프로 오른다.
-const stroller: Cat = { x: -7.3, z: 8.2, y: DECK_HEIGHT, speed: 0 }
-go(stroller, -7.3, 7, false)
+const stroller: Cat = { x: -7.2, z: 8, y: DECK_HEIGHT, speed: 0 }
+go(stroller, -7.2, 7, false)
 const stayedDown = near(stroller.y, DECK_HEIGHT)
-go(stroller, -7.3, 7, true)
+go(stroller, -7.2, 7, true)
 const jumpedUp = near(stroller.y, DECK_HEIGHT + 0.6)
 check('화단은 점프로만 오름', stayedDown && jumpedUp, `걸어서 ${stayedDown ? '못 오름' : '올라감'}과 점프로 ${jumpedUp ? '오름' : '못 오름'}`)
+
+// 7. 오르지 못하는 가구 앞에서는 몸 폭만큼 떨어져서 멈춘다. 가구 속으로 파묻히지 않는다.
+const pusher: Cat = { x: -4.2, z: 2.3, y: FLOOR, speed: 0 }
+go(pusher, -5.5, 2.3, false)
+const gap = pusher.x - -5.1
+check('가구 속으로 파묻히지 않음', gap >= BODY - 0.001 && gap < BODY + 0.1, `아일랜드 식탁 옆면에서 ${gap.toFixed(2)}m 떨어져 멈춤`)
+
+// 8. 좁은 의자(0.4m) 위에서 멈춰 설 수 있다. 의자 쪽으로 계속 가도 식탁에 막혀 의자 위에 남는다.
+const sitter: Cat = { x: -4.2, z: 1.5, y: FLOOR, speed: 0 }
+go(sitter, -5.5, 1.5, true)
+check('의자로 뛰면 의자 위에 섬', near(sitter.y, FLOOR + 0.5), `높이 ${(sitter.y - FLOOR).toFixed(2)}m`)
+
+// 9. 떠 있는 발판은 발이 그 높이까지 올라왔을 때만 받친다. 아래에 서 있을 때는 없는 것으로 본다.
+// 실제 발판 자리는 4단계에서 넣는다. 여기서는 거실 가운데에 높이 1m 발판 하나를 가정해서 계산만 확인한다.
+const shelf = [{ minX: -0.3, maxX: 0.3, minZ: 2.7, maxZ: 3.3, top: FLOOR_HEIGHT + 1 }]
+const shelfTop = FLOOR + 1
+const under = floatingHeight(0, 3, FLOOR, shelf)
+const almost = floatingHeight(0, 3, shelfTop - 0.09, shelf)
+const tooLow = floatingHeight(0, 3, shelfTop - 0.2, shelf)
+const above = floatingHeight(0, 3, shelfTop + 0.5, shelf)
+const beside = floatingHeight(0.6, 3, shelfTop, shelf)
+check(
+  '떠 있는 발판은 발 아래에 있을 때만 받침',
+  under === -Infinity && tooLow === -Infinity && beside === -Infinity && near(almost, shelfTop) && near(above, shelfTop),
+  '아래와 옆에서는 받치지 않고 0.1m 안으로 올라오거나 위에 있으면 받침',
+)
 
 console.log(failed === 0 ? '\n모든 검사 통과' : `\n실패한 검사 ${failed}개`)
 process.exit(failed === 0 ? 0 : 1)

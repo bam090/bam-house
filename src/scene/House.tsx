@@ -19,6 +19,9 @@ const ROOFS = [
 /** 거실 오른쪽 벽에서 크림색 벽이 끝나고 유리문이 시작하는 z 좌표 */
 const SIDE_GLASS_FROM = 0.1
 
+/** 거실 뒤쪽 벽에 낸 통유리창의 x 범위 */
+const BACK_WINDOW = { minX: -7.6, maxX: -4.6 } as const
+
 /** 변기 칸 뒤쪽 벽에 낸 가로로 긴 창 */
 const TOILET_WINDOW = { minX: 8.8, maxX: 10.7, bottom: 2.2, top: 2.9 } as const
 
@@ -226,10 +229,16 @@ export function House() {
         />
         <Box size={[toiletWidth, 0.2, toiletDepth]} position={[toiletCenterX, -0.1, toiletCenterZ]} color={palette.stone} />
 
-        {/* 뒤쪽 벽. 변기 칸 문 자리는 비우고 그 위만 막는다. */}
+        {/* 뒤쪽 벽. 거실 오른쪽 끝에는 바닥부터 천장까지 통유리창을 낸다. 변기 칸 문 자리는 비우고 그 위만 막는다. */}
         <Box
-          size={[toiletDoor.minX - HOUSE.minX, h, 0.25]}
-          position={[(HOUSE.minX + toiletDoor.minX) / 2, h / 2, HOUSE.minZ]}
+          size={[BACK_WINDOW.minX - HOUSE.minX, h, 0.25]}
+          position={[(HOUSE.minX + BACK_WINDOW.minX) / 2, h / 2, HOUSE.minZ]}
+          color={palette.wall}
+        />
+        <GlassWall along="x" at={HOUSE.minZ} from={BACK_WINDOW.minX} to={BACK_WINDOW.maxX} panels={2} />
+        <Box
+          size={[toiletDoor.minX - BACK_WINDOW.maxX, h, 0.25]}
+          position={[(BACK_WINDOW.maxX + toiletDoor.minX) / 2, h / 2, HOUSE.minZ]}
           color={palette.wall}
         />
         <Box
