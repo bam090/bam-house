@@ -5,6 +5,7 @@ import type { Group } from 'three'
 import { Box } from './Box'
 import { CatWays } from './CatWays'
 import { WingRooms } from './InteriorRooms'
+import { Lamps } from './Lamps'
 import { palette } from './palette'
 import { Cylinder, Extruded, FACE_X, Faucet, Glow, LAY_FLAT, arcBand } from './Shapes'
 import { CEILING_HEIGHT, HOUSE, SOFA } from './walkable'
@@ -509,6 +510,7 @@ export function Interior() {
       <CeilingFan />
       <WingRooms />
       <CatWays />
+      <Lamps ceiling={CEILING_HEIGHT} />
     </group>
   )
 }

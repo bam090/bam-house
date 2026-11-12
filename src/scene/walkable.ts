@@ -180,8 +180,8 @@ const WALK_AREAS: Rect[] = [
   { minX: 7.9, maxX: 8.9, minZ: -1.5, maxZ: -0.5 },
   // 욕실
   { minX: 7.4, maxX: 13.6, minZ: -5.6, maxZ: -1.4 },
-  // 욕실과 변기 칸 사이 문 자리. 미닫이문이 절반을 가려서 열린 쪽만 지나간다.
-  { minX: 9.72, maxX: 10.05, minZ: -6.4, maxZ: -5.5 },
+  // 욕실과 변기 칸 사이 문 자리. 미닫이문이 끝까지 밀려 있어서 문 폭 전체로 지나간다.
+  { minX: 9.25, maxX: 10.05, minZ: -6.4, maxZ: -5.5 },
   // 변기 칸
   { minX: 7.3, maxX: 10.7, minZ: -8.2, maxZ: -6.3 },
   // 데크
@@ -284,6 +284,8 @@ const SURFACES: Surface[] = [
   onFloorAt(6.5, -5.45, 0.2, 1.8),
   onFloor(6.5, 6.85, -3, -1.1, 2.1),
   onFloor(0.7, 2.3, -1.25, -0.45, 0.35),
+  // 아치 스탠드의 받침과 대. 대가 높아서 지나가거나 올라설 수 없다.
+  onFloorAt(4.4, 0.9, 0.1, 2.0),
   // 초승달 소파의 방석과 등받이
   sofaBand(SOFA.inner, SOFA.outer, 0.45),
   sofaBand(SOFA.outer - 0.32, SOFA.outer, 0.85),

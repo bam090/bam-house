@@ -23,6 +23,11 @@ const SIDE_GLASS_FROM = 0.1
 const BACK_WINDOW = { minX: -7.6, maxX: -4.6 } as const
 
 /** 변기 칸 뒤쪽 벽에 낸 가로로 긴 창 */
+/** 바깥벽을 방바닥보다 아래로 내려 묻는 깊이. */
+// 벽이 방바닥 높이에서 끝나면 그림자 지도의 한 칸(약 3cm)이 벽 밑과 바깥을 함께 담아서 벽 밑동을 따라 햇빛이 가는 줄로 샌다.
+// 벽을 바닥 판보다 깊이 내리면 그 칸이 모두 벽에 가려진다.
+const SINK = 0.3
+
 const TOILET_WINDOW = { minX: 8.8, maxX: 10.7, bottom: 2.2, top: 2.9 } as const
 
 interface GlassWallProps {
@@ -105,28 +110,38 @@ function RoughWall({ along, at, from, to, bottom, top, seed }: {
   const size = (run: number, tall: number, thick: number): [number, number, number] =>
     along === 'z' ? [thick, tall, run] : [run, tall, thick]
   const place = (run: number, y: number): [number, number, number] => (along === 'z' ? [at, y, run] : [run, y, at])
-  const stones = Math.round(length * height * 1.6)
+  // 돌을 아무 자리에나 흩어 놓아서 서로 겹치게 한다. 겹친 돌끼리는 두께를 다르게 준다.
+  // 두께가 같으면 색이 다른 두 면이 같은 평면에 놓여서 그 자리가 깜빡인다.
+  const count = Math.round(length * height * 1.6)
+  const stones: { run: number; tall: number; center: number; y: number; thick: number }[] = []
+  for (let index = 0; index < count; index += 1) {
+    const run = 0.35 + scatter(index, seed) * 0.5
+    const tall = 0.2 + scatter(index, seed + 1) * 0.2
+    const center = from + run / 2 + (length - run) * scatter(index, seed + 2)
+    const y = bottom + tall / 2 + (height - tall) * scatter(index, seed + 3)
+    // 먼저 놓은 돌 가운데 이 돌과 겹치는 돌이 쓴 두께를 모은다. 맞닿기만 해도 겹친 것으로 본다.
+    const taken = stones
+      .filter((other) => Math.abs(other.center - center) <= (other.run + run) / 2 && Math.abs(other.y - y) <= (other.tall + tall) / 2)
+      .map((other) => other.thick)
+    // 0.36m에서 시작해서 겹치는 돌이 쓰지 않은 가장 얇은 두께를 고른다. 한 단계가 0.03m라서 면 사이가 0.015m 떨어진다.
+    let thick = 0.36
+    while (taken.some((value) => Math.abs(value - thick) < 0.001)) thick += 0.03
+    stones.push({ run, tall, center, y, thick })
+  }
 
   return (
     <group>
       <Box size={size(length, height, 0.3)} position={place(middle, bottom + height / 2)} color={palette.roughStone} roughness={1} />
-      {Array.from({ length: stones }, (_, index) => {
-        const run = 0.35 + scatter(index, seed) * 0.5
-        const tall = 0.2 + scatter(index, seed + 1) * 0.2
-        return (
-          <Box
-            key={index}
-            size={size(run, tall, 0.38)}
-            position={place(
-              from + run / 2 + (length - run) * scatter(index, seed + 2),
-              bottom + tall / 2 + (height - tall) * scatter(index, seed + 3),
-            )}
-            color={index % 3 === 0 ? palette.roughStoneDark : palette.stone}
-            roughness={1}
-            castShadow={false}
-          />
-        )
-      })}
+      {stones.map((stone, index) => (
+        <Box
+          key={index}
+          size={size(stone.run, stone.tall, stone.thick)}
+          position={place(stone.center, stone.y)}
+          color={index % 3 === 0 ? palette.roughStoneDark : palette.stone}
+          roughness={1}
+          castShadow={false}
+        />
+      ))}
     </group>
   )
 }
@@ -232,19 +247,19 @@ export function House() {
 
         {/* 뒤쪽 벽. 거실 오른쪽 끝에는 바닥부터 천장까지 통유리창을 낸다. 변기 칸 문 자리는 비우고 그 위만 막는다. */}
         <Box
-          size={[BACK_WINDOW.minX - HOUSE.minX, h, 0.25]}
-          position={[(HOUSE.minX + BACK_WINDOW.minX) / 2, h / 2, HOUSE.minZ]}
+          size={[BACK_WINDOW.minX - HOUSE.minX, h + SINK, 0.25]}
+          position={[(HOUSE.minX + BACK_WINDOW.minX) / 2, (h - SINK) / 2, HOUSE.minZ]}
           color={palette.wall}
         />
         <GlassWall along="x" at={HOUSE.minZ} from={BACK_WINDOW.minX} to={BACK_WINDOW.maxX} panels={2} />
         <Box
-          size={[toiletDoor.minX - BACK_WINDOW.maxX, h, 0.25]}
-          position={[(BACK_WINDOW.maxX + toiletDoor.minX) / 2, h / 2, HOUSE.minZ]}
+          size={[toiletDoor.minX - BACK_WINDOW.maxX, h + SINK, 0.25]}
+          position={[(BACK_WINDOW.maxX + toiletDoor.minX) / 2, (h - SINK) / 2, HOUSE.minZ]}
           color={palette.wall}
         />
         <Box
-          size={[HOUSE.maxX - toiletDoor.maxX, h, 0.25]}
-          position={[(toiletDoor.maxX + HOUSE.maxX) / 2, h / 2, HOUSE.minZ]}
+          size={[HOUSE.maxX - toiletDoor.maxX, h + SINK, 0.25]}
+          position={[(toiletDoor.maxX + HOUSE.maxX) / 2, (h - SINK) / 2, HOUSE.minZ]}
           color={palette.wall}
         />
         <Box
@@ -252,8 +267,8 @@ export function House() {
           position={[(toiletDoor.minX + toiletDoor.maxX) / 2, (h + LOW_DOOR_HEIGHT) / 2, HOUSE.minZ]}
           color={palette.wall}
         />
-        {/* 변기 칸의 세로줄 유리 미닫이문. 변기 칸 쪽 벽면을 따라 밀려서 문 자리의 절반만 가린다. */}
-        <FlutedGlass along="x" at={HOUSE.minZ - 0.17} from={toiletDoor.minX - 0.45} to={toiletDoor.minX + 0.45} height={LOW_DOOR_HEIGHT} />
+        {/* 변기 칸의 세로줄 유리 미닫이문. 변기 칸 쪽 벽면을 따라 끝까지 밀려 있어서 문 자리가 모두 열린다. */}
+        <FlutedGlass along="x" at={HOUSE.minZ - 0.17} from={toiletDoor.minX - 0.92} to={toiletDoor.minX - 0.02} height={LOW_DOOR_HEIGHT} />
         <Box
           size={[toiletDoor.maxX - toiletDoor.minX + 0.9, 0.08, 0.1]}
           position={[(toiletDoor.minX + toiletDoor.maxX) / 2 - 0.45, LOW_DOOR_HEIGHT + 0.04, HOUSE.minZ - 0.17]}
@@ -262,7 +277,7 @@ export function House() {
 
         {/* 변기 칸의 양옆 벽과 뒤쪽 벽. 뒤쪽 벽에는 가로로 긴 창을 낸다. */}
         {[toilet.minX, toilet.maxX].map((x) => (
-          <Box key={x} size={[0.25, h, toiletDepth - 0.25]} position={[x, h / 2, toiletCenterZ]} color={palette.wall} />
+          <Box key={x} size={[0.25, h + SINK, toiletDepth - 0.25]} position={[x, (h - SINK) / 2, toiletCenterZ]} color={palette.wall} />
         ))}
         <Box
           size={[win.minX - toilet.minX + 0.125, h, 0.25]}
@@ -297,8 +312,8 @@ export function House() {
 
         {/* 거실 오른쪽 벽. 뒤쪽은 덧문이 달린 크림색 벽이고 주방 조리대 옆부터는 나무틀 유리문 네 짝이다. */}
         <Box
-          size={[0.3, h, SIDE_GLASS_FROM - HOUSE.minZ]}
-          position={[HOUSE.minX, h / 2, (HOUSE.minZ + SIDE_GLASS_FROM) / 2]}
+          size={[0.3, h + SINK, SIDE_GLASS_FROM - HOUSE.minZ]}
+          position={[HOUSE.minX, (h - SINK) / 2, (HOUSE.minZ + SIDE_GLASS_FROM) / 2]}
           color={palette.wall}
         />
         <Shutter position={[HOUSE.minX - 0.17, 1.5, -4.5]} facing="x" />
