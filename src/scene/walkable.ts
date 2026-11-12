@@ -100,27 +100,30 @@ export const CABANA = {
 export const CAT_POLE = {
   x: -5,
   z: -5,
-  /** 둥근 발판의 반지름 */
-  radius: 0.25,
+  /** 둥근 발판의 반지름. 고양이 몸에 맞춰 처음 값(0.25m)의 1.3배로 키웠다. */
+  radius: 0.325,
+  // 발판은 기둥 둘레를 한 방향으로 돌며 올라간다. 왼쪽(-x)과 뒤(-z)와 오른쪽(+x 해먹) 순서다.
+  // 바닥에서 첫 발판까지 한 번에 뛸 수 있도록 첫 발판을 점프 높이(0.75m)보다 낮은 0.7m에 둔다.
   steps: [
-    { x: -5, z: -4.7, top: 0.5, hammock: false },
-    { x: -5.3, z: -5, top: 1.0, hammock: false },
-    { x: -5, z: -5.3, top: 1.5, hammock: false },
-    { x: -5, z: -4.7, top: 2.0, hammock: true },
+    { x: -5.39, z: -5, top: 0.7, hammock: false },
+    { x: -5, z: -5.39, top: 1.35, hammock: false },
+    { x: -4.61, z: -5, top: 2.0, hammock: true },
   ],
-  /** 맨 위의 숨숨집. 둥근 발판에 C자 모양 벽을 두른다. */
-  // 고양이 키가 0.55m쯤이라서 천장(3.5m)에 머리가 닿지 않도록 캣폴에서는 2.5m를 가장 높은 자리로 한다.
-  house: { x: -4.7, z: -5, top: 2.5, radius: 0.3 },
+  /** 맨 위의 숨숨집. 기둥 앞(+z)에 두고 둥근 발판에 C자 모양 벽을 두른다. */
+  // 고양이 키가 0.64m라서 천장(3.5m)에 머리가 닿지 않도록 캣폴에서는 2.5m를 가장 높은 자리로 한다.
+  // openDeg는 벽이 트인 방향이다. +x가 0도이고 +z 쪽으로 돈다. -45도는 오른쪽 뒤이고 해먹과 캣워크가 있는 쪽이다.
+  // wall은 C자 벽의 높이다. 발판과 함께 1.3배로 키웠다.
+  house: { x: -5, z: -4.61, top: 2.5, radius: 0.39, wall: 0.39, openDeg: -45 },
   /** 기둥 맨 아래에 밧줄을 감은 스크래처 구간의 높이 */
-  scratchTop: 0.45,
+  scratchTop: 0.65,
 } as const
 
 /** 캣워크. 벽에 단 선반과 로프 구름다리다. top은 방바닥에서 잰 높이이고 bridge는 구름다리 구간이다. */
 export const CATWALK = {
   /** 거실 뒤쪽 벽을 따라가는 구간. x 방향으로 길다. */
-  livingBack: { minX: -4.45, maxX: 6.5, minZ: -5.45, maxZ: -5.1, top: 3.0, bridge: [-2.7, -1.3] },
+  livingBack: { minX: -3.9, maxX: 6.5, minZ: -5.45, maxZ: -5.1, top: 2.8, bridge: [-2.7, -1.3] },
   /** 거실 왼쪽 벽을 따라 곡선 책장 위까지 가는 구간. z 방향으로 길다. */
-  livingSide: { minX: 6.525, maxX: 6.875, minZ: -5.45, maxZ: -1.0, top: 3.0 },
+  livingSide: { minX: 6.525, maxX: 6.875, minZ: -5.45, maxZ: -1.0, top: 2.8 },
   /** 침대 머리 쪽 벽을 따라가는 구간. x 방향으로 길다. */
   bedroom: { minX: 7.3, maxX: 12.9, minZ: -0.9, maxZ: -0.55, top: 2.6, bridge: [9.4, 10.6] },
   /** 침실 왼쪽 벽의 계단 선반 둘. 통로에서 침실 캣워크로 올라가는 길이다. */
@@ -135,7 +138,7 @@ export const CAT_HOLE = {
   minZ: 0.35,
   maxZ: 1.05,
   bottom: 1.1,
-  top: 1.65,
+  top: 1.85,
   /** 침실 쪽으로 내민 디딤판이 끝나는 x 좌표 */
   ledgeMaxX: 7.6,
 } as const
@@ -156,6 +159,9 @@ export const BODY = 0.22
 
 /** 고양이 몸의 높이. 높이가 있는 벽에 몸이 걸치는지 볼 때 쓴다. */
 export const CAT_HEIGHT = 0.4
+
+/** 발에서 귀 끝까지의 높이(0.64m)에 여유 0.02m를 더한 값. 점프할 때 머리가 천장을 뚫지 않게 막는 데 쓴다. */
+export const CAT_TALL = 0.66
 
 // 걸을 수 있는 구역. 방과 문 자리와 계단과 데크를 사각형으로 이어 붙였다.
 // 방은 벽 안쪽 면에서 조금 들여서 잡았다. 그래서 벽과 유리는 따로 적지 않아도 지나갈 수 없다.
@@ -282,12 +288,13 @@ const SURFACES: Surface[] = [
   sofaBand(SOFA.inner, SOFA.outer, 0.45),
   sofaBand(SOFA.outer - 0.32, SOFA.outer, 0.85),
 
-  // 침실: 침대와 협탁 둘과 바닥 조명과 안락의자와 스탠드 화면과 공기청정기와 고리 콘솔과 큰 화분
+  // 침실: 침대와 협탁 둘과 바닥 조명과 안락의자와 옆 탁자와 스탠드 화면과 공기청정기와 고리 콘솔과 큰 화분
   onFloor(10.3, 12.5, -0.85, 1.3, 0.5),
   onFloor(9.85, 10.25, -0.8, -0.35, 0.45),
   onFloor(12.55, 12.95, -0.8, -0.35, 0.45),
   onFloorAt(13.35, -0.5, 0.17, 1.6),
-  onFloorAt(8.9, 4.6, 0.5, 0.42),
+  onFloorAt(10.6, 4.8, 0.5, 0.42),
+  onFloorAt(11.4, 5.0, 0.22, 0.45),
   onFloor(12.2, 13.0, 3.5, 3.7, 1.45),
   onFloorAt(13.4, 5.3, 0.16, 1),
   onFloor(7.3, 9.1, 5.45, 5.8, 0.8),
@@ -387,21 +394,31 @@ function onSurface(surface: Surface, x: number, z: number) {
 // 데크는 DECK_HEIGHT이고 거실은 그보다 FLOOR_HEIGHT만큼 높으며 계단은 단마다 낮아진다.
 // footY는 지금 발의 높이다. 떠 있는 발판은 발이 그 윗면에 닿을 만큼 올라왔을 때만 바닥으로 친다.
 // footY를 주지 않으면 떠 있는 발판을 뺀 높이를 돌려준다.
-export function groundHeight(x: number, z: number, footY = -Infinity) {
+// rising은 점프해서 올라가는 중인지다. 올라가는 중에는 발이 발판 윗면을 완전히 넘어야 그 발판을 바닥으로 친다.
+export function groundHeight(x: number, z: number, footY = -Infinity, rising = false) {
   let top = baseHeight(x, z)
   for (const surface of SURFACES) {
     if (surface.top > top && onSurface(surface, x, z)) top = surface.top
   }
-  return Math.max(DECK_HEIGHT + top, floatingHeight(x, z, footY))
+  return Math.max(DECK_HEIGHT + top, floatingHeight(x, z, footY, FLOATING, rising))
+}
+
+// 그 자리의 천장 높이를 돌려준다. 집 안이면 천장이고 밖이면 끝이 없다.
+export function ceilingHeight(x: number, z: number) {
+  const inside = contains(HOUSE, x, z) || contains(HOUSE.toilet, x, z)
+  return inside ? DECK_HEIGHT + FLOOR_HEIGHT + CEILING_HEIGHT : Infinity
 }
 
 // 발 아래에 있는 떠 있는 발판 가운데 가장 높은 윗면을 돌려준다. 없으면 -Infinity다.
 // floats를 따로 주면 그 목록으로 계산한다. 검사 스크립트가 쓴다.
-export function floatingHeight(x: number, z: number, footY: number, floats: Floating[] = FLOATING) {
+// 올라가는 중(rising)에는 여유 높이(JUMP_GRACE)를 주지 않는다.
+// 여유를 주면 올라가다가 발판 0.1m 아래에서 바로 올라서고 그 자리에서 다시 점프가 되어 한 번에 여러 발판을 뛰어오른다.
+export function floatingHeight(x: number, z: number, footY: number, floats: Floating[] = FLOATING, rising = false) {
+  const grace = rising ? 0 : JUMP_GRACE
   let best = -Infinity
   for (const float of floats) {
     const top = DECK_HEIGHT + float.top
-    if (top > best && top <= footY + JUMP_GRACE && onSurface(float, x, z)) best = top
+    if (top > best && top <= footY + grace && onSurface(float, x, z)) best = top
   }
   return best
 }

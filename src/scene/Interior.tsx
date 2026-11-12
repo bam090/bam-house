@@ -51,8 +51,19 @@ function Kitchen() {
       {/* 정수기 */}
       <Box size={[0.3, 0.43, 0.2]} position={[-7.6, 1.165, 1.8]} color={palette.white} />
       <Box size={[0.1, 0.04, 0.08]} position={[-7.42, 1.28, 1.8]} color={palette.white} />
-      {/* 인덕션. 상판에 넣은 검은 유리 판 */}
-      <Box size={[0.5, 0.012, 0.7]} position={[-7.47, 0.95, 2.5]} color={palette.blackGlass} roughness={0.2} castShadow={false} />
+      {/* 인덕션. 상판에 넣은 흰 유리 판과 옅은 회색 화구 표시 셋 */}
+      <Box size={[0.5, 0.012, 0.7]} position={[-7.47, 0.95, 2.5]} color={palette.white} roughness={0.2} castShadow={false} />
+      {[
+        { x: -7.56, z: 2.3, radius: 0.1 },
+        { x: -7.56, z: 2.7, radius: 0.1 },
+        { x: -7.36, z: 2.5, radius: 0.075 },
+      ].map((burner) => (
+        // ringGeometry는 가운데가 빈 납작한 고리다. 세워진 채로 만들어지므로 x축으로 -90도 돌려 눕힌다.
+        <mesh key={`${burner.x}-${burner.z}`} position={[burner.x, 0.96, burner.z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[burner.radius - 0.012, burner.radius, 28]} />
+          <meshStandardMaterial color={palette.greige} roughness={0.4} />
+        </mesh>
+      ))}
       {/* 서랍 세 단의 틈 */}
       {[0.3, 0.6].map((y) => (
         <Box key={y} size={[0.02, 0.015, 0.96]} position={[lowFace, y, 3.4]} color={palette.stoneDark} castShadow={false} />
@@ -90,9 +101,9 @@ const ARCH_WALL = { minX: -4.6, maxX: 6.2, back: HOUSE.minZ + 0.125, front: -5.4
 
 /** 아치 벽감 셋. 폭과 꼭대기 높이가 서로 다르다. shelves는 선반 윗면의 높이다. */
 const NICHES = [
-  { minX: -4.3, maxX: -2.9, top: 2.9, shelves: [1.5, 2.0, 2.45], glow: true },
+  { minX: -4.3, maxX: -2.9, top: 2.65, shelves: [1.5, 2.0, 2.3], glow: true },
   { minX: -2.5, maxX: -1.8, top: 2.5, shelves: [1.5, 2.0], glow: false },
-  { minX: 4.9, maxX: 5.9, top: 2.9, shelves: [1.5, 2.0, 2.45], glow: true },
+  { minX: 4.9, maxX: 5.9, top: 2.65, shelves: [1.5, 2.0, 2.3], glow: true },
 ] as const
 
 /** 벽감 바닥의 높이. 낮은 장의 상판(0.7m)과 겹쳐 보이지 않도록 0.3m 위에서 시작한다. */
@@ -102,7 +113,7 @@ const NICHE_BOTTOM = 1.0
 const CONSOLE = { minX: -4.4, maxX: 6.2, back: -5.45, front: -5.0, top: 0.7 } as const
 
 /** TV 화면. 가운데 x 좌표와 크기와 아랫변 높이다. */
-const TV = { x: 1.5, width: 3.6, height: 1.9, bottom: 0.9, frame: 0.12 } as const
+const TV = { x: 1.5, width: 3.2, height: 1.68, bottom: 0.9, frame: 0.12 } as const
 
 // 모서리가 둥근 네모 윤곽을 그린다. 낮은 장의 구멍과 TV 테두리에 쓴다.
 function roundedRect<T extends Path>(path: T, minX: number, minY: number, maxX: number, maxY: number, radius: number) {
@@ -173,7 +184,7 @@ function ArchWall() {
               )
             })}
             {/* 맨 위 선반 아래의 간접 조명 띠 */}
-            {niche.glow && <Glow size={[width * 0.6, 0.02, 0.03]} position={[center, 2.4, back + 0.06]} />}
+            {niche.glow && <Glow size={[width * 0.6, 0.02, 0.03]} position={[center, niche.shelves[niche.shelves.length - 1] - 0.05, back + 0.06]} />}
           </group>
         )
       })}

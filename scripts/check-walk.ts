@@ -1,7 +1,7 @@
 // 걷기 규칙이 정해 둔 조건을 지키는지 숫자로 검사하는 스크립트다.
 // 실행 방법: node scripts/check-walk.ts
 // 주요 지점의 바닥 높이와 지나갈 수 없는 자리를 보고 고양이를 실제 계산과 같은 순서로 움직여서 점프 길을 확인한다.
-import { BODY, DECK_HEIGHT, FLOOR_HEIGHT, POOL_WATER, floatingHeight, groundHeight, isWalkable, resolveMove } from '../src/scene/walkable.ts'
+import { BODY, CAT_TALL, DECK_HEIGHT, FLOOR_HEIGHT, POOL_WATER, ceilingHeight, floatingHeight, groundHeight, isWalkable, resolveMove } from '../src/scene/walkable.ts'
 
 // Player.tsx와 같은 값이다. 그 파일의 값을 바꾸면 여기도 함께 바꾼다.
 const SPEED = 4
@@ -42,7 +42,7 @@ const heights: [string, number, number, number][] = [
   ['통유리창 앞 바닥', -6, -5.4, FLOOR],
   ['침대', 11.4, 0.5, FLOOR + 0.5],
   ['협탁', 10.05, -0.5, FLOOR + 0.45],
-  ['안락의자', 8.9, 4.6, FLOOR + 0.42],
+  ['안락의자', 10.6, 4.8, FLOOR + 0.42],
   ['욕조 돌 턱', 12.4, -4.3, FLOOR + 0.55],
   ['세면대', 7.6, -4, FLOOR + 0.9],
   ['나무 스툴', 10.5, -4.6, FLOOR + 0.45],
@@ -108,7 +108,7 @@ function frame(cat: Cat, directionX: number, directionZ: number, jump: boolean) 
     cat.x = nextX
     cat.z = nextZ
   }
-  const floor = groundHeight(cat.x, cat.z, cat.y)
+  const floor = groundHeight(cat.x, cat.z, cat.y, cat.speed > 0)
   if (cat.y < floor) {
     cat.y = floor
     cat.speed = 0
@@ -120,6 +120,11 @@ function frame(cat: Cat, directionX: number, directionZ: number, jump: boolean) 
     cat.speed -= GRAVITY * FRAME
     cat.y = Math.max(floor, cat.y + ((speedBefore + cat.speed) / 2) * FRAME)
     if (cat.y === floor) cat.speed = 0
+    const headLimit = ceilingHeight(cat.x, cat.z) - CAT_TALL
+    if (cat.y > headLimit) {
+      cat.y = Math.max(floor, headLimit)
+      cat.speed = Math.min(cat.speed, 0)
+    }
   }
 }
 
@@ -234,22 +239,42 @@ function follow(cat: Cat, legs: [string, number, number, boolean, number][]) {
   return { passed, detail: log.join(' → ') }
 }
 
-// 10. 캣폴 옆에서 제자리 점프 다섯 번으로 맨 위 숨숨집(2.5m)까지 오른다. 거기서 한 번 더 뛰어 캣워크에 올라 곡선 책장 위까지 간다.
+// 10. 캣폴 옆에서 제자리 점프 네 번으로 맨 위 숨숨집(2.5m)까지 오른다. 거기서 한 번 더 뛰어 캣워크에 올라 곡선 책장 위까지 간다.
 const climber: Cat = { x: -5, z: -4.85, y: FLOOR, speed: 0 }
 const poleTops: number[] = []
-for (let count = 0; count < 5; count += 1) {
+for (let count = 0; count < 4; count += 1) {
   hop(climber)
   poleTops.push(climber.y - FLOOR)
 }
-const poleOk = [0.5, 1, 1.5, 2, 2.5].every((top, index) => Math.abs(poleTops[index] - top) < 0.001)
+const poleOk = [0.7, 1.35, 2, 2.5].every((top, index) => Math.abs(poleTops[index] - top) < 0.001)
 check('캣폴을 제자리 점프로 오름', poleOk, `발판 높이 ${poleTops.map((top) => top.toFixed(1)).join(', ')}`)
 const catwalk = follow(climber, [
-  ['숨숨집에서 뛰어 캣워크로', -4.2, -5.1, true, 3],
-  ['TV 위', 1.5, -5.1, false, 3],
-  ['뒤쪽 모서리', 6.5, -5.1, false, 3],
-  ['곡선 책장 위', 6.55, -1.2, false, 3],
+  ['숨숨집에서 뛰어 캣워크로', -3.6, -5.1, true, 2.8],
+  ['TV 위', 1.5, -5.1, false, 2.8],
+  ['뒤쪽 모서리', 6.5, -5.1, false, 2.8],
+  ['곡선 책장 위', 6.55, -1.2, false, 2.8],
 ])
 check('캣폴에서 캣워크를 지나 곡선 책장 위까지', catwalk.passed, catwalk.detail)
+
+// 10-1. 캣폴 옆에서 스페이스바를 0.3초 동안 누르고 있어도 첫 발판(0.7m)보다 높이 올라가지 않는다.
+// 올라가는 중에 발판에 닿자마자 다시 점프가 되면 한 번에 여러 발판을 뛰어오른다.
+const holder: Cat = { x: -5, z: -4.85, y: FLOOR, speed: 0 }
+let holderTop = 0
+for (let count = 0; count < 18; count += 1) {
+  frame(holder, 0, 0, true)
+  holderTop = Math.max(holderTop, holder.y - FLOOR)
+}
+check('캣폴에서 점프가 이어 붙지 않음', holderTop < 0.8, `0.3초 동안 가장 높이 올라간 발 높이 ${holderTop.toFixed(2)}m`)
+
+// 10-2. 거실 캣워크 위에서 점프해도 귀가 천장을 넘지 않는다.
+const jumper: Cat = { x: 1.5, z: -5.2, y: FLOOR + 2.8, speed: 0 }
+let jumperTop = 0
+frame(jumper, 0, 0, true)
+for (let count = 0; count < 60; count += 1) {
+  frame(jumper, 0, 0, false)
+  jumperTop = Math.max(jumperTop, jumper.y - FLOOR)
+}
+check('캣워크에서 점프해도 천장 아래', jumperTop + 0.64 <= 3.5 && near(jumper.y, FLOOR + 2.8), `귀 높이 ${(jumperTop + 0.64).toFixed(2)}m이고 다시 캣워크에 내려섬`)
 
 // 11. 캣워크 아래는 그대로 걸을 수 있다. 머리 위의 발판은 바닥으로 치지 않는다.
 const underBack = groundHeight(-5.8, -5.2, FLOOR)

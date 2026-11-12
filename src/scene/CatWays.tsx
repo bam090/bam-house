@@ -70,11 +70,11 @@ function WalkWithBridge({ walk }: { walk: { minX: number; maxX: number; minZ: nu
 // 천장까지 닿는 캣폴. 흰 기둥 둘레에 원목 발판을 돌려 달고 한 자리에는 투명 해먹을 단다.
 function CatPole() {
   const { x, z, radius, steps, house } = CAT_POLE
-  // 숨숨집의 벽. 방 쪽(+z)만 트인 C자 띠를 위에서 본 윤곽으로 그려서 세운다.
+  // 숨숨집의 벽. 해먹 쪽(openDeg)만 트인 C자 띠를 위에서 본 윤곽으로 그려서 세운다. 트인 폭은 90도다.
   const shell = useMemo(
     () => ({
-      wall: arcBand(house.x, house.z, house.radius - 0.07, house.radius, 135, 405),
-      rim: arcBand(house.x, house.z, house.radius - 0.09, house.radius + 0.015, 133, 407),
+      wall: arcBand(house.x, house.z, house.radius - 0.07, house.radius, house.openDeg + 45, house.openDeg + 315),
+      rim: arcBand(house.x, house.z, house.radius - 0.09, house.radius + 0.015, house.openDeg + 43, house.openDeg + 317),
     }),
     [house],
   )
@@ -84,16 +84,20 @@ function CatPole() {
       <Cylinder radius={0.2} radiusTop={0.12} height={0.05} position={[x, 0.025, z]} color={palette.white} />
       {/* 기둥 맨 아래의 스크래처. 굵은 밧줄을 감은 모양으로 띠를 여러 줄 두른다. */}
       <Cylinder radius={0.085} height={CAT_POLE.scratchTop - 0.05} position={[x, (CAT_POLE.scratchTop + 0.05) / 2, z]} color={palette.rugLiving} />
-      {Array.from({ length: 7 }, (_, index) => (
+      {Array.from({ length: Math.round((CAT_POLE.scratchTop - 0.09) / 0.055) }, (_, index) => (
         <Cylinder key={index} radius={0.092} height={0.02} position={[x, 0.09 + index * 0.055, z]} color={palette.wetSand} />
       ))}
       <Cylinder radius={0.1} height={0.04} position={[x, CEILING_HEIGHT - 0.02, z]} color={palette.white} />
       {/* 맨 위의 숨숨집. 원목 발판과 아이보리 방석과 C자 벽과 원목 테두리 */}
-      <Box size={[Math.abs(house.x - x) + 0.06, 0.04, 0.08]} position={[(house.x + x) / 2, house.top - 0.06, z]} color={palette.oak} />
+      <Box
+        size={[Math.abs(house.x - x) + 0.06, 0.04, Math.abs(house.z - z) + 0.06]}
+        position={[(house.x + x) / 2, house.top - 0.06, (house.z + z) / 2]}
+        color={palette.oak}
+      />
       <Cylinder radius={house.radius + 0.015} height={BOARD} position={[house.x, house.top - BOARD / 2 - 0.01, house.z]} color={palette.oak} />
       <Cylinder radius={house.radius - 0.08} height={0.03} position={[house.x, house.top, house.z]} color={palette.wall} />
-      <Extruded shape={shell.wall} depth={0.3} position={[0, house.top - 0.01, 0]} rotation={LAY_FLAT} color={palette.fabric} roughness={1} />
-      <Extruded shape={shell.rim} depth={0.025} position={[0, house.top + 0.29, 0]} rotation={LAY_FLAT} color={palette.oak} />
+      <Extruded shape={shell.wall} depth={house.wall} position={[0, house.top - 0.01, 0]} rotation={LAY_FLAT} color={palette.fabric} roughness={1} />
+      <Extruded shape={shell.rim} depth={0.025} position={[0, house.top + house.wall - 0.01, 0]} rotation={LAY_FLAT} color={palette.oak} />
       {steps.map((step) => (
         <group key={step.top}>
           {/* 기둥에서 발판까지 뻗은 받침 */}

@@ -1,9 +1,9 @@
-import { useLayoutEffect, useRef } from 'react'
-import { Matrix4 } from 'three'
+import { useLayoutEffect, useMemo, useRef } from 'react'
+import { Matrix4, Shape } from 'three'
 import type { InstancedMesh } from 'three'
 import { Box } from './Box'
 import { palette } from './palette'
-import { Cylinder, Planter, scatter } from './Shapes'
+import { Cylinder, Extruded, FACE_X, Planter, scatter } from './Shapes'
 import { CABANA, DECK_HEIGHT, STAIRS, STAIRS_END_Z } from './walkable'
 
 /** 수영장의 깊이. 물 높이가 아니라 데크 윗면에서 바닥까지 잰 값이다. */
@@ -260,6 +260,22 @@ function CabanaSlats() {
   )
 }
 
+// 카바나 천 한 폭을 옆에서 본 윤곽이다. 점은 (z, 높이)다.
+// 보에서는 길이 span만큼 넓게 걸려 있다가 내려오면서 기둥 쪽으로 모이고 묶은 높이 아래에서는 조금 퍼지며 바닥 가까이까지 늘어진다.
+// direction이 1이면 기둥에서 +z 쪽으로 펼쳐지고 -1이면 -z 쪽으로 펼쳐진다.
+function clothShape(postZ: number, direction: number, span: number, top: number, tie: number) {
+  const at = (offset: number) => postZ + direction * offset
+  const shape = new Shape()
+  shape.moveTo(at(0.11), top)
+  shape.lineTo(at(span), top)
+  // quadraticCurveTo(조절점 z, 조절점 높이, 끝점 z, 끝점 높이)는 조절점 쪽으로 당겨진 곡선을 그린다.
+  shape.quadraticCurveTo(at(span * 0.55), tie + 0.75, at(0.24), tie)
+  shape.quadraticCurveTo(at(0.3), tie * 0.5, at(0.42), 0.08)
+  shape.lineTo(at(0.11), 0.08)
+  shape.closePath()
+  return shape
+}
+
 function Cabana() {
   const { postXs, postZs, post, beamBottom, beamTop, tie } = CABANA
   const [minX, maxX] = postXs
@@ -268,23 +284,38 @@ function Cabana() {
   const beam = beamTop - beamBottom
   const centerX = (minX + maxX) / 2
   const centerZ = (minZ + maxZ) / 2
+  // 천 한 폭이 덮는 보의 길이. 기둥 사이 간격의 절반보다 조금 짧게 해서 두 폭이 가운데에서 닿지 않게 한다.
+  const span = (postZs[1] - postZs[0]) / 2 - 0.08
+  // 기둥마다 이웃 기둥이 있는 쪽으로 천을 한 폭씩 건다. 가운데 기둥은 양쪽으로 두 폭이다.
+  const cloths = useMemo(
+    () =>
+      postZs.flatMap((z, index) =>
+        [-1, 1]
+          .filter((direction) => postZs[index + direction] !== undefined)
+          .map((direction) => ({ key: `${z}-${direction}`, shape: clothShape(z, direction, span, beamBottom + 0.1, tie) })),
+      ),
+    [postZs, span, beamBottom, tie],
+  )
   return (
     <group>
-      {postXs.map((x) =>
-        postZs.map((z) => {
-          // 천은 기둥의 안쪽에 드리운다.
-          const clothX = x + (x < centerX ? 0.2 : -0.2)
-          return (
-            <group key={`${x}-${z}`}>
-              <Box size={[post, beamBottom, post]} position={[x, beamBottom / 2, z]} color={palette.oak} />
-              {/* 보에서 넓게 내려온 천을 묶은 자리에서 모았다가 아래로 다시 퍼지게 한다. */}
-              <Cylinder radius={0.06} radiusTop={0.24} height={beamBottom - tie} position={[clothX, (beamBottom + tie) / 2, z]} color={palette.fabric} />
-              <Cylinder radius={0.15} radiusTop={0.06} height={tie - 0.05} position={[clothX, (tie + 0.05) / 2, z]} color={palette.fabric} />
-              <Box size={[0.16, 0.05, 0.16]} position={[clothX, tie, z]} color={palette.oak} />
-            </group>
-          )
-        }),
-      )}
+      {postXs.map((x) => {
+        // 천은 기둥과 보의 안쪽 면에서 0.02m 떨어뜨려 건다. 붙여 놓으면 두 면이 겹쳐서 깜빡인다.
+        const clothX = x < centerX ? x + post / 2 + 0.05 : x - post / 2 - 0.02
+        return (
+          <group key={x}>
+            {postZs.map((z) => (
+              <group key={z}>
+                <Box size={[post, beamBottom, post]} position={[x, beamBottom / 2, z]} color={palette.oak} />
+                {/* 천을 기둥에 묶은 끈 */}
+                <Box size={[post + 0.12, 0.06, post + 0.34]} position={[x, tie, z]} color={palette.rugLiving} />
+              </group>
+            ))}
+            {cloths.map((cloth) => (
+              <Extruded key={cloth.key} shape={cloth.shape} depth={0.03} position={[clothX, 0, 0]} rotation={FACE_X} color={palette.fabric} roughness={1} />
+            ))}
+          </group>
+        )
+      })}
       {/* 기둥 위를 두르는 보 */}
       {postXs.map((x) => (
         <Box key={x} size={[beam, beam, maxZ - minZ + post]} position={[x, beamY, centerZ]} color={palette.oak} />

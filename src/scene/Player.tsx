@@ -4,7 +4,7 @@ import { Vector3 } from 'three'
 import type { Group } from 'three'
 import { readMove, readTilt, readTurn, useKeyboard } from '../hooks/useKeyboard'
 import { Cat } from './Cat'
-import { groundHeight, resolveMove } from './walkable'
+import { CAT_TALL, ceilingHeight, groundHeight, resolveMove } from './walkable'
 
 /** 고양이가 처음 서 있는 자리. 테라스의 오른쪽 앞이다. */
 export const START_POSITION: [number, number, number] = [7, 0, 13]
@@ -134,6 +134,23 @@ export function Player() {
     }
   }, [canvas])
 
+  // 개발 서버에서만 쓰는 확인용 함수다. 브라우저 콘솔에서 __moveCat(x, 높이, z, 좌우 각도, 내려다보는 각도, 거리)를 부르면 고양이와 카메라를 그 자리로 옮긴다.
+  // import.meta.env.DEV는 npm run dev일 때만 true라서 배포한 사이트에는 이 함수가 생기지 않는다.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    const target = window as unknown as Record<string, unknown>
+    target.__moveCat = (x: number, y: number, z: number, nextYaw = 0, nextPitch = START_PITCH, nextDistance = START_DISTANCE) => {
+      cat.current?.position.set(x, y, z)
+      verticalSpeed.current = 0
+      yaw.current = nextYaw
+      pitch.current = nextPitch
+      distance.current = nextDistance
+    }
+    return () => {
+      delete target.__moveCat
+    }
+  }, [])
+
   useFrame((state, rawDelta) => {
     const group = cat.current
     if (!group) return
@@ -178,7 +195,8 @@ export function Player() {
 
     // 지금 서 있는 자리의 바닥 높이. 거실과 계단은 테라스보다 높다.
     // 발 높이를 함께 넘겨서 머리 위에 떠 있는 발판은 바닥으로 치지 않게 한다.
-    const floor = groundHeight(group.position.x, group.position.z, group.position.y)
+    // 올라가는 중인지도 넘긴다. 올라가는 중에는 발이 발판을 완전히 넘은 뒤에만 그 발판에 내려선다.
+    const floor = groundHeight(group.position.x, group.position.z, group.position.y, verticalSpeed.current > 0)
     // 계단을 오를 때는 바닥보다 낮아진 만큼 바로 올려 세운다.
     if (group.position.y < floor) {
       group.position.y = floor
@@ -198,6 +216,12 @@ export function Player() {
       verticalSpeed.current -= GRAVITY * delta
       group.position.y = Math.max(floor, group.position.y + ((speedBefore + verticalSpeed.current) / 2) * delta)
       if (group.position.y === floor) verticalSpeed.current = 0
+      // 집 안에서는 귀가 천장에 닿으면 더 올라가지 않고 그 자리에서 떨어지기 시작한다.
+      const headLimit = ceilingHeight(group.position.x, group.position.z) - CAT_TALL
+      if (group.position.y > headLimit) {
+        group.position.y = Math.max(floor, headLimit)
+        verticalSpeed.current = Math.min(verticalSpeed.current, 0)
+      }
     }
 
     // 카메라는 고양이 뒤쪽 위에서 부드럽게 따라간다.

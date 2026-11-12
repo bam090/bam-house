@@ -71,7 +71,7 @@ function Bedroom() {
     const hole = new Path()
     hole.absarc(0, 0.375, 0.3, 0, Math.PI * 2, true)
     ring.holes.push(hole)
-    return { ring, chairBack: arcBand(8.9, 4.6, 0.38, 0.5, 105, 255) }
+    return { ring, chairBack: arcBand(10.6, 4.8, 0.38, 0.5, 195, 345) }
   }, [])
 
   return (
@@ -101,9 +101,15 @@ function Bedroom() {
         <Box size={[0.02, 0.3, 0.012]} position={[0.06, 0.12, 0.02]} rotation={[0, 0, -0.45]} color={palette.columnCap} />
         <Box size={[0.02, 0.2, 0.012]} position={[-0.08, 0.04, 0.02]} rotation={[0, 0, 1.1]} color={palette.columnCap} />
       </group>
-      {/* 안락의자. 둥근 방석에 반원 등받이를 세운다. */}
-      <Cylinder radius={0.5} height={0.42} position={[8.9, 0.21, 4.6]} color={palette.wall} />
+      {/* 안락의자. 둥근 방석에 반원 등받이를 세운다. 등받이가 방 안쪽(-z)에 있어서 앉으면 바다를 본다. */}
+      <Cylinder radius={0.5} height={0.42} position={[10.6, 0.21, 4.8]} color={palette.wall} />
       <Extruded shape={shapes.chairBack} depth={0.4} position={[0, 0.42, 0]} rotation={LAY_FLAT} color={palette.wall} />
+      {/* 안락의자 옆의 작은 원형 원목 탁자와 책과 컵 */}
+      <Cylinder radius={0.22} height={0.03} position={[11.4, 0.435, 5.0]} color={palette.oak} />
+      <Cylinder radius={0.03} height={0.4} position={[11.4, 0.22, 5.0]} color={palette.oak} />
+      <Cylinder radius={0.14} height={0.02} position={[11.4, 0.01, 5.0]} color={palette.oak} />
+      <Box size={[0.2, 0.03, 0.14]} position={[11.36, 0.465, 5.04]} rotation={[0, 0.3, 0]} color={palette.green} />
+      <Cylinder radius={0.035} height={0.07} position={[11.5, 0.485, 4.92]} color={palette.white} />
       {/* 이동식 스탠드 화면. 둥근 받침과 기둥과 평평한 판 */}
       <group position={[12.6, 0, 3.6]}>
         <Cylinder radius={0.25} height={0.04} position={[0, 0.02, 0]} color={palette.white} />
