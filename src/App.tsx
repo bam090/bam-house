@@ -4,6 +4,7 @@ import { House } from './scene/House'
 import { Landscape } from './scene/Landscape'
 import { CAMERA_OFFSET, Player, START_POSITION } from './scene/Player'
 import { Terrace } from './scene/Terrace'
+import { DECK_HEIGHT } from './scene/walkable'
 
 // 해의 위치다. 하늘 색과 햇빛 방향이 같은 값을 쓰도록 한곳에 두었다.
 const SUN_POSITION: [number, number, number] = [-30, 40, 25]
@@ -41,8 +42,11 @@ function App() {
       />
 
       <Landscape />
-      <House />
-      <Terrace />
+      {/* 집과 수영장 데크는 잔디보다 DECK_HEIGHT만큼 높은 돌 받침 위에 놓인다. */}
+      <group position={[0, DECK_HEIGHT, 0]}>
+        <House />
+        <Terrace />
+      </group>
 
       <Player />
     </Canvas>

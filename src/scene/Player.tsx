@@ -4,7 +4,7 @@ import { Vector3 } from 'three'
 import type { Group } from 'three'
 import { readMove, readTilt, readTurn, useKeyboard } from '../hooks/useKeyboard'
 import { Cat } from './Cat'
-import { resolveMove } from './walkable'
+import { groundHeight, resolveMove } from './walkable'
 
 /** 고양이가 처음 서 있는 자리. 테라스의 오른쪽 앞이다. */
 export const START_POSITION: [number, number, number] = [7, 0, 13]
@@ -85,6 +85,8 @@ export function Player() {
   const distance = useRef(START_DISTANCE)
   // 위아래 방향의 속도. 점프하면 양수가 되고 중력 때문에 점점 줄어든다.
   const verticalSpeed = useRef(0)
+  // 카메라가 기준으로 삼는 바닥 높이. 계단을 오를 때 화면이 덜컹거리지 않도록 천천히 따라간다.
+  const cameraFloor = useRef(0)
   const canvas = useThree((state) => state.gl.domElement)
 
   // 마우스나 손가락으로 화면을 끌면 시선이 좌우와 위아래로 돈다.
@@ -100,9 +102,10 @@ export function Player() {
     }
     const handleMove = (event: PointerEvent) => {
       if (!dragging) return
-      // 끄는 방향으로 시선이 따라가도록 부호를 뺀다.
+      // 끄는 방향으로 시선이 따라간다. 왼쪽으로 끌면 왼쪽을 보고 위로 끌면 위를 본다.
+      // 위를 보려면 카메라가 낮아져야 하므로 위로 끌 때(clientY 감소) 내려다보는 각도를 줄인다.
       yaw.current -= (event.clientX - lastX) * DRAG_SENSITIVITY
-      pitch.current = clampPitch(pitch.current - (event.clientY - lastY) * DRAG_SENSITIVITY)
+      pitch.current = clampPitch(pitch.current + (event.clientY - lastY) * DRAG_SENSITIVITY)
       lastX = event.clientX
       lastY = event.clientY
     }
@@ -171,29 +174,39 @@ export function Player() {
       group.rotation.y += shortestAngle(group.rotation.y, targetAngle) * Math.min(1, delta * 12)
     }
 
+    // 지금 서 있는 자리의 바닥 높이. 거실과 계단은 테라스보다 높다.
+    const floor = groundHeight(group.position.x, group.position.z)
+    // 계단을 오를 때는 바닥보다 낮아진 만큼 바로 올려 세운다.
+    if (group.position.y < floor) {
+      group.position.y = floor
+      verticalSpeed.current = 0
+    }
+
     // 스페이스바를 누르면 점프한다. 바닥에 서 있을 때만 뛸 수 있다.
-    const grounded = group.position.y <= 0
+    const grounded = group.position.y <= floor
     if (grounded && keys.current.has('Space')) {
       verticalSpeed.current = JUMP_SPEED
     }
+    // 점프 중이거나 계단을 내려가서 발밑이 비었을 때는 중력으로 떨어진다.
     if (!grounded || verticalSpeed.current > 0) {
       verticalSpeed.current -= GRAVITY * delta
-      group.position.y = Math.max(0, group.position.y + verticalSpeed.current * delta)
-      if (group.position.y === 0) verticalSpeed.current = 0
+      group.position.y = Math.max(floor, group.position.y + verticalSpeed.current * delta)
+      if (group.position.y === floor) verticalSpeed.current = 0
     }
 
     // 카메라는 고양이 뒤쪽 위에서 부드럽게 따라간다.
     const smoothing = 1 - Math.exp(-6 * delta)
+    cameraFloor.current += (floor - cameraFloor.current) * smoothing
     const [offsetX, offsetY, offsetZ] = cameraOffset(yaw.current, pitch.current, distance.current)
     cameraGoal.set(
       group.position.x + offsetX,
       // 점프할 때 화면이 함께 흔들리지 않도록 카메라의 높이는 바닥을 기준으로 잡는다.
-      offsetY,
+      cameraFloor.current + offsetY,
       group.position.z + offsetZ,
     )
     state.camera.position.lerp(cameraGoal, smoothing)
 
-    lookGoal.set(group.position.x, LOOK_HEIGHT, group.position.z)
+    lookGoal.set(group.position.x, cameraFloor.current + LOOK_HEIGHT, group.position.z)
     lookAt.current.lerp(lookGoal, smoothing)
     state.camera.lookAt(lookAt.current)
   })
