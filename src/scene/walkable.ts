@@ -1,5 +1,7 @@
-// 고양이가 걸을 수 있는 범위를 계산하는 파일이다.
-// 물리 엔진을 쓰지 않고 좌표가 허용된 사각형 안에 있는지만 검사한다.
+// 고양이가 걸을 수 있는 범위와 바닥 높이를 계산하는 파일이다.
+// 물리 엔진을 쓰지 않고 좌표가 어느 사각형 안에 있는지만 검사한다.
+// 벽과 유리와 기둥과 물은 지나갈 수 없고 가구와 화단은 윗면 높이가 있는 바닥이다.
+// 자리와 높이는 docs/house-spec.md와 같다. 가구를 옮기면 이 파일의 숫자도 함께 고친다.
 
 interface Rect {
   minX: number
@@ -8,18 +10,37 @@ interface Rect {
   maxZ: number
 }
 
-// 걸을 수 있는 구역. 거실과 테라스 두 개의 사각형이다.
-const WALK_AREAS: Rect[] = [
-  { minX: -7.6, maxX: 7.6, minZ: -5.4, maxZ: 6.2 },
-  { minX: -9.6, maxX: 9.6, minZ: 6, maxZ: 13.6 },
-]
+/** 집 안의 방 배치. 집의 중심이 원점이고 바다는 +z 방향이다. */
+// 집에서 바다를 볼 때 왼쪽이 +x이고 오른쪽이 -x다.
+export const HOUSE = {
+  /** 집 전체의 범위. 거실과 침실과 욕실을 모두 합친 것이다. */
+  minX: -8,
+  maxX: 14,
+  minZ: -6,
+  maxZ: 6,
+  /** 거실과 침실 쪽 날개를 나누는 칸막이 벽의 x 좌표 */
+  wingX: 7,
+  /** 침실과 욕실을 나누는 칸막이 벽의 z 좌표. 이 값보다 z가 크면 침실이다. */
+  bathZ: -1,
+  /** 거실과 침실 사이 문 자리의 z 범위 */
+  bedroomDoor: { minZ: 1.5, maxZ: 4.5 },
+  /** 침실과 욕실 사이 문 자리의 x 범위 */
+  bathDoor: { minX: 7.6, maxX: 9.2 },
+  /** 주방 영역. 거실 오른쪽 앞에 있고 벽으로 막지 않는다. */
+  kitchen: { minX: -8, maxX: -4, minZ: -1, maxZ: 6 },
+  /** 욕실 뒤에 붙은 변기 칸. 오른쪽 벽이 욕실 오른쪽 벽과 한 줄이다. */
+  toilet: { minX: 7, maxX: 11, minZ: -8.5, maxZ: -6 },
+  /** 욕실과 변기 칸 사이 문 자리의 x 범위 */
+  toiletDoor: { minX: 9.2, maxX: 10.1 },
+} as const
 
-// 걸을 수 없는 물체가 차지한 자리. 가구를 추가하면 여기에 사각형을 더한다.
-const OBSTACLES: Rect[] = [
-  // 수영장
-  { minX: -3.95, maxX: 3.95, minZ: 8, maxZ: 12.6 },
-  // 선베드
-  { minX: -8.3, maxX: -6.7, minZ: 8.9, maxZ: 11.5 },
+/** 거실 바닥에서 천장까지의 높이 */
+export const CEILING_HEIGHT = 3.5
+
+/** 식물을 심지 않는 자리. 침실과 욕실과 욕실 옆 돌 벽 뜰이 첫째이고 변기 칸이 둘째다. */
+export const PLANT_KEEP_OUT: Rect[] = [
+  { minX: 7, maxX: 16.1, minZ: -6.8, maxZ: 6.15 },
+  { minX: 6.55, maxX: 11.45, minZ: -8.95, maxZ: -6 },
 ]
 
 /** 수영장 데크가 잔디보다 높은 정도. 데크와 집은 이 높이의 돌 받침 위에 놓인다. */
@@ -38,11 +59,12 @@ export const STAIRS = {
   /** 계단이 시작하는 z 좌표. 거실 앞면이다. */
   startZ: 6,
   /** 계단 한 단의 깊이 */
-  stepDepth: 0.3,
+  stepDepth: 0.4,
   /** 계단의 단 수. 높이 차이를 이 수로 나눈 만큼씩 내려간다. */
   risers: 5,
-  /** 계단 폭의 절반. 거실 폭과 같다. */
-  halfWidth: 8,
+  /** 계단의 x 범위. 양 끝은 돌 화단이 막고 있다. */
+  minX: -6.6,
+  maxX: 5.6,
 } as const
 
 /** 계단 한 단의 높이 */
@@ -54,43 +76,235 @@ export const STEP_COUNT = STAIRS.risers - 1
 /** 계단이 끝나는 z 좌표 */
 export const STAIRS_END_Z = STAIRS.startZ + STAIRS.stepDepth * STEP_COUNT
 
-// 고양이가 서 있는 자리의 바닥 높이를 구한다.
-// 데크는 DECK_HEIGHT이고 거실은 그보다 FLOOR_HEIGHT만큼 높으며 계단은 단마다 낮아진다.
-export function groundHeight(x: number, z: number) {
-  return DECK_HEIGHT + heightAboveDeck(x, z)
+/** 초승달 소파. 중심에서 잰 반지름과 각도(도)다. 휜 안쪽이 TV(-z)를 향한다. */
+export const SOFA = { x: 1.5, z: -1.6, inner: 2.05, outer: 3.0, from: 35, to: 145 } as const
+
+/** 카바나. 데크 오른쪽에 기둥 여섯 개를 세우고 그 위에 보와 살 지붕을 얹는다. */
+export const CABANA = {
+  postXs: [-9.85, -4.45],
+  postZs: [7.7, 10.65, 13.6],
+  /** 각기둥 한 변의 길이 */
+  post: 0.18,
+  /** 보의 아랫면과 윗면 높이 */
+  beamBottom: 2.95,
+  beamTop: 3.13,
+  /** 살 지붕의 윗면 높이 */
+  slatTop: 3.25,
+  /** 살 사이의 간격 */
+  slatGap: 0.3,
+  /** 천을 묶는 높이 */
+  tie: 1.25,
+} as const
+
+/** 수영장 물이 차 있는 범위. 지금은 들어갈 수 없다. 나중에 수영하는 동작을 넣을 때 이 범위를 쓴다. */
+export const POOL_WATER: Rect = { minX: -3.4, maxX: 3.4, minZ: 8.5, maxZ: 12.4 }
+
+/** 걸어서 올라설 수 있는 높이 차이. 계단 한 단(0.18m)이 이 안에 들어온다. */
+export const STEP_UP = 0.25
+
+/** 점프 중에 발이 윗면보다 이만큼 낮아도 올라선 것으로 본다. */
+export const JUMP_GRACE = 0.1
+
+// 걸을 수 있는 구역. 방과 문 자리와 계단과 데크를 사각형으로 이어 붙였다.
+// 방은 벽 안쪽 면에서 조금 들여서 잡았다. 그래서 벽과 유리는 따로 적지 않아도 지나갈 수 없다.
+const WALK_AREAS: Rect[] = [
+  // 거실과 주방
+  { minX: -7.6, maxX: 6.6, minZ: -5.6, maxZ: 5.9 },
+  // 거실 앞 끝과 계단과 화단을 잇는 자리. 거실 앞면은 벽이 없이 열려 있다.
+  { minX: -7.6, maxX: 6.6, minZ: 5.8, maxZ: 6.2 },
+  // 거실과 침실 사이 문 자리
+  { minX: 6.5, maxX: 7.5, minZ: 1.8, maxZ: 4.2 },
+  // 침실
+  { minX: 7.4, maxX: 13.6, minZ: -0.6, maxZ: 5.6 },
+  // 침실과 욕실 사이 문 자리
+  { minX: 7.9, maxX: 8.9, minZ: -1.5, maxZ: -0.5 },
+  // 욕실
+  { minX: 7.4, maxX: 13.6, minZ: -5.6, maxZ: -1.4 },
+  // 욕실과 변기 칸 사이 문 자리. 미닫이문이 절반을 가려서 열린 쪽만 지나간다.
+  { minX: 9.72, maxX: 10.05, minZ: -6.4, maxZ: -5.5 },
+  // 변기 칸
+  { minX: 7.3, maxX: 10.7, minZ: -8.2, maxZ: -6.3 },
+  // 데크
+  { minX: -9.6, maxX: 9.6, minZ: 6.1, maxZ: 13.6 },
+]
+
+// 높이와 상관없이 지나갈 수 없는 자리. 얇은 것은 빠르게 걸어도 뚫리지 않도록 0.3m 넘게 잡았다.
+const BLOCKERS: Rect[] = [
+  POOL_WATER,
+  // 욕조 안쪽 물
+  { minX: 11.1, maxX: 13.7, minZ: -5.7, maxZ: -4.4 },
+  // 샤워 칸의 세로줄 유리 칸막이
+  { minX: 12.2, maxX: 13.9, minZ: -3.05, maxZ: -2.75 },
+  // 변기 칸의 가림벽
+  { minX: 8.35, maxX: 8.7, minZ: -8.35, maxZ: -6.9 },
+  // 카바나 기둥 여섯 개
+  ...CABANA.postXs.flatMap((x) =>
+    CABANA.postZs.map((z) => ({ minX: x - 0.2, maxX: x + 0.2, minZ: z - 0.2, maxZ: z + 0.2 })),
+  ),
+]
+
+/** 윗면에 올라설 수 있는 물건. top은 데크 윗면에서 잰 높이다. */
+interface Surface extends Rect {
+  top: number
+  /** 휜 물건은 사각형 안에서도 이 부채꼴 띠 안에 있을 때만 올라선 것으로 본다. */
+  arc?: { x: number; z: number; inner: number; outer: number; from: number; to: number }
 }
 
-// 데크를 기준으로 잰 바닥 높이
-function heightAboveDeck(x: number, z: number) {
-  if (Math.abs(x) > STAIRS.halfWidth) return 0
-  if (z <= STAIRS.startZ) return z >= -6 ? FLOOR_HEIGHT : 0
-  if (z < STAIRS_END_Z) {
+// 데크 위 물건. 높이는 데크 윗면에서 잰다.
+function onDeck(minX: number, maxX: number, minZ: number, maxZ: number, top: number): Surface {
+  return { minX, maxX, minZ, maxZ, top }
+}
+
+// 집 안 물건. 높이는 방바닥에서 잰다.
+function onFloor(minX: number, maxX: number, minZ: number, maxZ: number, top: number): Surface {
+  return { minX, maxX, minZ, maxZ, top: FLOOR_HEIGHT + top }
+}
+
+// 가운데 자리와 한 변의 절반 길이로 정사각형 물건을 적는다.
+function onFloorAt(x: number, z: number, half: number, top: number): Surface {
+  return onFloor(x - half, x + half, z - half, z + half, top)
+}
+
+// 초승달 소파의 방석이나 등받이
+function sofaBand(inner: number, outer: number, top: number): Surface {
+  return {
+    ...onFloor(SOFA.x - SOFA.outer, SOFA.x + SOFA.outer, SOFA.z, SOFA.z + SOFA.outer, top),
+    arc: { x: SOFA.x, z: SOFA.z, inner, outer, from: SOFA.from, to: SOFA.to },
+  }
+}
+
+const SURFACES: Surface[] = [
+  // 수영장 테두리. 집 쪽과 양옆 세 변이 데크보다 높다.
+  onDeck(-3.7, 3.7, 8.2, 8.5, 0.3),
+  onDeck(-3.7, -3.4, 8.5, 12.1, 0.3),
+  onDeck(3.4, 3.7, 8.5, 12.1, 0.3),
+  // 선베드 두 개
+  onDeck(5.1, 6.0, 9.0, 11.2, 0.47),
+  onDeck(6.9, 7.8, 9.0, 11.2, 0.47),
+  // 계단 양 끝의 돌 화단과 침실 앞 화단과 데크 앞쪽 두 화단
+  onDeck(-8, STAIRS.minX, STAIRS.startZ, STAIRS_END_Z, 0.6),
+  onDeck(STAIRS.maxX, 7.2, STAIRS.startZ, STAIRS_END_Z, 0.6),
+  onDeck(7.2, 9.8, 6, 8, 0.45),
+  onDeck(-5.2, -4.2, 13, 13.9, 0.45),
+  onDeck(8.4, 9.6, 12.9, 13.9, 0.45),
+  // 데크 앞 끝의 돌 벤치
+  onDeck(-9.6, -5.2, 13, 13.9, 0.55),
+  // 카바나 아래의 식탁과 의자 넷
+  onDeck(-8.3, -6.1, 8.4, 9.4, 0.77),
+  ...[-7.9, -6.5].flatMap((x) => [8.05, 9.75].map((z) => onDeck(x - 0.24, x + 0.24, z - 0.24, z + 0.24, 0.48))),
+  // 카바나 아래의 소파 방석과 등받이와 탁자
+  onDeck(-9.35, -6.25, 10.85, 11.75, 0.41),
+  onDeck(-9.35, -6.25, 10.85, 11.07, 0.81),
+  onDeck(-8.5, -7.1, 12, 12.6, 0.3),
+
+  // 주방: 키 큰 장(냉장고와 오븐)과 조리대와 수전과 정수기와 아일랜드 식탁과 의자 둘
+  onFloor(-7.8, -6.9, -1.55, 0.05, 2.25),
+  onFloor(-7.8, -7.15, 0.1, 4.6, 0.95),
+  onFloor(-7.7, -7.4, 0.35, 0.65, 1.45),
+  onFloor(-7.75, -7.45, 1.7, 1.9, 1.38),
+  onFloor(-6, -5.1, 0.5, 4.1, 0.95),
+  onFloorAt(-4.75, 1.5, 0.2, 0.5),
+  onFloorAt(-4.75, 3.1, 0.2, 0.5),
+
+  // 거실: 선반 벽은 TV 자리 아래 수납장에만 올라설 수 있고 선반 칸은 맨 위 선반 높이로 막힌다.
+  onFloor(-7.8, 6.2, -5.875, -5.425, 0.7),
+  onFloor(-7.8, -1.5, -5.875, -5.425, 3.1),
+  onFloor(4.5, 6.2, -5.875, -5.425, 3.1),
+  // 통나무 조명과 곡선 책장과 통나무 탁자
+  onFloorAt(6.5, -5.45, 0.2, 1.8),
+  onFloor(6.5, 6.85, -3, -1.1, 2.1),
+  onFloor(0.7, 2.3, -1.25, -0.45, 0.35),
+  // 초승달 소파의 방석과 등받이
+  sofaBand(SOFA.inner, SOFA.outer, 0.45),
+  sofaBand(SOFA.outer - 0.32, SOFA.outer, 0.85),
+
+  // 침실: 침대와 협탁 둘과 바닥 조명과 안락의자와 스탠드 화면과 공기청정기와 고리 콘솔과 큰 화분
+  onFloor(10.3, 12.5, -0.85, 1.3, 0.5),
+  onFloor(9.85, 10.25, -0.8, -0.35, 0.45),
+  onFloor(12.55, 12.95, -0.8, -0.35, 0.45),
+  onFloorAt(13.35, -0.5, 0.17, 1.6),
+  onFloorAt(8.9, 4.6, 0.5, 0.42),
+  onFloor(12.2, 13.0, 3.5, 3.7, 1.45),
+  onFloorAt(13.4, 5.3, 0.16, 1),
+  onFloor(7.3, 9.1, 5.45, 5.8, 0.8),
+  onFloorAt(7.55, 4.95, 0.3, 0.55),
+
+  // 욕실: 욕조 돌 턱 네 면과 세면대와 수전 둘과 나무 스툴과 화분
+  onFloor(10.9, 13.9, -4.4, -4.25, 0.55),
+  onFloor(10.9, 13.9, -5.85, -5.7, 0.55),
+  onFloor(10.9, 11.1, -5.85, -4.25, 0.55),
+  onFloor(13.7, 13.9, -5.85, -4.25, 0.55),
+  onFloor(7.15, 7.8, -5.3, -2.5, 0.9),
+  onFloorAt(7.3, -4.6, 0.15, 1.2),
+  onFloorAt(7.3, -3.2, 0.15, 1.2),
+  onFloorAt(10.5, -4.6, 0.2, 0.45),
+  onFloorAt(8.4, -5.4, 0.26, 0.5),
+
+  // 변기 칸: 변기와 손 씻는 대와 수전과 화분
+  onFloor(7.15, 7.8, -7.95, -7.45, 0.45),
+  onFloor(8.9, 10.6, -8.35, -7.8, 0.85),
+  onFloorAt(9.75, -8.2, 0.15, 1.15),
+  onFloorAt(10.5, -6.6, 0.26, 0.5),
+]
+
+function contains(rect: Rect, x: number, z: number) {
+  return x >= rect.minX && x <= rect.maxX && z >= rect.minZ && z <= rect.maxZ
+}
+
+function onSurface(surface: Surface, x: number, z: number) {
+  if (!contains(surface, x, z)) return false
+  const arc = surface.arc
+  if (!arc) return true
+  const distance = Math.hypot(x - arc.x, z - arc.z)
+  const degree = (Math.atan2(z - arc.z, x - arc.x) * 180) / Math.PI
+  return distance >= arc.inner && distance <= arc.outer && degree >= arc.from && degree <= arc.to
+}
+
+// 고양이가 서 있는 자리의 바닥 높이를 구한다. 그 자리에 있는 가장 높은 윗면을 돌려준다.
+// 데크는 DECK_HEIGHT이고 거실은 그보다 FLOOR_HEIGHT만큼 높으며 계단은 단마다 낮아진다.
+export function groundHeight(x: number, z: number) {
+  let top = baseHeight(x, z)
+  for (const surface of SURFACES) {
+    if (surface.top > top && onSurface(surface, x, z)) top = surface.top
+  }
+  return DECK_HEIGHT + top
+}
+
+// 가구를 뺀 바닥의 높이. 데크를 기준으로 잰다.
+function baseHeight(x: number, z: number) {
+  // 거실과 침실과 욕실과 변기 칸은 모두 같은 높이의 바닥이다.
+  if (contains(HOUSE, x, z) || contains(HOUSE.toilet, x, z)) return FLOOR_HEIGHT
+  const onStairs = x >= STAIRS.minX && x <= STAIRS.maxX && z > STAIRS.startZ && z < STAIRS_END_Z
+  if (onStairs) {
     const step = Math.floor((z - STAIRS.startZ) / STAIRS.stepDepth)
     return FLOOR_HEIGHT - STEP_HEIGHT * (step + 1)
   }
   return 0
 }
 
-function contains(rect: Rect, x: number, z: number) {
-  return x >= rect.minX && x <= rect.maxX && z >= rect.minZ && z <= rect.maxZ
-}
-
+// 높이를 따지지 않고 그 자리에 설 수 있는지만 본다. 벽과 유리와 기둥과 물이 막는다.
 export function isWalkable(x: number, z: number) {
   const insideArea = WALK_AREAS.some((area) => contains(area, x, z))
-  const insideObstacle = OBSTACLES.some((obstacle) => contains(obstacle, x, z))
-  return insideArea && !insideObstacle
+  const blocked = BLOCKERS.some((blocker) => contains(blocker, x, z))
+  return insideArea && !blocked
 }
 
 // 다음 위치로 갈 수 있으면 그 위치를 돌려준다.
+// footY는 지금 발의 높이다. 다음 자리의 윗면이 발보다 너무 높으면 가지 못한다.
+// 서 있을 때는 STEP_UP까지 걸어서 올라서고 점프 중에는 발이 윗면보다 JUMP_GRACE 낮은 높이까지 오면 올라선다.
 // 벽에 비스듬히 부딪혔을 때는 한 축만 움직여서 벽을 따라 미끄러지게 한다.
 export function resolveMove(
   currentX: number,
   currentZ: number,
   nextX: number,
   nextZ: number,
+  footY: number,
 ): [number, number] {
-  if (isWalkable(nextX, nextZ)) return [nextX, nextZ]
-  if (isWalkable(nextX, currentZ)) return [nextX, currentZ]
-  if (isWalkable(currentX, nextZ)) return [currentX, nextZ]
+  const grounded = footY <= groundHeight(currentX, currentZ) + 0.001
+  const reach = footY + (grounded ? STEP_UP : JUMP_GRACE)
+  const canStand = (x: number, z: number) => isWalkable(x, z) && groundHeight(x, z) <= reach
+  if (canStand(nextX, nextZ)) return [nextX, nextZ]
+  if (canStand(nextX, currentZ)) return [nextX, currentZ]
+  if (canStand(currentX, nextZ)) return [currentX, nextZ]
   return [currentX, currentZ]
 }

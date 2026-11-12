@@ -37,5 +37,37 @@ export const palette = {
   slope: '#4f8a4a',
   hill: '#3f7a4c',
   fabric: '#e8dcc6',
+  /** 붉은 기가 도는 짙은 나무. 문틀과 선반과 지붕 아랫면에 쓴다. */
+  teak: '#a5673f',
+  /** 둥근 쌍기둥의 몸통과 위아래 끝 */
+  column: '#c98f3a',
+  columnCap: '#2b2622',
+  /** 수영장 테두리의 어두운 돌 */
+  charcoal: '#6f6a60',
+  /** 거칠게 쌓은 밝은 돌 벽과 튀어나온 돌 */
+  roughStone: '#d9ccb0',
+  roughStoneDark: '#c4b596',
+  /** 화단의 흙 */
+  soil: '#6b5a45',
+  /** 침구와 욕조와 냉장고 */
+  white: '#fbfaf6',
+  /** 밝은 오크. 천장 아랫면과 선반 뒤판 */
+  oakLight: '#e3d2b4',
+  /** 꿀색 오크. 창틀과 덧문과 문틀과 선반과 오브제와 카바나 틀 */
+  oak: '#c8a67c',
+  /** 무광 그레이지. 주방 하부장과 TV 벽 아래 수납장 */
+  greige: '#b9ae9c',
+  /** 상판과 욕조 돌 턱 */
+  counter: '#ece4d4',
+  /** 포인트 그린. 쿠션과 담요 */
+  green: '#5f6b45',
+  /** 냉장고 아래 문짝 */
+  fridgeLower: '#c8b9a6',
+  /** 소파 나무 몸통 */
+  sofaWood: '#b07a4a',
+  rugBedroom: '#c9a79a',
+  rugLiving: '#d8c9ae',
+  /** 오븐과 인덕션과 화면의 검은 유리 */
+  blackGlass: '#1d1c1b',
   blue: '#6aa7d8',
 } as const

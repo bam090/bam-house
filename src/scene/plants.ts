@@ -13,6 +13,7 @@ import {
   shoreZ,
   terrainHeight,
 } from './terrain.ts'
+import { PLANT_KEEP_OUT } from './walkable.ts'
 
 export interface Plant {
   x: number
@@ -335,7 +336,20 @@ export function makePlants() {
     }
   }
 
-  return { palms, bushes, trees, covers, lowTrees, gardenTrees }
+  // 침실과 욕실과 돌 벽 뜰과 변기 칸이 들어선 자리에 심긴 식물은 뺀다.
+  const outsideHouse = (plant: Plant) =>
+    !PLANT_KEEP_OUT.some(
+      (rect) => plant.x >= rect.minX && plant.x <= rect.maxX && plant.z >= rect.minZ && plant.z <= rect.maxZ,
+    )
+
+  return {
+    palms: palms.filter(outsideHouse),
+    bushes: bushes.filter(outsideHouse),
+    trees: trees.filter(outsideHouse),
+    covers: covers.filter(outsideHouse),
+    lowTrees,
+    gardenTrees,
+  }
 }
 
 /** 물가를 따라 x 좌표를 일정한 간격으로 나눈 목록. 파도 거품을 그릴 때 쓴다. */

@@ -165,6 +165,8 @@ export function Player() {
         group.position.z,
         group.position.x + stepX,
         group.position.z + stepZ,
+        // 발 높이를 함께 넘겨서 가구 위로 올라설 수 있는지 판단하게 한다.
+        group.position.y,
       )
       group.position.x = nextX
       group.position.z = nextZ
