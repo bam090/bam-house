@@ -42,9 +42,9 @@ export function TwinColumn({ position, height, along = 'x' }: { position: Vec3; 
         const z = along === 'z' ? offset : 0
         return (
           <group key={offset}>
-            <Cylinder radius={COLUMN_RADIUS} height={foot} position={[x, foot / 2, z]} color={palette.columnCap} />
-            <Cylinder radius={COLUMN_RADIUS} height={body} position={[x, foot + body / 2, z]} color={palette.column} />
-            <Cylinder radius={COLUMN_RADIUS} height={head} position={[x, height - head / 2, z]} color={palette.columnCap} />
+            <Cylinder radius={COLUMN_RADIUS} height={foot} position={[x, foot / 2, z]} color={palette.woodDark} />
+            <Cylinder radius={COLUMN_RADIUS} height={body} position={[x, foot + body / 2, z]} color={palette.oak} />
+            <Cylinder radius={COLUMN_RADIUS} height={head} position={[x, height - head / 2, z]} color={palette.woodDark} />
           </group>
         )
       })}

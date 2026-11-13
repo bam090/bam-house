@@ -42,14 +42,15 @@ function LinearPendant({ position, length, ceiling }: { position: Spot; length: 
 
 // 52번 라탄 갓 아치 스탠드. base는 바닥 받침의 자리이고 shade는 갓 아랫면의 가운데다.
 // 받침에서 올라간 대가 크게 휘어서 갓을 탁자 위에 매단다.
-function ArcFloorLamp({ base, shade }: { base: Spot; shade: Spot }) {
+// peak는 대가 휘는 정도를 정하는 조절점의 높이다. 클수록 대가 높이 올라갔다가 내려온다.
+function ArcFloorLamp({ base, shade, peak }: { base: Spot; shade: Spot; peak: number }) {
   const curve = useMemo(() => {
     const start = new Vector3(base[0], 0.04, base[2])
     const end = new Vector3(shade[0], shade[1] + 0.3, shade[2])
     // 조절점을 받침 바로 위 높은 곳에 두면 대가 곧게 올라가다가 갓 쪽으로 휜다.
-    const control = new Vector3(base[0] + (shade[0] - base[0]) * 0.1, 3.7, base[2] + (shade[2] - base[2]) * 0.1)
+    const control = new Vector3(base[0] + (shade[0] - base[0]) * 0.1, peak, base[2] + (shade[2] - base[2]) * 0.1)
     return new QuadraticBezierCurve3(start, control, end)
-  }, [base, shade])
+  }, [base, shade, peak])
   return (
     <group>
       <Cylinder radius={0.2} height={0.04} position={[base[0], 0.02, base[2]]} color={palette.white} />
@@ -131,8 +132,8 @@ export function Lamps({ ceiling }: { ceiling: number }) {
     <group>
       {/* 아일랜드 위의 펜던트 */}
       <LinearPendant position={[-5.55, 1.9, 2.3]} length={2.8} ceiling={ceiling} />
-      {/* 소파 왼쪽 뒤에 세운 아치 스탠드. 갓이 통나무 탁자 위 1.9m에 온다. */}
-      <ArcFloorLamp base={[4.4, 0, 0.9]} shade={[1.5, 1.9, -0.85]} />
+      {/* 소파 끝 뒤에 세운 아치 스탠드. 조금만 휘어서 갓이 소파 끝자리 위 1.75m에 온다. */}
+      <ArcFloorLamp base={[4.4, 0, 0.9]} shade={[3.5, 1.75, -0.15]} peak={3.1} />
       {/* 침대 양옆 협탁 위의 버섯형 램프 */}
       <MushroomLamp position={[10.05, 0.45, -0.52]} />
       <MushroomLamp position={[12.75, 0.45, -0.52]} />

@@ -5,6 +5,7 @@ import type { Group } from 'three'
 import { Box } from './Box'
 import { CatWays } from './CatWays'
 import { WingRooms } from './InteriorRooms'
+import { Decor } from './Decor'
 import { Lamps } from './Lamps'
 import { palette } from './palette'
 import { Cylinder, Extruded, FACE_X, Faucet, Glow, LAY_FLAT, arcBand } from './Shapes'
@@ -84,15 +85,7 @@ function Kitchen() {
         </group>
       ))}
 
-      {/* 크림색 벽에 단 나무 선반 두 단과 그 위의 그릇 */}
-      {[1.2, 1.7].map((top) => (
-        <Box key={top} size={[0.25, 0.04, 1.4]} position={[-7.725, top - 0.02, -2.85]} color={palette.oak} />
-      ))}
-      {[-3.3, -3.05, -2.4].map((z) => (
-        <Cylinder key={z} radius={0.05} radiusTop={0.06} height={0.11} position={[-7.72, 1.255, z]} color={palette.white} />
-      ))}
-      <Cylinder radius={0.07} radiusTop={0.04} height={0.24} position={[-7.72, 1.82, -3.2]} color={palette.green} />
-      <Box size={[0.16, 0.2, 0.3]} position={[-7.72, 1.8, -2.5]} color={palette.fabric} />
+      {/* 벽 선반과 조리대 위의 물건은 Decor.tsx에서 그린다. */}
     </group>
   )
 }
@@ -440,6 +433,8 @@ function Lounge() {
       seat: arcBand(x, z, inner + 0.03, outer - 0.3, from + 1, to - 1),
       shell: arcBand(x, z, outer - 0.1, outer, from, to),
       back: arcBand(x, z, outer - 0.32, outer - 0.1, from + 1, to - 1),
+      // 방석과 나무 껍데기 사이의 빈틈을 메우는 띠. 이것이 없으면 소파 양 끝 단면에 네모난 구멍이 보인다.
+      filler: arcBand(x, z, outer - 0.3, outer - 0.1, from + 1, to - 1),
       table,
     }
   }, [x, z, inner, outer, from, to])
@@ -451,6 +446,7 @@ function Lounge() {
       <Extruded shape={shapes.base} depth={0.23} position={[0, 0.02, 0]} rotation={LAY_FLAT} color={palette.sofaWood} />
       <Extruded shape={shapes.seat} depth={0.2} position={[0, 0.25, 0]} rotation={LAY_FLAT} color={palette.fabric} />
       <Extruded shape={shapes.shell} depth={0.6} position={[0, 0.25, 0]} rotation={LAY_FLAT} color={palette.sofaWood} />
+      <Extruded shape={shapes.filler} depth={0.2} position={[0, 0.25, 0]} rotation={LAY_FLAT} color={palette.fabric} />
       <Extruded shape={shapes.back} depth={0.38} position={[0, 0.45, 0]} rotation={LAY_FLAT} color={palette.fabric} />
       {/* 양 끝의 그린 쿠션 */}
       {[from + 7, to - 7].map((degree) => {
@@ -511,6 +507,7 @@ export function Interior() {
       <WingRooms />
       <CatWays />
       <Lamps ceiling={CEILING_HEIGHT} />
+      <Decor />
     </group>
   )
 }

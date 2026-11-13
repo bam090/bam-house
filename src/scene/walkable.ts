@@ -79,6 +79,14 @@ export const STAIRS_END_Z = STAIRS.startZ + STAIRS.stepDepth * STEP_COUNT
 /** 초승달 소파. 중심에서 잰 반지름과 각도(도)다. 휜 안쪽이 TV(-z)를 향한다. */
 export const SOFA = { x: 1.5, z: -1.6, inner: 2.05, outer: 3.0, from: 35, to: 145 } as const
 
+/** 1인용 소파. 초승달 소파의 -x 쪽 끝 옆이다. */
+// 초승달 소파가 그리는 원(가운데 SOFA.x와 SOFA.z) 위의 168도 자리에 놓고 원의 가운데를 보게 돌린다.
+// 그래서 초승달 소파가 한 자리 더 이어진 것처럼 보인다. turn은 y축으로 도는 각도다.
+export const SINGLE_SOFA = { x: -1.0, z: -1.07, turn: -1.36 } as const
+
+/** 고양이 화장실 장의 가운데 자리. 거실 뒤쪽 구석에서 주방 쪽 벽에 붙는다. */
+export const LITTER_BOX = { x: -7.53, z: -4.95 } as const
+
 /** 카바나. 데크 오른쪽에 기둥 여섯 개를 세우고 그 위에 보와 살 지붕을 얹는다. */
 export const CABANA = {
   postXs: [-9.85, -4.45],
@@ -286,6 +294,15 @@ const SURFACES: Surface[] = [
   onFloor(0.7, 2.3, -1.25, -0.45, 0.35),
   // 아치 스탠드의 받침과 대. 대가 높아서 지나가거나 올라설 수 없다.
   onFloorAt(4.4, 0.9, 0.1, 2.0),
+  // 소파 옆의 바닥 쿠션 둘과 거실 앞의 큰 야자 화분과 아일랜드 끝의 고양이 식기
+  onFloorAt(4.7, -0.55, 0.32, 0.16),
+  onFloorAt(4.45, -1.35, 0.28, 0.16),
+  // 고양이 화장실 장
+  onFloor(LITTER_BOX.x - 0.3, LITTER_BOX.x + 0.3, LITTER_BOX.z - 0.35, LITTER_BOX.z + 0.35, 0.63),
+  // 1인용 소파의 방석과 등받이. 등받이는 뒤쪽 절반이다.
+  onFloorAt(SINGLE_SOFA.x, SINGLE_SOFA.z, 0.46, 0.45),
+  onFloorAt(6.1, 5.25, 0.3, 0.6),
+  onFloor(-5.8, -5.3, 4.115, 4.335, 0.12),
   // 초승달 소파의 방석과 등받이
   sofaBand(SOFA.inner, SOFA.outer, 0.45),
   sofaBand(SOFA.outer - 0.32, SOFA.outer, 0.85),
@@ -302,6 +319,9 @@ const SURFACES: Surface[] = [
   onFloor(7.3, 9.1, 5.45, 5.8, 0.8),
   onFloorAt(7.55, 4.95, 0.3, 0.55),
 
+  // 침대 발치의 벤치
+  onFloor(10.6, 12.2, 1.45, 1.85, 0.42),
+
   // 욕실: 욕조 돌 턱 네 면과 세면대와 수전 둘과 나무 스툴과 화분
   onFloor(10.9, 13.9, -4.4, -4.25, 0.55),
   onFloor(10.9, 13.9, -5.85, -5.7, 0.55),
@@ -312,6 +332,10 @@ const SURFACES: Surface[] = [
   onFloorAt(7.3, -3.2, 0.15, 1.2),
   onFloorAt(10.5, -4.6, 0.2, 0.45),
   onFloorAt(8.4, -5.4, 0.26, 0.5),
+
+  // 욕실의 라탄 바구니와 벽에 기댄 사다리 수건걸이
+  onFloorAt(9.3, -5.35, 0.22, 0.42),
+  onFloor(10.25, 10.7, -5.9, -5.45, 1.75),
 
   // 변기 칸: 변기와 손 씻는 대와 수전과 화분
   onFloor(7.15, 7.8, -7.95, -7.45, 0.45),
