@@ -4,6 +4,7 @@ import { Vector3 } from 'three'
 import type { Group } from 'three'
 import { readMove, readTilt, readTurn, useKeyboard } from '../hooks/useKeyboard'
 import { Cat } from './Cat'
+import { catFocus } from './Occlusion'
 import { CAT_TALL, ceilingHeight, groundHeight, resolveMove } from './walkable'
 
 /** 고양이가 처음 서 있는 자리. 테라스의 오른쪽 앞이다. */
@@ -223,6 +224,9 @@ export function Player() {
         verticalSpeed.current = Math.min(verticalSpeed.current, 0)
       }
     }
+
+    // 시야 가림 처리에 쓰도록 고양이 몸의 가운데 자리를 알린다.
+    catFocus.set(group.position.x, group.position.y + 0.35, group.position.z)
 
     // 카메라는 고양이 뒤쪽 위에서 부드럽게 따라간다.
     const smoothing = 1 - Math.exp(-6 * delta)

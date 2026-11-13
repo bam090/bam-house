@@ -91,7 +91,8 @@ function Kitchen() {
 }
 
 /** 아치 벽. 뒤쪽 벽 앞에 덧댄 크림색 벽체이고 통유리창 자리에는 세우지 않는다. */
-const ARCH_WALL = { minX: -4.6, maxX: 6.2, back: HOUSE.minZ + 0.125, front: -5.45 } as const
+// 오른쪽 끝은 침실 쪽 벽의 거실 면(x 6.875)까지 채워서 모서리가 끊기지 않게 한다.
+const ARCH_WALL = { minX: -4.6, maxX: HOUSE.wingX - 0.125, back: HOUSE.minZ + 0.125, front: -5.45 } as const
 
 /** 아치 벽감 셋. 폭과 꼭대기 높이가 서로 다르다. shelves는 선반 윗면의 높이다. */
 const NICHES = [
@@ -348,7 +349,7 @@ function Television() {
 // 통나무 조명. 굵기가 다른 줄기 둘 사이의 틈에서 빛이 난다.
 function LogLamp() {
   return (
-    <group position={[6.5, 0, -5.45]}>
+    <group position={[6.5, 0, -5.2]}>
       <Cylinder radius={0.1} radiusTop={0.08} height={1.8} position={[-0.08, 0.9, 0]} color={palette.oak} />
       <Cylinder radius={0.08} radiusTop={0.06} height={1.5} position={[0.1, 0.75, 0.04]} color={palette.wood} />
       <Glow size={[0.05, 1.3, 0.05]} position={[0.02, 0.8, 0.03]} />

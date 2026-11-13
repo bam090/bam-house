@@ -1,3 +1,4 @@
+import { HideWhenBlocking, cameraAboveCeilingIn } from './Occlusion'
 import { Box } from './Box'
 import { Interior } from './Interior'
 import { palette } from './palette'
@@ -10,11 +11,56 @@ const DOOR_HEIGHT = 2.7
 /** 욕실 문과 변기 칸 문의 높이 */
 const LOW_DOOR_HEIGHT = 2.4
 
-/** 지붕이 덮는 범위. 본채 위의 큰 판과 변기 칸 위로 더 덮는 판이다. */
-const ROOFS = [
-  { minX: -9.5, maxX: 15.2, minZ: -7.2, maxZ: 7.4 },
-  { minX: 6.4, maxX: 11.5, minZ: -9, maxZ: -7.2 },
-] as const
+type Rect = { minX: number; maxX: number; minZ: number; maxZ: number }
+
+/** 방의 바닥 범위. 지붕 조각마다 어느 방 위에 있는지 정할 때 쓴다. */
+const ROOMS = {
+  living: { minX: -8, maxX: 7, minZ: -6, maxZ: 6 },
+  bedroom: { minX: 7, maxX: 14, minZ: -1, maxZ: 6 },
+  bath: { minX: 7, maxX: 14, minZ: -6, maxZ: -1 },
+  toilet: { minX: 7, maxX: 11, minZ: -8.5, maxZ: -6 },
+} as const
+
+/** 지붕 조각. slab은 크림색 지붕 판이고 board는 그 아래 오크 천장 판이며 rooms는 그 조각이 덮는 방이다. */
+// 고양이가 있는 방 위의 조각만 숨기려고 본채 지붕을 거실과 침실과 욕실 위의 세 조각으로 나눴다.
+// 욕실 조각은 변기 칸 앞쪽(z -7.2~-6)도 덮어서 변기 칸에 있을 때도 함께 숨긴다.
+// 천장 판은 지붕 바깥 가장자리에서만 0.1m 들이고 조각끼리 닿는 쪽은 끝까지 채워서 천장이 끊기지 않게 한다.
+// beam은 지붕 바로 아래에 걸린 나무 가로대다. 지붕을 숨길 때 혼자 떠 있지 않도록 그 조각과 함께 숨긴다.
+const ROOF_PIECES: { slab: Rect; board: Rect; rooms: Rect[]; beam?: Rect }[] = [
+  {
+    slab: { minX: -9.5, maxX: 7, minZ: -7.2, maxZ: 7.4 },
+    board: { minX: -9.4, maxX: 7, minZ: -7.1, maxZ: 7.3 },
+    rooms: [ROOMS.living],
+    // 거실 앞면 위쪽의 나무 가로대
+    beam: { minX: -8, maxX: 7, minZ: 5.86, maxZ: 6 },
+  },
+  {
+    slab: { minX: 7, maxX: 15.2, minZ: -1, maxZ: 7.4 },
+    board: { minX: 7, maxX: 15.1, minZ: -1, maxZ: 7.3 },
+    rooms: [ROOMS.bedroom],
+  },
+  {
+    slab: { minX: 7, maxX: 15.2, minZ: -7.2, maxZ: -1 },
+    board: { minX: 7, maxX: 15.1, minZ: -7.1, maxZ: -1 },
+    rooms: [ROOMS.bath, ROOMS.toilet],
+  },
+  {
+    slab: { minX: 6.4, maxX: 11.5, minZ: -9, maxZ: -7.2 },
+    board: { minX: 6.5, maxX: 11.4, minZ: -8.9, maxZ: -7.3 },
+    rooms: [ROOMS.toilet],
+  },
+]
+
+// 범위 값으로 상자를 그린다. bottom과 height는 아랫면 높이와 두께다.
+function RectBox({ rect, bottom, height, color }: { rect: Rect; bottom: number; height: number; color: string }) {
+  return (
+    <Box
+      size={[rect.maxX - rect.minX, height, rect.maxZ - rect.minZ]}
+      position={[(rect.minX + rect.maxX) / 2, bottom + height / 2, (rect.minZ + rect.maxZ) / 2]}
+      color={color}
+    />
+  )
+}
 
 /** 거실 오른쪽 벽에서 크림색 벽이 끝나고 유리문이 시작하는 z 좌표 */
 const SIDE_GLASS_FROM = 0.1
@@ -54,7 +100,8 @@ function GlassWall({ along, at, from, to, panels }: GlassWallProps) {
 
   return (
     <group>
-      <Box size={size(length, h, 0.05)} position={place(middle, h / 2)} color={palette.glass} opacity={0.22} roughness={0.1} />
+      {/* 유리 판은 위아래 가로대 안에 끝을 묻는다. 가로대와 높이가 같으면 윗면과 아랫면이 가로대 면과 겹쳐서 깜빡인다. */}
+      <Box size={size(length, h - 0.04, 0.05)} position={place(middle, h / 2)} color={palette.glass} opacity={0.22} roughness={0.1} />
       {/* 아래 가로대와 위 가로대와 그 사이의 중간 가로대 */}
       <Box size={size(length, 0.12, 0.14)} position={place(middle, 0.06)} color={palette.oak} />
       <Box size={size(length, 0.12, 0.14)} position={place(middle, h - 0.06)} color={palette.oak} />
@@ -129,8 +176,9 @@ function RoughWall({ along, at, from, to, bottom, top, seed }: {
     stones.push({ run, tall, center, y, thick })
   }
 
+  // noFade를 주어서 카메라와 고양이 사이에 끼어도 반투명하게 바꾸지 않는다. 벽만 흐려지고 붙은 돌은 그대로 남아서 어색하기 때문이다.
   return (
-    <group>
+    <group userData={{ noFade: true }}>
       <Box size={size(length, height, 0.3)} position={place(middle, bottom + height / 2)} color={palette.roughStone} roughness={1} />
       {stones.map((stone, index) => (
         <Box
@@ -380,24 +428,18 @@ export function House() {
         {/* 거실 앞면 양 끝의 쌍기둥 */}
         <TwinColumn position={[HOUSE.minX + 0.05, 0, HOUSE.maxZ - 0.15]} height={h} along="z" />
         <TwinColumn position={[wing - 0.3, 0, HOUSE.maxZ - 0.15]} height={h} along="z" />
-        {/* 거실 앞면 위쪽의 나무 가로대 */}
-        <Box size={[wing - HOUSE.minX, 0.14, 0.14]} position={[(HOUSE.minX + wing) / 2, h - 0.07, HOUSE.maxZ - 0.07]} color={palette.oak} />
 
         <Interior />
 
         {/* 얇은 지붕. 크림색 판 아래에 밝은 오크 천장을 댔다. */}
-        {ROOFS.map((roof) => {
-          const roofWidth = roof.maxX - roof.minX
-          const roofDepth = roof.maxZ - roof.minZ
-          const x = (roof.minX + roof.maxX) / 2
-          const z = (roof.minZ + roof.maxZ) / 2
-          return (
-            <group key={roof.minZ}>
-              <Box size={[roofWidth, 0.18, roofDepth]} position={[x, h + 0.15, z]} color={palette.wall} />
-              <Box size={[roofWidth - 0.2, 0.06, roofDepth - 0.2]} position={[x, h + 0.03, z]} color={palette.oakLight} />
-            </group>
-          )
-        })}
+        {/* 조각마다 따로 숨긴다. 고양이가 그 조각 아래 방에 있고 카메라가 천장보다 높거나 카메라와 고양이 사이를 가리면 숨긴다. */}
+        {ROOF_PIECES.map((piece) => (
+          <HideWhenBlocking key={`${piece.slab.minX}-${piece.slab.minZ}`} alsoWhen={cameraAboveCeilingIn(piece.rooms)}>
+            <RectBox rect={piece.slab} bottom={h + 0.06} height={0.18} color={palette.wall} />
+            <RectBox rect={piece.board} bottom={h} height={0.06} color={palette.oakLight} />
+            {piece.beam && <RectBox rect={piece.beam} bottom={h - 0.14} height={0.14} color={palette.oak} />}
+          </HideWhenBlocking>
+        ))}
 
         {/* 지붕이 햇빛을 가리기 때문에 실내에 따뜻한 색 조명을 따로 둔다. */}
         <pointLight position={[-4, h - 0.9, 0]} intensity={22} distance={16} color="#ffe2b8" />

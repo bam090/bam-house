@@ -1,5 +1,7 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { Matrix4, Shape } from 'three'
+import type { Vector3 } from 'three'
+import { HideWhenBlocking } from './Occlusion'
 import type { InstancedMesh } from 'three'
 import { Box } from './Box'
 import { palette } from './palette'
@@ -276,6 +278,16 @@ function clothShape(postZ: number, direction: number, span: number, top: number,
   return shape
 }
 
+// 카메라가 카바나 보 윗면보다 높고 카바나 바로 위(둘레 0.5m 포함)에 있는지 본다.
+// 이때는 카메라가 살 사이에 끼거나 살 지붕을 내려다보게 되어 아래가 가려진다.
+function cameraOverCabana(camera: Vector3) {
+  const [minX, maxX] = CABANA.postXs
+  const [minZ, , maxZ] = CABANA.postZs
+  const above = camera.y > DECK_HEIGHT + CABANA.beamTop
+  const over = camera.x > minX - 0.5 && camera.x < maxX + 0.5 && camera.z > minZ - 0.5 && camera.z < maxZ + 0.5
+  return above && over
+}
+
 function Cabana() {
   const { postXs, postZs, post, beamBottom, beamTop, tie } = CABANA
   const [minX, maxX] = postXs
@@ -323,7 +335,10 @@ function Cabana() {
       {postZs.map((z) => (
         <Box key={z} size={[maxX - minX - post, beam, beam]} position={[centerX, beamY, z]} color={palette.oak} />
       ))}
-      <CabanaSlats />
+      {/* 살 지붕. 카메라와 고양이 사이를 가리거나 카메라가 보 윗면보다 높고 카바나 위에 있으면 숨긴다. */}
+      <HideWhenBlocking alsoWhen={cameraOverCabana}>
+        <CabanaSlats />
+      </HideWhenBlocking>
       {/* 정원 쪽 긴 변에 길게 친 얇은 반투명 천 */}
       <Box
         size={[0.02, beamBottom - 0.2, maxZ - minZ - post]}

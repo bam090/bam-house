@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { Sky } from '@react-three/drei'
 import { House } from './scene/House'
+import { FadeBlockingWalls } from './scene/Occlusion'
 import { Landscape } from './scene/Landscape'
 import { CAMERA_OFFSET, Player, START_POSITION } from './scene/Player'
 import { Terrace } from './scene/Terrace'
@@ -39,13 +40,19 @@ function App() {
         shadow-camera-bottom={-30}
         shadow-camera-far={120}
         shadow-bias={-0.0005}
+        // normalBias는 그림자를 받는 면을 그 면의 바깥 방향으로 0.08m 밀어서 계산한다.
+        // 지붕 판이 벽 윗면과 맞닿아 있어서 이것이 없으면 벽 윗면과 지붕 옆면에 줄무늬 그림자가 생긴다.
+        shadow-normalBias={0.08}
       />
 
       <Landscape />
       {/* 집과 수영장 데크는 잔디보다 DECK_HEIGHT만큼 높은 돌 받침 위에 놓인다. */}
       <group position={[0, DECK_HEIGHT, 0]}>
-        <House />
-        <Terrace />
+        {/* 카메라와 고양이 사이에 낀 벽과 기둥은 반투명하게 바꾼다. */}
+        <FadeBlockingWalls>
+          <House />
+          <Terrace />
+        </FadeBlockingWalls>
       </group>
 
       <Player />
