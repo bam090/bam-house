@@ -137,8 +137,7 @@ export function Lamps({ ceiling }: { ceiling: number }) {
       {/* 침대 양옆 협탁 위의 버섯형 램프 */}
       <MushroomLamp position={[10.05, 0.45, -0.52]} />
       <MushroomLamp position={[12.75, 0.45, -0.52]} />
-      {/* 거실 왼쪽 벽과 침실 고리 콘솔 위의 타원 벽등 */}
-      <OvalSconce position={[6.875, 1.8, 5.2]} normal="x-" />
+      {/* 침실 고리 콘솔 위의 타원 벽등. 거실 왼쪽 벽의 벽등은 두 개가 한눈에 겹쳐 보여서 없앴다. */}
       <OvalSconce position={[8.2, 1.8, 5.7]} normal="z-" />
       {/* 욕실의 침실 쪽 벽에 둘과 변기 위 벽에 하나. 변기 칸 벽등만 실제로 빛을 낸다. */}
       <HalfMoonSconce position={[10.2, 1.8, -1.125]} />
