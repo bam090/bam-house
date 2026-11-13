@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { Path, Shape } from 'three'
 import { Box } from './Box'
 import { palette } from './palette'
-import { Cylinder, Extruded, FACE_X, Faucet, FlutedGlass, LAY_FLAT, Pot, arcBand } from './Shapes'
+import { Cylinder, Extruded, FACE_X, Faucet, LAY_FLAT, Pot, arcBand } from './Shapes'
+import { Shower } from './Shower'
 import { HOUSE } from './walkable'
 
 // 침실과 욕실과 변기 칸의 가구를 그리는 파일이다. 좌표는 장면 좌표이고 높이는 방바닥에서 잰 값이다.
@@ -197,12 +198,8 @@ function Bathroom() {
         </group>
       ))}
 
-      {/* 샤워 칸. 세로줄 유리 칸막이와 흰 레인 샤워기 */}
-      <Box size={[1.7, 0.02, 1.7]} position={[13.05, 0.011, -2]} color={palette.stoneDark} castShadow={false} />
-      <FlutedGlass along="x" at={-2.9} from={12.2} to={13.9} height={2.2} />
-      <Box size={[0.04, 1.2, 0.04]} position={[13.05, 1.6, -1.13]} color={palette.white} />
-      <Box size={[0.04, 0.04, 0.6]} position={[13.05, 2.2, -1.42]} color={palette.white} />
-      <Cylinder radius={0.18} height={0.03} position={[13.05, 2.165, -1.72]} color={palette.white} />
+      {/* 샤워부스. 트래버틴 벽과 가로 니치와 투명 유리와 브라스 수전(Shower.tsx) */}
+      <Shower />
 
       {/* 수건 걸이 */}
       <Box size={[0.8, 0.03, 0.03]} position={[10.4, 1.3, -1.16]} color={palette.oak} />

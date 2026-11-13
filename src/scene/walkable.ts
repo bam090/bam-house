@@ -34,6 +34,11 @@ export const HOUSE = {
   toiletDoor: { minX: 9.2, maxX: 10.1 },
 } as const
 
+/** 거실과 침실 사이 문의 높이. House.tsx의 문 위쪽 벽과 같은 값이다. */
+export const DOOR_HEIGHT = 2.7
+/** 욕실 문과 변기 칸 문의 높이 */
+export const LOW_DOOR_HEIGHT = 2.4
+
 /** 거실 바닥에서 천장까지의 높이 */
 export const CEILING_HEIGHT = 3.5
 
@@ -106,6 +111,17 @@ export function rampTop(z: number) {
   const eased = t * t * (3 - 2 * t)
   return highTop + (lowTop - highTop) * eased
 }
+
+/** 욕실 모서리의 샤워부스. maxZ는 침실 쪽 벽의 욕실 면이고 entryZ까지 입구 쪽 고정 유리다. */
+// bench는 뒷벽 트래버틴 판 앞의 일체형 벤치이고 top은 윗면 높이다.
+export const SHOWER = {
+  minX: 12.0,
+  maxX: 13.93,
+  minZ: -3.0,
+  maxZ: -1.1,
+  entryZ: -2.4,
+  bench: { minX: 12.9, maxX: 13.93, minZ: -1.62, maxZ: -1.22, top: 0.45 },
+} as const
 
 /** 거실 통유리창 옆 구석의 바닥 화병 자리 */
 export const FLOOR_VASE = { x: -7.45, z: -5.15 } as const
@@ -247,8 +263,9 @@ const BLOCKERS: Rect[] = [
   POOL_WATER,
   // 욕조 안쪽 물
   { minX: 11.1, maxX: 13.7, minZ: -5.7, maxZ: -4.4 },
-  // 샤워 칸의 세로줄 유리 칸막이
-  { minX: 12.2, maxX: 13.9, minZ: -3.05, maxZ: -2.75 },
+  // 샤워부스의 투명 유리. 앞면 한 장과 입구 쪽 고정 판 한 장
+  { minX: SHOWER.minX, maxX: SHOWER.maxX, minZ: SHOWER.minZ - 0.05, maxZ: SHOWER.minZ + 0.05 },
+  { minX: SHOWER.minX - 0.05, maxX: SHOWER.minX + 0.05, minZ: SHOWER.minZ, maxZ: SHOWER.entryZ },
   // 거실 뒤쪽의 아치 벽. 벽면보다 0.15m 앞까지 막아서 낮은 장 위에 섰을 때 몸이 벽에 묻히지 않게 한다.
   { minX: -4.6, maxX: 6.875, minZ: -5.9, maxZ: -5.3 },
   // 캣폴의 기둥
@@ -367,6 +384,9 @@ const SURFACES: Surface[] = [
   // 침대 발치의 벤치
   onFloor(10.6, 12.2, 1.45, 1.85, 0.42),
 
+  // 샤워부스 안의 트래버틴 벤치
+  onFloor(SHOWER.bench.minX, SHOWER.bench.maxX, SHOWER.bench.minZ, SHOWER.bench.maxZ, SHOWER.bench.top),
+
   // 욕실: 욕조 돌 턱 네 면과 세면대와 수전 둘과 나무 스툴과 화분
   onFloor(10.9, 13.9, -4.4, -4.25, 0.55),
   onFloor(10.9, 13.9, -5.85, -5.7, 0.55),
@@ -455,6 +475,35 @@ const BARRIERS: Barrier[] = [
     minZ: CAT_HOLE.minZ,
     maxZ: CAT_HOLE.maxZ,
     from: FLOOR_HEIGHT + CAT_HOLE.top,
+    to: FLOOR_HEIGHT + CEILING_HEIGHT,
+  },
+  // 문 위쪽 벽. 문 높이보다 높은 곳(캣워크 등)에서는 문 자리를 지나가지 못한다.
+  // 벽 두께에 몸 길이의 절반쯤(0.25m)을 더해서 고양이 머리가 벽에 묻히기 전에 멈추게 한다.
+  // 침실과 욕실 사이 문(2.4m). 침실 캣워크(2.6m)가 바로 위를 지난다.
+  {
+    minX: HOUSE.bathDoor.minX,
+    maxX: HOUSE.bathDoor.maxX,
+    minZ: HOUSE.bathZ - 0.35,
+    maxZ: HOUSE.bathZ + 0.35,
+    from: FLOOR_HEIGHT + LOW_DOOR_HEIGHT,
+    to: FLOOR_HEIGHT + CEILING_HEIGHT,
+  },
+  // 욕실과 변기 칸 사이 문(2.4m)
+  {
+    minX: HOUSE.toiletDoor.minX,
+    maxX: HOUSE.toiletDoor.maxX,
+    minZ: HOUSE.minZ - 0.375,
+    maxZ: HOUSE.minZ + 0.375,
+    from: FLOOR_HEIGHT + LOW_DOOR_HEIGHT,
+    to: FLOOR_HEIGHT + CEILING_HEIGHT,
+  },
+  // 거실과 침실 사이 문(2.7m)
+  {
+    minX: HOUSE.wingX - 0.375,
+    maxX: HOUSE.wingX + 0.375,
+    minZ: HOUSE.bedroomDoor.minZ,
+    maxZ: HOUSE.bedroomDoor.maxZ,
+    from: FLOOR_HEIGHT + DOOR_HEIGHT,
     to: FLOOR_HEIGHT + CEILING_HEIGHT,
   },
 ]

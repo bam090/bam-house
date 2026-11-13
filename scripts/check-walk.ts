@@ -67,7 +67,8 @@ const blocked: [string, number, number][] = [
   ['수영장 물', 0, 10],
   ['수영장 물 가장자리', POOL_WATER.minX + 0.05, 9],
   ['욕조 안쪽 물', 12.4, -5],
-  ['샤워 칸 유리 칸막이', 13, -2.9],
+  ['샤워부스 앞 유리', 13, -3.0],
+  ['샤워부스 입구 쪽 고정 유리', 12.0, -2.7],
   ['변기 칸 가림벽', 8.5, -7.5],
   ['카바나 기둥', -4.45, 10.65],
   ['거실 오른쪽 유리문 바깥', -8.2, 3],
@@ -338,6 +339,15 @@ const bedroomWalk = follow(sleeper, [
   ['캣워크 끝', 12.7, -0.55, false, 2.6],
 ])
 check('침실 디딤에서 침실 캣워크 끝까지', bedroomWalk.passed, bedroomWalk.detail)
+
+// 14-1. 침실 캣워크(2.6m)에서 욕실 문 쪽으로 걸어가도 문 위쪽 벽에 막혀서 욕실로 떨어지지 않는다.
+const ledgeCat: Cat = { x: 8.4, z: -0.58, y: FLOOR + 2.6, speed: 0 }
+for (let count = 0; count < 60; count += 1) frame(ledgeCat, 0, -1, false)
+check(
+  '침실 캣워크에서 욕실 문 위 벽에 막힘',
+  near(ledgeCat.y, FLOOR + 2.6) && ledgeCat.z > -0.9,
+  `높이 ${(ledgeCat.y - FLOOR).toFixed(2)}m와 z ${ledgeCat.z.toFixed(2)}`,
+)
 
 // 15. 침실 캣워크 끝에서 S자 캣타워 발판 넷을 밟고 바닥까지 내려온다. 거꾸로 바닥에서 캣워크까지 올라간다.
 const descent = follow(sleeper, [

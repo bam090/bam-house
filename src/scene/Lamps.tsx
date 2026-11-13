@@ -140,8 +140,8 @@ export function Lamps({ ceiling }: { ceiling: number }) {
       {/* 침실 고리 콘솔 위의 타원 벽등. 거실 왼쪽 벽의 벽등은 두 개가 한눈에 겹쳐 보여서 없앴다. */}
       <OvalSconce position={[8.2, 1.8, 5.7]} normal="z-" />
       {/* 욕실의 침실 쪽 벽에 둘과 변기 위 벽에 하나. 변기 칸 벽등만 실제로 빛을 낸다. */}
-      <HalfMoonSconce position={[10.2, 1.8, -1.125]} />
-      <HalfMoonSconce position={[11.6, 1.8, -1.125]} />
+      {/* 욕실 벽등은 수건 걸이 바로 위에 하나만 둔다. 샤워부스 간접등과 같은 전구색이다. */}
+      <HalfMoonSconce position={[10.4, 1.8, -1.125]} />
       <HalfMoonSconce position={[7.125, 1.8, -7.7]} turn={-Math.PI / 2} light />
     </group>
   )

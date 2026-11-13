@@ -4,7 +4,7 @@ import { Vector3 } from 'three'
 import type { Group } from 'three'
 import { readMove, readTilt, readTurn, useKeyboard } from '../hooks/useKeyboard'
 import { Cat } from './Cat'
-import { catFocus } from './Occlusion'
+import { catFocus, keepCameraInRoom } from './Occlusion'
 import { CAT_TALL, ceilingHeight, groundHeight, resolveMove } from './walkable'
 
 /** 고양이가 처음 서 있는 자리. 테라스의 오른쪽 앞이다. */
@@ -238,9 +238,12 @@ export function Player() {
       cameraFloor.current + offsetY,
       group.position.z + offsetZ,
     )
-    state.camera.position.lerp(cameraGoal, smoothing)
-
     lookGoal.set(group.position.x, cameraFloor.current + LOOK_HEIGHT, group.position.z)
+    // 카메라 목표 자리가 벽 뒤(다른 방)에 있으면 벽 앞까지 당긴다.
+    // 당겼을 때는 빨리 따라가게 해서 카메라가 벽을 지나가는 몇 화면 동안 벽이 화면을 덮지 않게 한다.
+    const pulled = keepCameraInRoom(lookGoal, cameraGoal)
+    state.camera.position.lerp(cameraGoal, pulled ? 1 - Math.exp(-25 * delta) : smoothing)
+
     lookAt.current.lerp(lookGoal, smoothing)
     state.camera.lookAt(lookAt.current)
   })

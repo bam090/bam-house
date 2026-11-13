@@ -3,13 +3,9 @@ import { Box } from './Box'
 import { Interior } from './Interior'
 import { palette } from './palette'
 import { FlutedGlass, Tuft, TwinColumn, scatter } from './Shapes'
-import { CAT_HOLE, CEILING_HEIGHT, DECK_HEIGHT, FLOOR_HEIGHT, HOUSE, STAIRS, STEP_COUNT, STEP_HEIGHT } from './walkable'
+import { CAT_HOLE, CEILING_HEIGHT, DECK_HEIGHT, DOOR_HEIGHT, FLOOR_HEIGHT, HOUSE, LOW_DOOR_HEIGHT, STAIRS, STEP_COUNT, STEP_HEIGHT } from './walkable'
 
-/** 문 자리 위쪽 벽이 시작하는 높이 */
-const DOOR_HEIGHT = 2.7
-
-/** 욕실 문과 변기 칸 문의 높이 */
-const LOW_DOOR_HEIGHT = 2.4
+// 문 높이(DOOR_HEIGHT와 LOW_DOOR_HEIGHT)는 걷기 규칙의 문 위쪽 벽과 같아야 해서 walkable.ts에 둔다.
 
 type Rect = { minX: number; maxX: number; minZ: number; maxZ: number }
 
