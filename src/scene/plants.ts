@@ -34,6 +34,9 @@ export const TREE_TRUNK_HEIGHT = 2.2
 /** 활엽수 잎 덩어리의 반지름. 위아래로 납작하게 눌러서 넓게 퍼진 모양을 만든다. */
 export const TREE_CROWN = { radius: 1.7, flatten: 0.55 } as const
 
+/** 야자수 잎이 줄기에서 옆으로 뻗는 거리(크기 배율 1일 때). 집과 떨어뜨려 심을 때 쓴다. */
+const PALM_REACH = 1.9
+
 /** 지피식물 덩어리를 위아래로 누르는 비율. 땅에 낮게 깔린 모양이 된다. */
 export const COVER_FLATTEN = 0.3
 
@@ -342,13 +345,24 @@ export function makePlants() {
       (rect) => plant.x >= rect.minX && plant.x <= rect.maxX && plant.z >= rect.minZ && plant.z <= rect.maxZ,
     )
 
+  // 키 큰 나무와 야자수는 잎이 넓게 퍼져서 줄기가 집 밖에 있어도 잎이 벽과 유리를 넘어 집 안으로 들어온다.
+  // 그래서 집과 돌 벽 뜰에서 잎이 닿는 거리(reach) 안에 있는 것은 뺀다.
+  const houseRects = [...PLANT_KEEP_OUT, { minX: -8, maxX: 7, minZ: -6, maxZ: 6 }]
+  const clearOfHouse = (reach: number) => (plant: Plant) =>
+    houseRects.every((rect) => {
+      // 점에서 상자까지의 가장 가까운 거리. 상자 안에 있으면 0이다.
+      const dx = Math.max(rect.minX - plant.x, 0, plant.x - rect.maxX)
+      const dz = Math.max(rect.minZ - plant.z, 0, plant.z - rect.maxZ)
+      return Math.hypot(dx, dz) > reach * plant.scale + 0.3
+    })
+
   return {
-    palms: palms.filter(outsideHouse),
+    palms: palms.filter(outsideHouse).filter(clearOfHouse(PALM_REACH)),
     bushes: bushes.filter(outsideHouse),
-    trees: trees.filter(outsideHouse),
+    trees: trees.filter(outsideHouse).filter(clearOfHouse(TREE_CROWN.radius)),
     covers: covers.filter(outsideHouse),
     lowTrees,
-    gardenTrees,
+    gardenTrees: gardenTrees.filter(clearOfHouse(TREE_CROWN.radius)),
   }
 }
 
