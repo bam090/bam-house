@@ -22,10 +22,10 @@ function Kitchen() {
   const lowFace = -7.14
   return (
     <group>
-      {/* 주방 바닥의 돌 타일 */}
+      {/* 주방 바닥의 돌 타일. 앞 끝을 0.004m 들여서 옆 유리벽 아래 가로대 끝 면과 같은 평면에 놓이지 않게 한다. */}
       <Box
-        size={[maxX - minX, 0.02, maxZ - minZ]}
-        position={[(minX + maxX) / 2, 0.011, (minZ + maxZ) / 2]}
+        size={[maxX - minX, 0.02, maxZ - minZ - 0.004]}
+        position={[(minX + maxX) / 2, 0.011, (minZ + maxZ - 0.004) / 2]}
         color={palette.stone}
         castShadow={false}
       />

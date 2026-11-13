@@ -1,3 +1,4 @@
+import { FrontSide } from 'three'
 import { HideWhenBlocking, cameraAboveCeilingIn } from './Occlusion'
 import { Box } from './Box'
 import { Interior } from './Interior'
@@ -28,7 +29,8 @@ const ROOF_PIECES: { slab: Rect; board: Rect; rooms: Rect[]; beam?: Rect }[] = [
     board: { minX: -9.4, maxX: 7, minZ: -7.1, maxZ: 7.3 },
     rooms: [ROOMS.living],
     // 거실 앞면 위쪽의 나무 가로대
-    beam: { minX: -8, maxX: 7, minZ: 5.86, maxZ: 6 },
+    // 앞면을 0.005m 안으로 들여서 거실과 침실 사이 벽의 끝 면과 같은 평면에 놓이지 않게 한다.
+    beam: { minX: -8, maxX: 7, minZ: 5.855, maxZ: 5.995 },
   },
   {
     slab: { minX: 7, maxX: 15.2, minZ: -1, maxZ: 7.4 },
@@ -48,13 +50,33 @@ const ROOF_PIECES: { slab: Rect; board: Rect; rooms: Rect[]; beam?: Rect }[] = [
 ]
 
 // 범위 값으로 상자를 그린다. bottom과 height는 아랫면 높이와 두께다.
-function RectBox({ rect, bottom, height, color }: { rect: Rect; bottom: number; height: number; color: string }) {
+// 지붕 판은 그림자를 계산할 때 윗면으로 기록한다(shadowSide FrontSide).
+// three.js는 기본으로 상자의 뒷면(해에서 먼 면)을 그림자 지도에 적는데 지붕에서는 그 면이 천장 아랫면(벽 꼭대기와 같은 높이)이다.
+// 그러면 벽 윗부분이 그림자 경계에 걸려서 칸마다 밝고 어두운 톱니 줄무늬가 생긴다.
+// 지붕 판 자신은 그림자를 받지 않는다. 받으면 판 옆면에 같은 톱니가 생긴다.
+/** 바닥 판의 바깥 모서리를 집 경계에서 안으로 들이는 거리 */
+const EDGE = 0.003
+
+// plain을 주면 보통 상자처럼 그림자를 기록하고 받는다. 바닥 판에 쓴다.
+function RectBox({ rect, bottom, height, color, plain = false }: { rect: Rect; bottom: number; height: number; color: string; plain?: boolean }) {
+  if (plain) {
+    return (
+      <Box
+        size={[rect.maxX - rect.minX, height, rect.maxZ - rect.minZ]}
+        position={[(rect.minX + rect.maxX) / 2, bottom + height / 2, (rect.minZ + rect.maxZ) / 2]}
+        color={color}
+      />
+    )
+  }
   return (
-    <Box
-      size={[rect.maxX - rect.minX, height, rect.maxZ - rect.minZ]}
+    <mesh
       position={[(rect.minX + rect.maxX) / 2, bottom + height / 2, (rect.minZ + rect.maxZ) / 2]}
-      color={color}
-    />
+      castShadow
+      receiveShadow={false}
+    >
+      <boxGeometry args={[rect.maxX - rect.minX, height, rect.maxZ - rect.minZ]} />
+      <meshStandardMaterial color={color} flatShading roughness={0.9} shadowSide={FrontSide} />
+    </mesh>
   )
 }
 
@@ -96,18 +118,19 @@ function GlassWall({ along, at, from, to, panels }: GlassWallProps) {
 
   return (
     <group>
-      {/* 유리 판은 위아래 가로대 안에 끝을 묻는다. 가로대와 높이가 같으면 윗면과 아랫면이 가로대 면과 겹쳐서 깜빡인다. */}
-      <Box size={size(length, h - 0.04, 0.05)} position={place(middle, h / 2)} color={palette.glass} opacity={0.22} roughness={0.1} />
+      {/* 유리 판은 네 변을 가로대와 양 끝 세로대 안에 묻는다. 끝이 가로대와 같은 자리에서 끝나면 두 면이 겹쳐서 깜빡인다. */}
+      <Box size={size(length - 0.04, h - 0.04, 0.05)} position={place(middle, h / 2)} color={palette.glass} opacity={0.22} roughness={0.1} />
       {/* 아래 가로대와 위 가로대와 그 사이의 중간 가로대 */}
       <Box size={size(length, 0.12, 0.14)} position={place(middle, 0.06)} color={palette.oak} />
-      <Box size={size(length, 0.12, 0.14)} position={place(middle, h - 0.06)} color={palette.oak} />
+      {/* 위 가로대와 세로대는 윗면을 벽 윗면보다 0.003~0.004m 낮춘다. 벽과 맞닿은 끝에서 두 윗면이 같은 높이로 겹치지 않게 한다. */}
+      <Box size={size(length, 0.12, 0.14)} position={place(middle, h - 0.063)} color={palette.oak} />
       <Box size={size(length, 0.08, 0.12)} position={place(middle, DOOR_HEIGHT)} color={palette.oak} />
       {/* 유리문 짝 사이의 세로대 */}
       {Array.from({ length: panels + 1 }, (_, index) => (
         <Box
           key={index}
-          size={size(0.1, h, 0.14)}
-          position={place(from + (length * index) / panels, h / 2)}
+          size={size(0.1, h - 0.004, 0.14)}
+          position={place(from + (length * index) / panels, (h - 0.004) / 2)}
           color={palette.oak}
         />
       ))}
@@ -200,8 +223,6 @@ export function House() {
   const depth = HOUSE.maxZ - HOUSE.minZ
   const centerX = (HOUSE.minX + HOUSE.maxX) / 2
   const wing = HOUSE.wingX
-  const wingWidth = HOUSE.maxX - wing
-  const wingCenter = (wing + HOUSE.maxX) / 2
   const door = HOUSE.bedroomDoor
   const bathDoor = HOUSE.bathDoor
   const toilet = HOUSE.toilet
@@ -272,22 +293,12 @@ export function House() {
       {/* 바닥 위의 모든 것은 이 group 안에 있어서 바닥 높이만큼 함께 올라간다. */}
       <group position={[0, FLOOR_HEIGHT, 0]}>
         {/* 거실과 침실은 나무 바닥이고 욕실과 변기 칸은 돌 바닥이다. */}
-        <Box
-          size={[wing - HOUSE.minX, 0.2, depth]}
-          position={[(HOUSE.minX + wing) / 2, -0.1, 0]}
-          color={palette.woodFloor}
-        />
-        <Box
-          size={[wingWidth, 0.2, HOUSE.maxZ - HOUSE.bathZ]}
-          position={[wingCenter, -0.1, (HOUSE.bathZ + HOUSE.maxZ) / 2]}
-          color={palette.woodFloor}
-        />
-        <Box
-          size={[wingWidth, 0.2, HOUSE.bathZ - HOUSE.minZ]}
-          position={[wingCenter, -0.1, (HOUSE.minZ + HOUSE.bathZ) / 2]}
-          color={palette.stone}
-        />
-        <Box size={[toiletWidth, 0.2, toiletDepth]} position={[toiletCenterX, -0.1, toiletCenterZ]} color={palette.stone} />
+        {/* 바닥 판의 바깥 모서리는 집 경계에서 0.003m 안으로 들인다. 바닥 아래까지 내린 바깥벽의 끝 면과 같은 평면에 놓이지 않게 한다. */}
+        {/* 방끼리 맞닿는 안쪽 모서리는 그대로 둬서 문 자리 바닥에 틈이 생기지 않게 한다. */}
+        <RectBox rect={{ minX: HOUSE.minX + EDGE, maxX: wing, minZ: HOUSE.minZ + EDGE, maxZ: HOUSE.maxZ - EDGE }} bottom={-0.2} height={0.2} color={palette.woodFloor} plain />
+        <RectBox rect={{ minX: wing, maxX: HOUSE.maxX - EDGE, minZ: HOUSE.bathZ, maxZ: HOUSE.maxZ - EDGE }} bottom={-0.2} height={0.2} color={palette.woodFloor} plain />
+        <RectBox rect={{ minX: wing, maxX: HOUSE.maxX - EDGE, minZ: HOUSE.minZ, maxZ: HOUSE.bathZ }} bottom={-0.2} height={0.2} color={palette.stone} plain />
+        <RectBox rect={{ minX: toilet.minX + EDGE, maxX: toilet.maxX - EDGE, minZ: toilet.minZ + EDGE, maxZ: toilet.maxZ }} bottom={-0.2} height={0.2} color={palette.stone} plain />
 
         {/* 뒤쪽 벽. 거실 오른쪽 끝에는 바닥부터 천장까지 통유리창을 낸다. 변기 칸 문 자리는 비우고 그 위만 막는다. */}
         <Box
@@ -433,7 +444,8 @@ export function House() {
           <HideWhenBlocking key={`${piece.slab.minX}-${piece.slab.minZ}`} alsoWhen={cameraAboveCeilingIn(piece.rooms)}>
             <RectBox rect={piece.slab} bottom={h + 0.06} height={0.18} color={palette.wall} />
             <RectBox rect={piece.board} bottom={h} height={0.06} color={palette.oakLight} />
-            {piece.beam && <RectBox rect={piece.beam} bottom={h - 0.14} height={0.14} color={palette.oak} />}
+            {/* 가로대 윗면은 벽 윗면보다 0.003m 낮춘다. */}
+            {piece.beam && <RectBox rect={piece.beam} bottom={h - 0.143} height={0.14} color={palette.oak} />}
           </HideWhenBlocking>
         ))}
 

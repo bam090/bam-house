@@ -89,6 +89,7 @@ export function Player() {
   // 카메라가 기준으로 삼는 바닥 높이. 계단을 오를 때 화면이 덜컹거리지 않도록 천천히 따라간다.
   const cameraFloor = useRef(0)
   const canvas = useThree((state) => state.gl.domElement)
+  const scene = useThree((state) => state.scene)
 
   // 마우스나 손가락으로 화면을 끌면 시선이 좌우와 위아래로 돈다.
   useEffect(() => {
@@ -140,6 +141,8 @@ export function Player() {
   useEffect(() => {
     if (!import.meta.env.DEV) return
     const target = window as unknown as Record<string, unknown>
+    // 장면 전체도 __scene으로 연다. 면 겹침을 계산으로 찾을 때 쓴다.
+    target.__scene = scene
     target.__moveCat = (x: number, y: number, z: number, nextYaw = 0, nextPitch = START_PITCH, nextDistance = START_DISTANCE) => {
       cat.current?.position.set(x, y, z)
       verticalSpeed.current = 0
@@ -149,8 +152,9 @@ export function Player() {
     }
     return () => {
       delete target.__moveCat
+      delete target.__scene
     }
-  }, [])
+  }, [scene])
 
   useFrame((state, rawDelta) => {
     const group = cat.current

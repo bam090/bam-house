@@ -143,7 +143,8 @@ export function FlutedGlass({ along, at, from, to, height }: FlutedGlassProps) {
   const place = (run: number): Vec3 => (along === 'z' ? [at, height / 2, run] : [run, height / 2, at])
   return (
     <group>
-      <Box size={size(length, 0.03)} position={place((from + to) / 2)} color={palette.glass} opacity={0.45} roughness={0.2} />
+      {/* 유리 판은 살보다 0.004m 낮게 세운다. 윗면이 살 윗면과 같은 높이로 겹치지 않게 한다. */}
+      <Box size={size(length, 0.03).map((v, i) => (i === 1 ? v - 0.004 : v)) as Vec3} position={place((from + to) / 2).map((v, i) => (i === 1 ? v - 0.002 : v)) as Vec3} color={palette.glass} opacity={0.45} roughness={0.2} />
       {Array.from({ length: ribs }, (_, index) => (
         <Box
           key={index}
