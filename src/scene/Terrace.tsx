@@ -323,7 +323,7 @@ function Cabana() {
               </group>
             ))}
             {cloths.map((cloth) => (
-              <Extruded key={cloth.key} shape={cloth.shape} depth={0.03} position={[clothX, 0, 0]} rotation={FACE_X} color={palette.fabric} roughness={1} />
+              <Extruded key={cloth.key} shape={cloth.shape} depth={0.03} position={[clothX, 0, 0]} rotation={FACE_X} color={palette.white} roughness={1} />
             ))}
           </group>
         )

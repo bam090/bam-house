@@ -3,7 +3,7 @@ import { Shape, SplineCurve, Vector2 } from 'three'
 import { Box } from './Box'
 import { palette } from './palette'
 import { Cylinder, Extruded, FACE_X, LAY_FLAT, arcBand } from './Shapes'
-import { CATWALK, CAT_HOLE, CAT_POLE, CEILING_HEIGHT, HOUSE } from './walkable'
+import { CATWALK, CAT_HOLE, CAT_POLE, CAT_RAMP, CAT_TOWER, CEILING_HEIGHT, HOUSE, rampTop } from './walkable'
 
 // 고양이가 다니는 길을 그리는 파일이다. 캣폴과 캣워크와 벽 통로의 디딤이 들어 있다.
 // 자리와 높이는 walkable.ts의 CAT_POLE과 CATWALK와 CAT_HOLE 값을 그대로 쓴다. 그래서 보이는 모양과 걷는 자리가 어긋나지 않는다.
@@ -173,6 +173,85 @@ function WaveScratcher() {
   return <Extruded shape={shape} depth={0.45} position={[6.75, 0, 0]} rotation={FACE_X} color={palette.rugLiving} />
 }
 
+// 거실 캣워크 끝과 벽 통로를 잇는 곡선 디딤 선반. 옆에서 본 윤곽(두께 0.04m의 S자 띠)을 벽에서 방 쪽으로 밀어낸다.
+// 윗면 높이는 walkable.ts의 rampTop과 같아서 보이는 모양과 걷는 높이가 어긋나지 않는다.
+function CatRamp() {
+  const shape = useMemo(() => {
+    const steps = 40
+    const upper: Vector2[] = []
+    const lower: Vector2[] = []
+    for (let index = 0; index <= steps; index += 1) {
+      const z = CAT_RAMP.fromZ + ((CAT_RAMP.toZ - CAT_RAMP.fromZ) * index) / steps
+      upper.push(new Vector2(z, rampTop(z)))
+      lower.push(new Vector2(z, rampTop(z) - BOARD))
+    }
+    return new Shape([...upper, ...lower.reverse()])
+  }, [])
+  // 벽 면에서 0.002m 띄워서 선반 뒷면과 벽 면이 같은 평면에 놓이지 않게 한다.
+  return <Extruded shape={shape} depth={CAT_RAMP.maxX - CAT_RAMP.minX} position={[CAT_RAMP.maxX - 0.002, 0, 0]} rotation={FACE_X} color={palette.oak} />
+}
+
+// 침실 S자 캣타워. 짙은 나무색 S자 기둥 판을 벽에 붙여 세우고 반타원 발판을 좌우로 번갈아 단다.
+// 침실 캣워크 끝(2.6m)에서 발판을 차례로 밟고 바닥까지 내려온다. 자리와 높이는 walkable.ts의 CAT_TOWER 값이다.
+function CatTower() {
+  const { spineMinZ, spineMaxZ, radiusX, depth, steps } = CAT_TOWER
+  const shapes = useMemo(() => {
+    // 기둥 판의 가운데 선. 바닥에서 시작해서 발판이 달린 쪽으로 번갈아 휘며 올라간다. 점은 (x, 높이)다.
+    const line = new SplineCurve([
+      new Vector2(13.12, 0.04),
+      new Vector2(13.3, 0.45),
+      new Vector2(12.95, 1.0),
+      new Vector2(13.3, 1.55),
+      new Vector2(12.95, 2.1),
+      new Vector2(13.08, 2.4),
+    ])
+    const points = line.getPoints(60)
+    const half = 0.06
+    const left: Vector2[] = []
+    const right: Vector2[] = []
+    points.forEach((point, index) => {
+      // 앞뒤 점을 이은 방향에 직각으로 판의 폭만큼 벌린다.
+      const before = points[Math.max(0, index - 1)]
+      const after = points[Math.min(points.length - 1, index + 1)]
+      const along = new Vector2().subVectors(after, before).normalize()
+      const across = new Vector2(-along.y, along.x).multiplyScalar(half)
+      left.push(new Vector2().addVectors(point, across))
+      right.push(new Vector2().subVectors(point, across))
+    })
+    // 발판의 반타원. 곧은 변이 기둥 판 앞면에 0.005m 묻히도록 가운데를 조금 벽 쪽에 둔다.
+    // LAY_FLAT으로 눕혀 쓰도록 점을 (x, -z)로 적는다.
+    const centerZ = spineMaxZ - 0.005
+    const halfEllipse = (cx: number, rx: number, rz: number) => {
+      const points: Vector2[] = []
+      for (let index = 0; index <= 24; index += 1) {
+        const angle = (index / 24) * Math.PI
+        points.push(new Vector2(cx + Math.cos(angle) * rx, -(centerZ + Math.sin(angle) * rz)))
+      }
+      return new Shape(points)
+    }
+    return {
+      spine: new Shape([...left, ...right.reverse()]),
+      boards: steps.map((step) => halfEllipse(step.x, radiusX, depth)),
+      cushions: steps.map((step) => halfEllipse(step.x, radiusX - 0.04, depth - 0.04)),
+    }
+  }, [spineMaxZ, radiusX, depth, steps])
+  return (
+    <group>
+      {/* 바닥 받침판 */}
+      <Box size={[0.6, 0.04, 0.45]} position={[13.3, 0.02, (spineMinZ + spineMaxZ) / 2 + 0.12]} color={palette.trunk} />
+      {/* S자 기둥 판. 앞에서 본 윤곽을 벽 쪽 두께만큼 밀어낸다. */}
+      <Extruded shape={shapes.spine} depth={spineMaxZ - spineMinZ} position={[0, 0, spineMinZ]} color={palette.trunk} />
+      {steps.map((step, index) => (
+        <group key={step.top}>
+          {/* 나무 발판과 그 위의 아이보리 방석. 방석 윗면이 발판 높이다. */}
+          <Extruded shape={shapes.boards[index]} depth={0.04} position={[0, step.top - 0.05, 0]} rotation={LAY_FLAT} color={palette.trunk} />
+          <Extruded shape={shapes.cushions[index]} depth={0.04} position={[0, step.top - 0.04, 0]} rotation={LAY_FLAT} color={palette.wall} roughness={1} />
+        </group>
+      ))}
+    </group>
+  )
+}
+
 // 고양이가 다니는 길 전체. House의 바닥 group 안에 넣는다.
 export function CatWays() {
   const { livingBack, livingSide, bedroom, bedroomSteps } = CATWALK
@@ -205,6 +284,8 @@ export function CatWays() {
         <Shelf key={step.top} {...step} />
       ))}
       <WalkWithBridge walk={bedroom} />
+      <CatTower />
+      <CatRamp />
     </group>
   )
 }

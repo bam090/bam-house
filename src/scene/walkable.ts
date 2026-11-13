@@ -84,8 +84,54 @@ export const SOFA = { x: 1.5, z: -1.6, inner: 2.05, outer: 3.0, from: 35, to: 14
 // 그래서 초승달 소파가 한 자리 더 이어진 것처럼 보인다. turn은 y축으로 도는 각도다.
 export const SINGLE_SOFA = { x: -1.0, z: -1.07, turn: -1.36 } as const
 
-/** 고양이 화장실 장의 가운데 자리. 거실 뒤쪽 구석에서 주방 쪽 벽에 붙는다. */
-export const LITTER_BOX = { x: -7.53, z: -4.95 } as const
+/** 거실 캣워크 끝과 벽 통로를 잇는 곡선 디딤 선반. 침실 쪽 벽(x 7)의 거실 면에 붙는다. */
+// 높은 쪽(highTop)에서 평평하게 시작해서 curveFrom부터 curveTo까지 S자로 내려와 낮은 쪽(lowTop)에서 평평하게 끝난다.
+// 높은 쪽은 곡선 책장 끝(z -1.1)에서 0.35m 떨어뜨렸다. 낮은 쪽은 통로 위쪽 벽(1.85m)에 몸이 걸리지 않는 높이다.
+export const CAT_RAMP = {
+  minX: 6.525,
+  maxX: 6.875,
+  fromZ: -0.75,
+  toZ: 0.3,
+  curveFrom: -0.5,
+  curveTo: 0.15,
+  highTop: 1.75,
+  lowTop: 1.3,
+} as const
+
+/** 곡선 디딤 선반의 z 자리에서 윗면 높이. 방바닥에서 잰다. */
+export function rampTop(z: number) {
+  const { curveFrom, curveTo, highTop, lowTop } = CAT_RAMP
+  const t = Math.min(1, Math.max(0, (z - curveFrom) / (curveTo - curveFrom)))
+  // smoothstep. 양 끝에서 기울기가 0이라서 평평한 구간과 매끄럽게 이어진다.
+  const eased = t * t * (3 - 2 * t)
+  return highTop + (lowTop - highTop) * eased
+}
+
+/** 거실 통유리창 옆 구석의 바닥 화병 자리 */
+export const FLOOR_VASE = { x: -7.45, z: -5.15 } as const
+
+/** 고양이 화장실 장. 변기 칸 뒤쪽 벽(손 씻는 대 자리)에 붙는다. top은 윗면 높이다. */
+export const CAT_LITTER = { minX: 8.9, maxX: 10.6, minZ: -8.35, maxZ: -7.8, top: 0.65 } as const
+
+/** 침실 S자 캣타워. 침대 머리 쪽 벽 오른쪽 구석에 세운다. 침실 캣워크 끝에서 발판을 밟고 바닥까지 내려온다. */
+// 발판은 반원 방석이고 벽에서 방 쪽으로 튀어나온다. x는 발판 가운데이고 top은 방바닥에서 잰 윗면 높이다.
+export const CAT_TOWER = {
+  /** S자 기둥 판이 벽에 붙는 z 범위 */
+  spineMinZ: -0.88,
+  spineMaxZ: -0.76,
+  /** 반타원 발판의 가로 반지름과 벽에서 튀어나온 깊이 */
+  radiusX: 0.34,
+  depth: 0.42,
+  /** 발판에 몸이 이만큼만 걸쳐도 올라선 것으로 본다. 다른 가구보다 작게 잡아서 좌우 발판이 조금 겹쳐도 걸어서 내려서게 한다. */
+  margin: 0.05,
+  steps: [
+    // 오른쪽 발판은 침실 오른쪽 벽의 안쪽 면(x 13.7)을 넘지 않게 두고 왼쪽 발판은 협탁 위로 뻗게 둔다.
+    { x: 12.9, top: 2.15 },
+    { x: 13.34, top: 1.6 },
+    { x: 12.9, top: 1.05 },
+    { x: 13.34, top: 0.5 },
+  ],
+} as const
 
 /** 카바나. 데크 오른쪽에 기둥 여섯 개를 세우고 그 위에 보와 살 지붕을 얹는다. */
 export const CABANA = {
@@ -294,11 +340,11 @@ const SURFACES: Surface[] = [
   onFloor(0.7, 2.3, -1.25, -0.45, 0.35),
   // 아치 스탠드의 받침과 대. 대가 높아서 지나가거나 올라설 수 없다.
   onFloorAt(4.4, 0.9, 0.1, 2.0),
+  // 통유리창 옆 구석의 바닥 화병
+  onFloorAt(FLOOR_VASE.x, FLOOR_VASE.z, 0.22, 0.6),
   // 소파 옆의 바닥 쿠션 둘과 거실 앞의 큰 야자 화분과 아일랜드 끝의 고양이 식기
   onFloorAt(4.7, -0.55, 0.32, 0.16),
   onFloorAt(4.45, -1.35, 0.28, 0.16),
-  // 고양이 화장실 장
-  onFloor(LITTER_BOX.x - 0.3, LITTER_BOX.x + 0.3, LITTER_BOX.z - 0.35, LITTER_BOX.z + 0.35, 0.63),
   // 1인용 소파의 방석과 등받이. 등받이는 뒤쪽 절반이다.
   onFloorAt(SINGLE_SOFA.x, SINGLE_SOFA.z, 0.46, 0.45),
   onFloorAt(6.1, 5.25, 0.3, 0.6),
@@ -311,7 +357,6 @@ const SURFACES: Surface[] = [
   onFloor(10.3, 12.5, -0.85, 1.3, 0.5),
   onFloor(9.85, 10.25, -0.8, -0.35, 0.45),
   onFloor(12.55, 12.95, -0.8, -0.35, 0.45),
-  onFloorAt(13.35, -0.5, 0.17, 1.6),
   onFloorAt(10.6, 4.8, 0.5, 0.42),
   onFloorAt(11.4, 5.0, 0.22, 0.45),
   onFloor(12.2, 13.0, 3.5, 3.7, 1.45),
@@ -330,17 +375,17 @@ const SURFACES: Surface[] = [
   onFloor(7.15, 7.8, -5.3, -2.5, 0.9),
   onFloorAt(7.3, -4.6, 0.15, 1.2),
   onFloorAt(7.3, -3.2, 0.15, 1.2),
-  onFloorAt(10.5, -4.6, 0.2, 0.45),
+  onFloorAt(10.6, -1.5, 0.2, 0.45),
   onFloorAt(8.4, -5.4, 0.26, 0.5),
 
   // 욕실의 라탄 바구니와 벽에 기댄 사다리 수건걸이
-  onFloorAt(9.3, -5.35, 0.22, 0.42),
+  onFloorAt(13.5, -3.6, 0.21, 0.44),
   onFloor(10.25, 10.7, -5.9, -5.45, 1.75),
 
-  // 변기 칸: 변기와 손 씻는 대와 수전과 화분
+  // 변기 칸: 변기와 화분과 고양이 화장실 장
   onFloor(7.15, 7.8, -7.95, -7.45, 0.45),
-  onFloor(8.9, 10.6, -8.35, -7.8, 0.85),
-  onFloorAt(9.75, -8.2, 0.15, 1.15),
+  // 고양이 화장실 장
+  onFloor(CAT_LITTER.minX, CAT_LITTER.maxX, CAT_LITTER.minZ, CAT_LITTER.maxZ, CAT_LITTER.top),
   onFloorAt(10.5, -6.6, 0.26, 0.5),
 ]
 
@@ -349,11 +394,15 @@ const SURFACES: Surface[] = [
 // 발보다 위에 있는 발판은 없는 것으로 보기 때문에 한 자리에 바닥과 발판이 위아래로 겹칠 수 있다.
 export interface Floating extends Rect {
   top: number
+  /** 몸이 얼마나 걸쳐야 올라선 것으로 볼지. 주지 않으면 몸 폭의 절반(BODY)이다. */
+  margin?: number
+  /** 윗면 높이가 z에 따라 바뀌는 판이면 그 높이를 구하는 함수다. 방바닥에서 잰 높이를 돌려준다. */
+  topAt?: (z: number) => number
 }
 
 // 방바닥에서 잰 높이로 떠 있는 발판을 적는다.
-function floatAt(minX: number, maxX: number, minZ: number, maxZ: number, top: number): Floating {
-  return { minX, maxX, minZ, maxZ, top: FLOOR_HEIGHT + top }
+function floatAt(minX: number, maxX: number, minZ: number, maxZ: number, top: number, margin?: number): Floating {
+  return { minX, maxX, minZ, maxZ, top: FLOOR_HEIGHT + top, margin }
 }
 
 const FLOATING: Floating[] = [
@@ -376,6 +425,19 @@ const FLOATING: Floating[] = [
   // 침실 계단 선반과 침실 캣워크
   ...CATWALK.bedroomSteps.map((step) => floatAt(step.minX, step.maxX, step.minZ, step.maxZ, step.top)),
   floatAt(CATWALK.bedroom.minX, CATWALK.bedroom.maxX, CATWALK.bedroom.minZ, CATWALK.bedroom.maxZ, CATWALK.bedroom.top),
+  // 거실 캣워크 끝과 벽 통로를 잇는 곡선 디딤 선반. 윗면 높이가 z에 따라 바뀐다.
+  { ...floatAt(CAT_RAMP.minX, CAT_RAMP.maxX, CAT_RAMP.fromZ, CAT_RAMP.toZ, CAT_RAMP.highTop), topAt: rampTop },
+  // 침실 S자 캣타워의 반타원 발판. 벽 쪽 곧은 변에서 방 쪽으로 깊이만큼 튀어나온다.
+  ...CAT_TOWER.steps.map((step) =>
+    floatAt(
+      step.x - CAT_TOWER.radiusX,
+      step.x + CAT_TOWER.radiusX,
+      CAT_TOWER.spineMaxZ - 0.1,
+      CAT_TOWER.spineMaxZ + CAT_TOWER.depth,
+      step.top,
+      CAT_TOWER.margin,
+    ),
+  ),
 ]
 
 /** 높이가 있는 벽. 고양이 몸이 from과 to 사이 높이에 걸칠 때만 막는다. 높이는 데크 윗면에서 잰다. */
@@ -402,9 +464,10 @@ function contains(rect: Rect, x: number, z: number) {
 }
 
 // 고양이 몸이 이 물건에 걸쳐 있는지 본다. 물건의 범위를 몸 폭의 절반만큼 넓혀서 검사한다.
-function onSurface(surface: Surface, x: number, z: number) {
+// margin은 범위를 넓히는 정도다. 주지 않으면 몸 폭의 절반(BODY)이다.
+function onSurface(surface: Surface, x: number, z: number, margin = BODY) {
   const outside =
-    x < surface.minX - BODY || x > surface.maxX + BODY || z < surface.minZ - BODY || z > surface.maxZ + BODY
+    x < surface.minX - margin || x > surface.maxX + margin || z < surface.minZ - margin || z > surface.maxZ + margin
   if (outside) return false
   const arc = surface.arc
   if (!arc) return true
@@ -421,10 +484,11 @@ function onSurface(surface: Surface, x: number, z: number) {
 // footY는 지금 발의 높이다. 떠 있는 발판은 발이 그 윗면에 닿을 만큼 올라왔을 때만 바닥으로 친다.
 // footY를 주지 않으면 떠 있는 발판을 뺀 높이를 돌려준다.
 // rising은 점프해서 올라가는 중인지다. 올라가는 중에는 발이 발판 윗면을 완전히 넘어야 그 발판을 바닥으로 친다.
-export function groundHeight(x: number, z: number, footY = -Infinity, rising = false) {
+// margin은 가구 범위를 넓히는 폭이다. 고양이는 몸 폭의 절반(BODY)이고 장난감 공처럼 작은 것은 더 작게 준다.
+export function groundHeight(x: number, z: number, footY = -Infinity, rising = false, margin = BODY) {
   let top = baseHeight(x, z)
   for (const surface of SURFACES) {
-    if (surface.top > top && onSurface(surface, x, z)) top = surface.top
+    if (surface.top > top && onSurface(surface, x, z, margin)) top = surface.top
   }
   return Math.max(DECK_HEIGHT + top, floatingHeight(x, z, footY, FLOATING, rising))
 }
@@ -440,11 +504,12 @@ export function ceilingHeight(x: number, z: number) {
 // 올라가는 중(rising)에는 여유 높이(JUMP_GRACE)를 주지 않는다.
 // 여유를 주면 올라가다가 발판 0.1m 아래에서 바로 올라서고 그 자리에서 다시 점프가 되어 한 번에 여러 발판을 뛰어오른다.
 export function floatingHeight(x: number, z: number, footY: number, floats: Floating[] = FLOATING, rising = false) {
-  const grace = rising ? 0 : JUMP_GRACE
   let best = -Infinity
   for (const float of floats) {
-    const top = DECK_HEIGHT + float.top
-    if (top > best && top <= footY + grace && onSurface(float, x, z)) best = top
+    // 경사진 판은 걸어 올라가는 동안 한 화면에 올라가는 높이를 받아 주도록 걸어 오르는 높이(STEP_UP)까지 여유를 준다.
+    const grace = rising ? 0 : float.topAt ? STEP_UP : JUMP_GRACE
+    const top = DECK_HEIGHT + (float.topAt ? FLOOR_HEIGHT + float.topAt(z) : float.top)
+    if (top > best && top <= footY + grace && onSurface(float, x, z, float.margin)) best = top
   }
   return best
 }

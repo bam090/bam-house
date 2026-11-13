@@ -213,11 +213,48 @@ export function Faucet({ position, height, reach = 0.2, turn = 0 }: { position: 
 }
 
 // 화분 하나. 흰 화분에 흙을 채우고 풀을 심는다.
-export function Pot({ position, radius = 0.26, height = 0.5, seed = 0, scale = 1.2 }: { position: Vec3; radius?: number; height?: number; seed?: number; scale?: number }) {
+/** 화분 몸통의 모양. 화분마다 다른 모양을 써서 같은 화분이 반복되어 보이지 않게 한다. */
+export type PotShape = 'taper' | 'cylinder' | 'belly' | 'bowl' | 'footed'
+
+// 화분 몸통. shape마다 아래 폭과 위 폭과 굽을 다르게 준다.
+function PotBody({ shape, radius, height, color }: { shape: PotShape; radius: number; height: number; color: string }) {
+  if (shape === 'cylinder') return <Cylinder radius={radius} height={height} position={[0, height / 2, 0]} color={color} />
+  if (shape === 'belly') {
+    // 가운데가 불룩한 단지. 아래 절반은 넓어지고 위 절반은 다시 좁아진다.
+    return (
+      <group>
+        <Cylinder radius={radius * 0.7} radiusTop={radius * 1.1} height={height * 0.55} position={[0, height * 0.275, 0]} color={color} />
+        <Cylinder radius={radius * 1.1} radiusTop={radius * 0.85} height={height * 0.45} position={[0, height * 0.775, 0]} color={color} />
+      </group>
+    )
+  }
+  if (shape === 'bowl') return <Cylinder radius={radius * 0.55} radiusTop={radius * 1.15} height={height} position={[0, height / 2, 0]} color={color} />
+  if (shape === 'footed') {
+    // 좁은 굽 위에 몸통을 얹은 화분
+    return (
+      <group>
+        <Cylinder radius={radius * 0.55} radiusTop={radius * 0.45} height={height * 0.2} position={[0, height * 0.1, 0]} color={color} />
+        <Cylinder radius={radius * 0.75} radiusTop={radius} height={height * 0.8} position={[0, height * 0.6, 0]} color={color} />
+      </group>
+    )
+  }
+  return <Cylinder radius={radius * 0.8} radiusTop={radius} height={height} position={[0, height / 2, 0]} color={color} />
+}
+
+export function Pot({ position, radius = 0.26, height = 0.5, seed = 0, scale = 1.2, shape = 'taper', color = palette.wall }: {
+  position: Vec3
+  radius?: number
+  height?: number
+  seed?: number
+  scale?: number
+  shape?: PotShape
+  color?: string
+}) {
+  const soilRadius = shape === 'bowl' ? radius * 1.05 : shape === 'belly' ? radius * 0.78 : radius * 0.9
   return (
     <group position={position}>
-      <Cylinder radius={radius * 0.8} radiusTop={radius} height={height} position={[0, height / 2, 0]} color={palette.wall} />
-      <Cylinder radius={radius * 0.9} height={0.02} position={[0, height + 0.005, 0]} color={palette.soil} />
+      <PotBody shape={shape} radius={radius} height={height} color={color} />
+      <Cylinder radius={soilRadius} height={0.02} position={[0, height + 0.005, 0]} color={palette.soil} />
       <Tuft position={[0, height, 0]} scale={scale} seed={seed} lean={0.7} />
     </group>
   )

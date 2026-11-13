@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Path, Shape } from 'three'
 import { Box } from './Box'
 import { palette } from './palette'
-import { Cylinder, Extruded, FACE_X, Faucet, FlutedGlass, Glow, LAY_FLAT, Pot, arcBand } from './Shapes'
+import { Cylinder, Extruded, FACE_X, Faucet, FlutedGlass, LAY_FLAT, Pot, arcBand } from './Shapes'
 import { HOUSE } from './walkable'
 
 // 침실과 욕실과 변기 칸의 가구를 그리는 파일이다. 좌표는 장면 좌표이고 높이는 방바닥에서 잰 값이다.
@@ -82,13 +82,7 @@ function Bedroom() {
       {[10.05, 12.75].map((x) => (
         <Box key={x} size={[0.4, 0.45, 0.45]} position={[x, 0.225, -0.575]} color={palette.oak} />
       ))}
-      {/* 바닥 조명 */}
-      <group position={[13.35, 0, -0.5]}>
-        <Cylinder radius={0.15} height={0.03} position={[0, 0.015, 0]} color={palette.oak} />
-        <Cylinder radius={0.015} height={1.35} position={[0, 0.7, 0]} color={palette.oak} />
-        <Cylinder radius={0.17} radiusTop={0.11} height={0.25} position={[0, 1.475, 0]} color={palette.fabric} />
-        <Glow size={[0.1, 0.02, 0.1]} position={[0, 1.345, 0]} />
-      </group>
+      {/* 침대 오른쪽 구석의 바닥 조명은 없앴다. 그 자리에 S자 캣타워가 있다(CatWays.tsx). */}
       {/* 벽시계. 검은 철사 고리 두 겹과 나무 축과 바늘 둘 */}
       <group position={[10.05, 1.9, -0.86]}>
         {[0.45, 0.36].map((radius) => (
@@ -113,7 +107,8 @@ function Bedroom() {
       {/* 이동식 스탠드 화면. 둥근 받침과 기둥과 평평한 판 */}
       <group position={[12.6, 0, 3.6]}>
         <Cylinder radius={0.25} height={0.04} position={[0, 0.02, 0]} color={palette.white} />
-        <Cylinder radius={0.025} height={1.1} position={[0, 0.59, 0]} color={palette.white} />
+        {/* 기둥은 흰 뒤판 뒤에 세운다. 화면과 같은 자리에 세우면 검은 화면 앞으로 튀어나온다. */}
+        <Cylinder radius={0.025} height={1.1} position={[0, 0.59, 0.06]} color={palette.white} />
         <Box size={[0.8, 0.5, 0.025]} position={[0, 1.2, 0.02]} color={palette.white} />
         <Box size={[0.76, 0.46, 0.02]} position={[0, 1.2, 0]} color={palette.blackGlass} roughness={0.2} />
       </group>
@@ -128,7 +123,7 @@ function Bedroom() {
       <Cylinder radius={0.1} radiusTop={0.05} height={0.36} position={[7.75, 0.98, 5.62]} color={palette.wall} />
       <Cylinder radius={0.07} radiusTop={0.09} height={0.2} position={[8.1, 0.9, 5.62]} color={palette.green} />
       {/* 큰 화분 */}
-      <Pot position={[7.55, 0, 4.95]} radius={0.3} height={0.55} scale={1.6} seed={41} />
+      <Pot position={[7.55, 0, 4.95]} radius={0.3} height={0.55} scale={1.6} seed={41} shape="cylinder" color={palette.greige} />
       {/* 유리문 양 끝의 크림색 리넨 커튼 */}
       <Curtain along="x" at={5.78} from={9.3} to={9.85} />
       <Curtain along="x" at={5.78} from={13.25} to={13.8} />
@@ -157,7 +152,12 @@ function WavyMirror({ z }: { z: number }) {
   return (
     <group position={[HOUSE.wingX + 0.125, 0, z]}>
       <Extruded shape={shape} depth={0.04} position={[0.045, 0, 0]} rotation={FACE_X} color={palette.oak} />
-      <Box size={[0.01, 0.9, 0.64]} position={[0.012, 1.75, 0]} color={palette.glass} roughness={0.05} castShadow={false} />
+      {/* 거울 유리. 틀 구멍보다 조금 큰 타원이라서 가장자리가 틀 안에 묻힌다. 네모로 만들면 모서리가 물결 틀 밖으로 튀어나온다. */}
+      {/* 원기둥을 옆으로 눕힌 뒤 위아래와 앞뒤를 다르게 늘려서 납작한 타원 판을 만든다. */}
+      <mesh position={[0.012, 1.75, 0]} rotation={[0, 0, Math.PI / 2]} scale={[0.47, 1, 0.34]}>
+        <cylinderGeometry args={[1, 1, 0.01, 32]} />
+        <meshStandardMaterial color={palette.glass} roughness={0.05} />
+      </mesh>
     </group>
   )
 }
@@ -207,9 +207,9 @@ function Bathroom() {
       {/* 수건 걸이 */}
       <Box size={[0.8, 0.03, 0.03]} position={[10.4, 1.3, -1.16]} color={palette.oak} />
       <Box size={[0.5, 0.6, 0.04]} position={[10.4, 1.02, -1.16]} color={palette.white} />
-      {/* 나무 스툴과 화분 */}
-      <Cylinder radius={0.17} radiusTop={0.2} height={0.45} position={[10.5, 0.225, -4.6]} color={palette.wood} />
-      <Pot position={[8.4, 0, -5.4]} seed={42} />
+      {/* 나무 스툴과 화분. 스툴은 변기 칸 가는 길에 걸리지 않도록 수건 걸이 아래에 둔다. */}
+      <Cylinder radius={0.17} radiusTop={0.2} height={0.45} position={[10.6, 0.225, -1.5]} color={palette.wood} />
+      <Pot position={[8.4, 0, -5.4]} seed={42} shape="footed" color={palette.white} />
     </group>
   )
 }
@@ -229,11 +229,7 @@ function ToiletRoom() {
       ))}
       <Cylinder radius={0.05} radiusTop={0.03} height={0.18} position={[8.7, 1.305, -7.5]} color={palette.wall} />
       <Box size={[0.14, 0.1, 0.2]} position={[8.7, 1.665, -7.2]} color={palette.green} />
-      {/* 손 씻는 대. 흰 대야와 흰 수전 */}
-      <Box size={[1.7, 0.8, 0.55]} position={[9.75, 0.4, -8.075]} color={palette.oak} />
-      <Box size={[1.7, 0.05, 0.55]} position={[9.75, 0.825, -8.075]} color={palette.counter} />
-      <Cylinder radius={0.15} radiusTop={0.2} height={0.1} position={[9.75, 0.9, -8.02]} color={palette.white} />
-      <Faucet position={[9.75, 0.85, -8.28]} height={0.3} reach={0.16} turn={-Math.PI / 2} />
+      {/* 손 씻는 대 자리에는 고양이 화장실 장이 있다(Decor.tsx). */}
       <Pot position={[10.5, 0, -6.6]} seed={43} />
     </group>
   )

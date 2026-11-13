@@ -45,9 +45,9 @@ const heights: [string, number, number, number][] = [
   ['안락의자', 10.6, 4.8, FLOOR + 0.42],
   ['욕조 돌 턱', 12.4, -4.3, FLOOR + 0.55],
   ['세면대', 7.6, -4, FLOOR + 0.9],
-  ['나무 스툴', 10.5, -4.6, FLOOR + 0.45],
+  ['나무 스툴', 10.6, -1.5, FLOOR + 0.45],
   ['변기', 7.6, -7.7, FLOOR + 0.45],
-  ['손 씻는 대', 9.2, -8, FLOOR + 0.85],
+  ['고양이 화장실 장', 9.2, -8, FLOOR + 0.65],
   ['수영장 테두리', 0, 8.35, DECK_HEIGHT + 0.3],
   ['선베드', 5.55, 10, DECK_HEIGHT + 0.47],
   ['데크 돌 벤치', -7.4, 13.3, DECK_HEIGHT + 0.55],
@@ -297,6 +297,25 @@ const passage = follow(visitor, [
 ])
 check('스툴을 밟고 벽 통로로 침실까지', passage.passed, passage.detail)
 
+// 12-1. 거실 캣워크 끝에서 곡선 디딤 선반을 따라 걸어 내려가 통로로 들어가고 거꾸로 올라간다. 1초에 60번과 20번으로 본다.
+for (const rate of [60, 20]) {
+  FRAME = 1 / rate
+  const rampCat: Cat = { x: 6.55, z: -2, y: FLOOR + 2.8, speed: 0 }
+  const down = follow(rampCat, [
+    ['선반 위쪽 1.75m', 6.55, -0.6, false, 1.75],
+    ['선반 아래쪽 1.3m', 6.55, 0.25, false, 1.3],
+    ['통로', 7, 0.75, false, 1.1],
+  ])
+  const up = follow(rampCat, [
+    ['선반 아래쪽 1.3m', 6.55, 0.25, false, 1.3],
+    ['선반 위쪽 1.75m', 6.55, -0.65, false, 1.75],
+    ['곡선 책장', 6.55, -1.3, true, 2.1],
+    ['거실 캣워크', 6.55, -1.5, true, 2.8],
+  ])
+  check(`곡선 디딤 선반으로 캣워크와 통로 오가기(1초에 ${rate}번)`, down.passed && up.passed, `${down.detail} / ${up.detail}`)
+}
+FRAME = 1 / 60
+
 // 13. 물결 스크래처에서도 통로로 오를 수 있고 바닥에서는 통로를 지나가지 못한다.
 const scratcher: Cat = { x: 6, z: 0.8, y: FLOOR, speed: 0 }
 const fromScratcher = follow(scratcher, [
@@ -319,6 +338,24 @@ const bedroomWalk = follow(sleeper, [
   ['캣워크 끝', 12.7, -0.55, false, 2.6],
 ])
 check('침실 디딤에서 침실 캣워크 끝까지', bedroomWalk.passed, bedroomWalk.detail)
+
+// 15. 침실 캣워크 끝에서 S자 캣타워 발판 넷을 밟고 바닥까지 내려온다. 거꾸로 바닥에서 캣워크까지 올라간다.
+const descent = follow(sleeper, [
+  ['캣타워 2.15m', 13.2, -0.55, false, 2.15],
+  ['캣타워 1.6m', 13.45, -0.55, false, 1.6],
+  ['캣타워 1.05m', 12.75, -0.55, false, 1.05],
+  ['캣타워 0.5m', 13.45, -0.55, false, 0.5],
+  ['침실 바닥', 13.4, 0.2, false, 0],
+])
+check('침실 캣워크에서 캣타워로 바닥까지', descent.passed, descent.detail)
+const ascent = follow(sleeper, [
+  ['캣타워 0.5m', 13.45, -0.55, true, 0.5],
+  ['캣타워 1.05m', 13.05, -0.55, true, 1.05],
+  ['캣타워 1.6m', 13.3, -0.55, true, 1.6],
+  ['캣타워 2.15m', 13.05, -0.55, true, 2.15],
+  ['침실 캣워크', 12.9, -0.58, true, 2.6],
+])
+check('침실 바닥에서 캣타워로 캣워크까지', ascent.passed, ascent.detail)
 
 console.log(failed === 0 ? '\n모든 검사 통과' : `\n실패한 검사 ${failed}개`)
 process.exit(failed === 0 ? 0 : 1)
