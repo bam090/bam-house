@@ -37,7 +37,7 @@ const heights: [string, number, number, number][] = [
   ['소파 방석', 1.5, 0.7, FLOOR + 0.45],
   ['소파 등받이', 1.5, 1.3, FLOOR + 0.85],
   ['소파 안쪽 러그', 1.5, 0.2, FLOOR],
-  ['통나무 탁자', 1.5, -0.85, FLOOR + 0.35],
+  ['커피 테이블', 1.5, -0.85, FLOOR + 0.571],
   ['TV 아래 낮은 장', 1.5, -5.2, FLOOR + 0.7],
   ['통유리창 앞 바닥', -6, -5.4, FLOOR],
   ['침대', 11.4, 0.5, FLOOR + 0.5],
@@ -320,7 +320,7 @@ FRAME = 1 / 60
 // 13. 물결 스크래처에서도 통로로 오를 수 있고 바닥에서는 통로를 지나가지 못한다.
 const scratcher: Cat = { x: 6, z: 0.8, y: FLOOR, speed: 0 }
 const fromScratcher = follow(scratcher, [
-  ['물결 스크래처', 6.5, 0.8, true, 0.35],
+  ['물결 스크래처', 6.5, 0.8, true, 0.34],
   ['통로', 7, 0.7, true, 1.1],
 ])
 const crawler: Cat = { x: 6.3, z: 0.7, y: FLOOR, speed: 0 }

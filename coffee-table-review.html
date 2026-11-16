@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>커피 테이블 모델 비교</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px; background: #f8f5ef; color: #30281f; font: 16px system-ui, sans-serif; }
+  main { max-width: 1500px; margin: auto; }
+  h1 { margin: 0 0 20px; font-size: 28px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  button { border: 1px solid #b8aa99; background: #fffdf8; padding: 9px 15px; border-radius: 8px; cursor: pointer; }
+  button[aria-pressed="true"] { background: #493a2b; color: white; }
+  #models { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  article { min-width: 0; overflow: hidden; border: 1px solid #e0d8cc; border-radius: 12px; background: #fffdf8; }
+  header { padding: 14px 16px; }
+  h2 { margin: 0 0 4px; font-size: 18px; }
+  p { margin: 0; color: #635747; }
+  .view { aspect-ratio: 1; background: #e9dfcf; }
+  .view canvas { display: block; width: 100%; height: 100%; }
+  .view p { padding: 16px; }
+  @media (max-width: 680px) { #models { grid-template-columns: 1fr; } body { padding: 16px; } }
+</style>
+<main>
+  <h1>2-E 밝은 원목 조각형 커피 테이블</h1>
+  <nav aria-label="공통 카메라 각도">
+    <button data-angle="oblique" aria-pressed="true">사선</button>
+    <button data-angle="front" aria-pressed="false">정면</button>
+    <button data-angle="top" aria-pressed="false">상면</button>
+    <button data-angle="close" aria-pressed="false">가장자리 근접</button>
+  </nav>
+  <section id="models" aria-label="GLB 비교"></section>
+</main>
+<script type="module">
+  import * as THREE from 'three'
+  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+
+  const assets = [
+    ['원본', '296,690 트라이앵글 · 10.3 MiB', ''],
+    ['35K 경량화', '34,996 트라이앵글 · 2.6 MiB', '-35k'],
+    ['15K 경량화', '15,000 트라이앵글 · 1.9 MiB', '-15k'],
+  ]
+  const angles = {
+    oblique: [[1.56, 1.22, 2.36], [0, 0.29, 0]],
+    front: [[0, 0.68, 2.95], [0, 0.32, 0]],
+    top: [[0, 3.1, 0.01], [0, 0.3, 0]],
+    close: [[0.9, 0.86, 1.1], [0.42, 0.58, 0.14]],
+  }
+  const loader = new GLTFLoader()
+  const views = []
+  let activeAngle = 'oblique'
+  function render({ renderer, scene, camera, container }) {
+    renderer.setSize(container.clientWidth, container.clientHeight, false)
+    const [position, target] = angles[activeAngle]
+    camera.position.set(...position)
+    camera.lookAt(...target)
+    renderer.render(scene, camera)
+  }
+
+  document.querySelectorAll('[data-angle]').forEach(button => {
+    button.addEventListener('click', () => {
+      activeAngle = button.dataset.angle
+      document.querySelectorAll('[data-angle]').forEach(option => {
+        option.setAttribute('aria-pressed', String(option === button))
+      })
+      views.forEach(render)
+    })
+  })
+
+  await Promise.all(assets.map(async ([title, details, suffix]) => {
+    const card = document.createElement('article')
+    card.innerHTML = `<header><h2>${title}</h2><p>${details}</p></header><div class="view"><p role="status">모델 로딩 중</p></div>`
+    document.querySelector('#models').append(card)
+    const container = card.querySelector('.view')
+
+    try {
+      const { scene: model } = await loader.loadAsync(`./models/living-room/coffee-table/coffee-table-pale-wood-sculptural${suffix}.glb`)
+      const bounds = new THREE.Box3().setFromObject(model)
+      const center = bounds.getCenter(new THREE.Vector3())
+      const scale = 1.6 / bounds.getSize(new THREE.Vector3()).x
+      model.scale.setScalar(scale)
+      model.position.set(-center.x * scale, -bounds.min.y * scale, -center.z * scale)
+      const scene = new THREE.Scene()
+      scene.background = new THREE.Color('#e9dfcf')
+      scene.add(model, new THREE.HemisphereLight('#fff7e9', '#aa8f73', 2))
+      const light = new THREE.DirectionalLight('#fff2de', 2)
+      light.position.set(-3, 5, 3)
+      scene.add(light)
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.toneMapping = THREE.ACESFilmicToneMapping
+      const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 20)
+      container.replaceChildren(renderer.domElement)
+      const view = { renderer, scene, camera, container }
+      views.push(view)
+      new ResizeObserver(() => render(view)).observe(container)
+      render(view)
+    } catch (error) {
+      container.querySelector('p').textContent = '모델을 표시할 수 없습니다.'
+      console.error(title, error)
+    }
+  }))
+</script>
+</html>

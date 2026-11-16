@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { Shape, SplineCurve, Vector2 } from 'three'
 import { Box } from './Box'
+import { LivingRoomModel } from './LivingRoomModel'
 import { palette } from './palette'
 import { Cylinder, Extruded, FACE_X, LAY_FLAT, arcBand } from './Shapes'
-import { CATWALK, CAT_HOLE, CAT_POLE, CAT_RAMP, CAT_TOWER, CEILING_HEIGHT, HOUSE, rampTop } from './walkable'
+import { CATWALK, CAT_HOLE, CAT_POLE, CAT_RAMP, CAT_TOWER, CEILING_HEIGHT, HOUSE, WAVE_SCRATCHER, rampTop } from './walkable'
 
 // 고양이가 다니는 길을 그리는 파일이다. 캣폴과 캣워크와 벽 통로의 디딤이 들어 있다.
 // 자리와 높이는 walkable.ts의 CAT_POLE과 CATWALK와 CAT_HOLE 값을 그대로 쓴다. 그래서 보이는 모양과 걷는 자리가 어긋나지 않는다.
@@ -140,39 +141,6 @@ function LogStool({ x, z, radius, height }: { x: number; z: number; radius: numb
   )
 }
 
-// 물결 스크래처. S자로 휜 띠를 옆에서 본 윤곽으로 그려서 폭만큼 밀어낸다.
-function WaveScratcher() {
-  const shape = useMemo(() => {
-    // 띠의 가운데 선. 바닥을 따라가다가 한쪽 끝에서 말려 올라가 물결 모양 윗면이 된다. 점은 (z, 높이)다.
-    const line = new SplineCurve([
-      new Vector2(0.36, 0.04),
-      new Vector2(0.9, 0.035),
-      new Vector2(1.36, 0.05),
-      new Vector2(1.46, 0.17),
-      new Vector2(1.34, 0.3),
-      new Vector2(1.05, 0.27),
-      new Vector2(0.75, 0.24),
-      new Vector2(0.5, 0.31),
-      new Vector2(0.34, 0.33),
-    ])
-    const points = line.getPoints(48)
-    const half = 0.032
-    const upper: Vector2[] = []
-    const lower: Vector2[] = []
-    points.forEach((point, index) => {
-      // 앞뒤 점을 이은 방향에 직각으로 띠의 두께만큼 벌린다.
-      const before = points[Math.max(0, index - 1)]
-      const after = points[Math.min(points.length - 1, index + 1)]
-      const along = new Vector2().subVectors(after, before).normalize()
-      const across = new Vector2(-along.y, along.x).multiplyScalar(half)
-      upper.push(new Vector2().addVectors(point, across))
-      lower.push(new Vector2().subVectors(point, across))
-    })
-    return new Shape([...upper, ...lower.reverse()])
-  }, [])
-  return <Extruded shape={shape} depth={0.45} position={[6.75, 0, 0]} rotation={FACE_X} color={palette.rugLiving} />
-}
-
 // 거실 캣워크 끝과 벽 통로를 잇는 곡선 디딤 선반. 옆에서 본 윤곽(두께 0.04m의 S자 띠)을 벽에서 방 쪽으로 밀어낸다.
 // 윗면 높이는 walkable.ts의 rampTop과 같아서 보이는 모양과 걷는 높이가 어긋나지 않는다.
 function CatRamp() {
@@ -268,7 +236,7 @@ export function CatWays() {
       {/* 통로로 올라가는 디딤. 낮은 스툴과 높은 스툴과 통로 아래의 물결 스크래처 */}
       <LogStool x={6.55} z={-0.7} radius={0.25} height={0.4} />
       <LogStool x={6.55} z={-0.1} radius={0.3} height={0.75} />
-      <WaveScratcher />
+      <LivingRoomModel file="living-room/cat-scratcher/cat-scratcher-wave.glb" {...WAVE_SCRATCHER} />
 
       {/* 통로의 침실 쪽. 벽에서 내민 디딤판과 문 쪽으로 붙여 놓은 원목 상자와 도넛 방석 */}
       <Shelf minX={wallFace + 0.03} maxX={hole.ledgeMaxX} minZ={hole.minZ - 0.05} maxZ={hole.maxZ + 0.05} top={hole.bottom} />

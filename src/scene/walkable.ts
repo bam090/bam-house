@@ -1,3 +1,5 @@
+import { coffeeTableHeights } from './coffee-table-collider.ts'
+
 // 고양이가 걸을 수 있는 범위와 바닥 높이를 계산하는 파일이다.
 // 물리 엔진을 쓰지 않고 좌표가 어느 사각형 안에 있는지만 검사한다.
 // 벽과 유리와 기둥과 물은 지나갈 수 없고 가구와 화단은 윗면 높이가 있는 바닥이다.
@@ -76,6 +78,9 @@ export const STAIRS = {
 export const STEP_HEIGHT = FLOOR_HEIGHT / STAIRS.risers
 
 /** 바닥에 놓인 계단 판의 수. 맨 아래 단은 데크 바닥이라서 판이 하나 적다. */
+export const COFFEE_TABLE = { x: 1.5, z: -0.85, turn: 0, width: 1.6, maxDepth: 0.8 } as const
+export const WAVE_SCRATCHER = { x: 6.525, z: 0.9, turn: Math.PI / 2, width: 1.2 } as const
+
 export const STEP_COUNT = STAIRS.risers - 1
 
 /** 계단이 끝나는 z 좌표 */
@@ -124,7 +129,11 @@ export const SHOWER = {
 } as const
 
 /** 거실 통유리창 옆 구석의 바닥 화병 자리 */
-export const FLOOR_VASE = { x: -7.45, z: -5.15 } as const
+export const FLOOR_VASE = { x: -7.25, z: 4.96, y: 0.021 } as const
+export const OLIVE_TREE = { x: -7.02, z: -5.02, height: 1.85, turn: 0.35 } as const
+export const ARECA_PALM = { x: 6.49, z: 4.98, height: 1.32, turn: 255 * Math.PI / 180 } as const
+export const GREEN_CUSHIONS = { x: 3.78, z: 0.58, width: 0.46, y: 0.021, turn: 0.2 } as const
+export const BROWN_CUSHION = { x: -0.20, z: -0.27, width: 0.52 } as const
 
 /** 고양이 화장실 장. 변기 칸 뒤쪽 벽(손 씻는 대 자리)에 붙는다. top은 윗면 높이다. */
 export const CAT_LITTER = { minX: 8.9, maxX: 10.6, minZ: -8.35, maxZ: -7.8, top: 0.65 } as const
@@ -348,23 +357,23 @@ const SURFACES: Surface[] = [
   // 통로로 올라가는 통나무 스툴 둘과 통로 아래의 물결 스크래처
   onFloor(6.3, 6.8, -0.95, -0.45, 0.4),
   onFloor(6.25, 6.85, -0.4, 0.2, 0.75),
-  onFloor(6.3, 6.75, 0.3, 1.5, 0.35),
+  onFloor(6.36, 6.69, 0.3, 1.5, 0.34),
   // 침실 쪽 통로 옆의 디딤 상자와 방석. 통로 바로 아래가 아니라 문 쪽으로 붙여 놓았다.
   onFloor(7.2, 7.7, 0.85, 1.45, 0.6),
   // 통나무 조명과 곡선 책장과 통나무 탁자
   onFloorAt(6.5, -5.2, 0.2, 1.8),
   onFloor(6.5, 6.85, -3, -1.1, 2.1),
-  onFloor(0.7, 2.3, -1.25, -0.45, 0.35),
   // 아치 스탠드의 받침과 대. 대가 높아서 지나가거나 올라설 수 없다.
-  onFloorAt(4.4, 0.9, 0.1, 2.0),
+  onFloorAt(4.4, 0.9, 0.19, 2.0),
   // 통유리창 옆 구석의 바닥 화병
-  onFloorAt(FLOOR_VASE.x, FLOOR_VASE.z, 0.22, 0.6),
+  onFloorAt(FLOOR_VASE.x, FLOOR_VASE.z, 0.22, FLOOR_VASE.y + 0.6),
+  onFloorAt(OLIVE_TREE.x, OLIVE_TREE.z, 0.15, 0.42),
   // 소파 옆의 바닥 쿠션 둘과 거실 앞의 큰 야자 화분과 아일랜드 끝의 고양이 식기
-  onFloorAt(4.7, -0.55, 0.32, 0.16),
-  onFloorAt(4.45, -1.35, 0.28, 0.16),
+  onFloorAt(GREEN_CUSHIONS.x, GREEN_CUSHIONS.z, 0.23, 0.531),
+  onFloorAt(BROWN_CUSHION.x, BROWN_CUSHION.z, 0.26, 0.17),
   // 1인용 소파의 방석과 등받이. 등받이는 뒤쪽 절반이다.
   onFloorAt(SINGLE_SOFA.x, SINGLE_SOFA.z, 0.46, 0.45),
-  onFloorAt(6.1, 5.25, 0.3, 0.6),
+  onFloorAt(ARECA_PALM.x, ARECA_PALM.z, 0.18, 0.35),
   onFloor(-5.8, -5.3, 4.115, 4.335, 0.12),
   // 초승달 소파의 방석과 등받이
   sofaBand(SOFA.inner, SOFA.outer, 0.45),
@@ -535,12 +544,33 @@ function onSurface(surface: Surface, x: number, z: number, margin = BODY) {
 // footY를 주지 않으면 떠 있는 발판을 뺀 높이를 돌려준다.
 // rising은 점프해서 올라가는 중인지다. 올라가는 중에는 발이 발판 윗면을 완전히 넘어야 그 발판을 바닥으로 친다.
 // margin은 가구 범위를 넓히는 폭이다. 고양이는 몸 폭의 절반(BODY)이고 장난감 공처럼 작은 것은 더 작게 준다.
+const coffeeTableSurface = coffeeTableHeights.map((row) =>
+  row.match(/../g)!.map((cell) => cell === '..' ? 0 : parseInt(cell, 16) / 100),
+)
+
+function coffeeTableHeight(x: number, z: number) {
+  const u = (x - COFFEE_TABLE.x) / 0.04 + (coffeeTableSurface[0].length - 1) / 2
+  const v = (z - COFFEE_TABLE.z) / 0.04 + (coffeeTableSurface.length - 1) / 2
+  let height = 0
+  let weightSum = 0
+  for (let row = Math.max(0, Math.ceil(v - 1)); row <= Math.min(coffeeTableSurface.length - 1, v + 1); row++) {
+    for (let col = Math.max(0, Math.ceil(u - 1)); col <= Math.min(coffeeTableSurface[row].length - 1, u + 1); col++) {
+      const sample = coffeeTableSurface[row][col]
+      if (!sample) continue
+      const weight = (1 - Math.abs(col - u)) * (1 - Math.abs(row - v))
+      height += weight * sample
+      weightSum += weight
+    }
+  }
+  return weightSum > 0 ? FLOOR_HEIGHT + DECK_HEIGHT + 0.021 + height / weightSum : -Infinity
+}
+
 export function groundHeight(x: number, z: number, footY = -Infinity, rising = false, margin = BODY) {
   let top = baseHeight(x, z)
   for (const surface of SURFACES) {
     if (surface.top > top && onSurface(surface, x, z, margin)) top = surface.top
   }
-  return Math.max(DECK_HEIGHT + top, floatingHeight(x, z, footY, FLOATING, rising))
+  return Math.max(DECK_HEIGHT + top, coffeeTableHeight(x, z), floatingHeight(x, z, footY, FLOATING, rising))
 }
 
 // 그 자리의 천장 높이를 돌려준다. 집 안이면 천장이고 밖이면 끝이 없다.

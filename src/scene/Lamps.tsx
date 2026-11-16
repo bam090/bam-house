@@ -1,7 +1,5 @@
-import { useMemo } from 'react'
-import { QuadraticBezierCurve3, Vector3 } from 'three'
-import { Box } from './Box'
 import { LivingRoomModel } from './LivingRoomModel'
+import { Box } from './Box'
 import { palette } from './palette'
 import { Cylinder, Glow } from './Shapes'
 
@@ -19,32 +17,12 @@ function WarmGlass({ strength = 1.2 }: { strength?: number }) {
   return <meshStandardMaterial color="#fff4e0" emissive={WARM} emissiveIntensity={strength} roughness={0.6} />
 }
 
-// 52번 라탄 갓 아치 스탠드. base는 바닥 받침의 자리이고 shade는 갓 아랫면의 가운데다.
-// 받침에서 올라간 대가 크게 휘어서 갓을 탁자 위에 매단다.
-// peak는 대가 휘는 정도를 정하는 조절점의 높이다. 클수록 대가 높이 올라갔다가 내려온다.
-function ArcFloorLamp({ base, shade, peak }: { base: Spot; shade: Spot; peak: number }) {
-  const curve = useMemo(() => {
-    const start = new Vector3(base[0], 0.04, base[2])
-    const end = new Vector3(shade[0], shade[1] + 0.3, shade[2])
-    // 조절점을 받침 바로 위 높은 곳에 두면 대가 곧게 올라가다가 갓 쪽으로 휜다.
-    const control = new Vector3(base[0] + (shade[0] - base[0]) * 0.1, peak, base[2] + (shade[2] - base[2]) * 0.1)
-    return new QuadraticBezierCurve3(start, control, end)
-  }, [base, shade, peak])
+// 받침 중심을 기존 자리 (4.4, 0.9)에 맞추고 갓은 소파 쪽으로 돌린다.
+function ArcFloorLamp() {
   return (
     <group>
-      <Cylinder radius={0.2} height={0.04} position={[base[0], 0.02, base[2]]} color={palette.white} />
-      {/* tubeGeometry는 곡선을 따라가는 둥근 관을 만든다. 값은 차례로 곡선과 마디 수와 관의 반지름과 둘레의 면 수다. */}
-      <mesh castShadow>
-        <tubeGeometry args={[curve, 28, 0.018, 6, false]} />
-        <meshStandardMaterial color={palette.column} roughness={0.4} />
-      </mesh>
-      {/* 라탄 갓. 위가 좁은 원뿔대이고 그 아래에 빛나는 전구가 보인다. */}
-      <Cylinder radius={0.3} radiusTop={0.1} height={0.28} position={[shade[0], shade[1] + 0.14, shade[2]]} color={palette.wood} />
-      <mesh position={[shade[0], shade[1] + 0.03, shade[2]]}>
-        <sphereGeometry args={[0.07, 10, 8]} />
-        <WarmGlass strength={1.8} />
-      </mesh>
-      <pointLight position={[shade[0], shade[1] - 0.1, shade[2]]} intensity={7} distance={6} color={WARM} />
+      <LivingRoomModel file="living-room/floor-lamp/floor-lamp-bronze-arc.glb" x={4.24} z={0.72} turn={-2.43} height={2.23} />
+      <pointLight position={[4.23, 1.65, 0.71]} intensity={7} distance={6} color={WARM} />
     </group>
   )
 }
@@ -111,8 +89,8 @@ export function Lamps({ ceiling }: { ceiling: number }) {
     <group>
       {/* 아일랜드 위의 펜던트 */}
       <LivingRoomModel file="kitchen/pendant-light/pendant-brass-linear-champagne.glb" x={-5.55} y={ceiling-1.65} z={2.3} width={2.4} height={1.65} turn={Math.PI / 2} originalMaterial />
-      {/* 소파 끝 뒤에 세운 아치 스탠드. 조금만 휘어서 갓이 소파 끝자리 위 1.75m에 온다. */}
-      <ArcFloorLamp base={[4.4, 0, 0.9]} shade={[3.5, 1.75, -0.15]} peak={3.1} />
+      {/* 소파 끝 뒤에 세운 아치 스탠드. 갓이 소파 쪽을 향한다. */}
+      <ArcFloorLamp />
       {/* 침대 양옆 협탁 위의 버섯형 램프 */}
       <MushroomLamp position={[10.05, 0.45, -0.52]} />
       <MushroomLamp position={[12.75, 0.45, -0.52]} />

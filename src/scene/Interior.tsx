@@ -10,7 +10,7 @@ import { Decor } from './Decor'
 import { Lamps } from './Lamps'
 import { palette } from './palette'
 import { Cylinder, Extruded, FACE_X, Faucet, Glow, LAY_FLAT, arcBand } from './Shapes'
-import { CEILING_HEIGHT, HOUSE, SOFA } from './walkable'
+import { CEILING_HEIGHT, COFFEE_TABLE, HOUSE, SOFA } from './walkable'
 
 // 집 안의 가구를 그리는 파일이다. 좌표는 장면 좌표이고 높이는 거실 바닥에서 잰 값이다.
 // 자리와 크기는 docs/house-spec.md 4번과 같다. 걷기 규칙(walkable.ts)의 윗면 높이도 같은 값을 쓴다.
@@ -415,16 +415,6 @@ function CurvedBookcase() {
 function Lounge() {
   const { x, z, inner, outer, from, to } = SOFA
   const shapes = useMemo(() => {
-    // 통나무를 세로로 켠 탁자. 타원에 굴곡을 조금 넣어서 손으로 깎은 모양을 낸다.
-    const table = new Shape()
-    for (let index = 0; index <= 24; index += 1) {
-      const angle = (index / 24) * Math.PI * 2
-      const wobble = 1 + 0.07 * Math.sin(angle * 3 + 0.6)
-      const px = 1.5 + Math.cos(angle) * 0.8 * wobble
-      const pz = -0.85 + Math.sin(angle) * 0.4 * wobble
-      if (index === 0) table.moveTo(px, -pz)
-      else table.lineTo(px, -pz)
-    }
     return {
       base: arcBand(x, z, inner, outer, from, to),
       seat: arcBand(x, z, inner + 0.03, outer - 0.3, from + 1, to - 1),
@@ -432,7 +422,6 @@ function Lounge() {
       back: arcBand(x, z, outer - 0.32, outer - 0.1, from + 1, to - 1),
       // 방석과 나무 껍데기 사이의 빈틈을 메우는 띠. 이것이 없으면 소파 양 끝 단면에 네모난 구멍이 보인다.
       filler: arcBand(x, z, outer - 0.3, outer - 0.1, from + 1, to - 1),
-      table,
     }
   }, [x, z, inner, outer, from, to])
 
@@ -458,7 +447,7 @@ function Lounge() {
           />
         )
       })}
-      <Extruded shape={shapes.table} depth={0.33} position={[0, 0.02, 0]} rotation={LAY_FLAT} color={palette.wood} />
+      <LivingRoomModel file="living-room/coffee-table/coffee-table-pale-wood-sculptural.glb" {...COFFEE_TABLE} y={0.021} />
     </group>
   )
 }

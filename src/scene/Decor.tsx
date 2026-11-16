@@ -3,9 +3,9 @@ import { DoubleSide, Shape, Vector2 } from 'three'
 import { Box } from './Box'
 import { LivingRoomModel } from './LivingRoomModel'
 import { palette } from './palette'
-import { Cylinder, Extruded, Glow, LAY_FLAT, Pot, arcBand } from './Shapes'
+import { Cylinder, Extruded, Glow, LAY_FLAT, Pot } from './Shapes'
 import { Toys } from './Toys'
-import { CAT_LITTER, FLOOR_VASE, SINGLE_SOFA } from './walkable'
+import { ARECA_PALM, BROWN_CUSHION, CAT_LITTER, DECK_HEIGHT, FLOOR_HEIGHT, FLOOR_VASE, GREEN_CUSHIONS, OLIVE_TREE, groundHeight } from './walkable'
 
 // 구역별 오브제와 고양이 용품을 그리는 파일이다. 높이는 모두 방바닥에서 잰다.
 // 올라설 수 있는 큰 물건(벤치와 바닥 쿠션과 화장실 장 등)의 높이는 walkable.ts의 SURFACES에 따로 적는다.
@@ -60,8 +60,6 @@ function Ring({ position, radius, tube, color, rotation = [Math.PI / 2, 0, 0], a
 // 화병과 병의 윤곽. 하나씩만 쓴다.
 /** 팔각으로 깎은 원통 화병 */
 const FACETED_CYLINDER: Profile = [[0, 0], [0.055, 0], [0.065, 0.02], [0.065, 0.28], [0.058, 0.3], [0, 0.3]]
-/** 표주박 화병 */
-const GOURD_VASE: Profile = [[0, 0], [0.05, 0], [0.085, 0.06], [0.09, 0.11], [0.06, 0.17], [0.05, 0.2], [0.066, 0.25], [0.06, 0.3], [0.03, 0.33], [0.036, 0.34], [0, 0.34]]
 /** 납작한 플라스크 병. 앞뒤로 눌러서 쓴다. */
 const FLASK: Profile = [[0, 0], [0.03, 0], [0.07, 0.05], [0.075, 0.1], [0.06, 0.15], [0.02, 0.18], [0.02, 0.255], [0.024, 0.26], [0, 0.26]]
 /** 구석에 세운 흙빛 바닥 화병. 아래가 불룩하고 목이 좁다. */
@@ -77,19 +75,6 @@ const PAMPAS = [
 const CARVED_BOWL: Profile = [[0, 0], [0.06, 0], [0.1, 0.02], [0.115, 0.045], [0.105, 0.05], [0, 0.03]]
 
 // 바구니 넷. 모양이 서로 다르다.
-// 둘레에 띠를 두른 해초 바구니
-function BandedBasket({ position }: { position: Spot }) {
-  const [x, y, z] = position
-  return (
-    <group>
-      <Cylinder radius={0.13} radiusTop={0.15} height={0.27} position={[x, y + 0.135, z]} color={palette.wetSand} />
-      {[0.06, 0.135, 0.21].map((h) => (
-        <Cylinder key={h} radius={0.13 + 0.02 * (h / 0.27) + 0.008} height={0.03} position={[x, y + h, z]} color={palette.wood} />
-      ))}
-    </group>
-  )
-}
-
 // 뚜껑과 꼭지가 있는 라탄 바구니
 function LiddedBasket({ position }: { position: Spot }) {
   const [x, y, z] = position
@@ -298,23 +283,16 @@ function KitchenDecor() {
 function LivingDecor() {
   /** 벽감 안에서 물건을 놓는 z 좌표 */
   const nicheZ = -5.63
-  // 1인용 소파의 등받이. 위에서 본 윤곽이고 뒤쪽(+z) 반 바퀴를 감싼다. 바깥은 나무 껍데기이고 안쪽은 직물 등받이다.
-  const chair = useMemo(
-    () => ({
-      shell: arcBand(0, 0, 0.47, 0.56, 10, 170),
-      back: arcBand(0, 0, 0.3, 0.47, 14, 166),
-    }),
-    [],
-  )
+  const tableTop = (x: number, z: number) => groundHeight(x, z) - DECK_HEIGHT - FLOOR_HEIGHT
   return (
     <group>
       {/* 왼쪽 큰 벽감 (x -4.3~-2.9). 칸마다 한두 개만 놓아서 여백을 둔다. */}
-      <BandedBasket position={[-3.95, 1.0, nicheZ]} />
+      <LivingRoomModel file="living-room/niche-basket/niche-basket-coiled-fiber.glb" x={-3.95} y={1} z={nicheZ} width={0.29} castShadow={false} />
       <StackedBooks position={[-3.3, 1.0, nicheZ]} />
       <Turned position={[-3.7, 1.5, nicheZ]} profile={FACETED_CYLINDER} color={palette.wall} segments={8} />
       <TravertineCandle position={[-3.2, 1.5, nicheZ]} />
       {/* 가운데 작은 벽감 (x -2.5~-1.8) */}
-      <Turned position={[-2.15, 1.0, nicheZ]} profile={GOURD_VASE} color={palette.stoneDark} />
+      <LivingRoomModel file="living-room/niche-vase/niche-vase-matte-organic.glb" x={-2.15} y={1} z={nicheZ} width={0.3} height={0.34} castShadow={false} />
       <LiddedBasket position={[-2.15, 1.5, nicheZ]} />
       <BrassCandlestick position={[-2.15, 2.0, nicheZ]} />
       {/* 오른쪽 큰 벽감 (x 4.9~5.9) */}
@@ -324,57 +302,39 @@ function LivingDecor() {
       <Pot position={[5.15, 1.5, nicheZ]} radius={0.07} height={0.1} scale={0.4} seed={52} shape="bowl" color={palette.roughStone} />
       <JarCandle position={[5.4, 2.0, nicheZ]} />
 
-      {/* 통나무 탁자 (윗면 0.35m): 리모컨과 초와 작은 그릇 */}
+      {/* 커피 테이블: 리모컨과 초와 작은 그릇 */}
       {/* 리모컨. 나중에 이것을 눌러서 TV 채널을 넘긴다. 흰 몸통 위에 전원 단추와 둥근 방향 단추가 있다. */}
-      <group position={[1.15, 0.35, -0.88]} rotation={[0, 0.35, 0]}>
+      <group position={[1.15, tableTop(1.15, -0.88), -0.88]} rotation={[0, 0.35, 0]}>
         <Box size={[0.055, 0.02, 0.19]} position={[0, 0.01, 0]} color={palette.white} roughness={0.5} />
         <Cylinder radius={0.008} height={0.004} position={[0, 0.022, -0.07]} color={palette.column} />
         <Cylinder radius={0.018} height={0.004} position={[0, 0.022, -0.025]} color={palette.greige} />
         <Box size={[0.03, 0.004, 0.012]} position={[0, 0.022, 0.03]} color={palette.greige} />
         <Box size={[0.03, 0.004, 0.012]} position={[0, 0.022, 0.055]} color={palette.greige} />
       </group>
-      <ThreeWickCandle position={[1.7, 0.35, -0.72]} />
-      <Turned position={[1.95, 0.35, -0.95]} profile={CARVED_BOWL} color={palette.sofaWood} />
+      <ThreeWickCandle position={[1.7, tableTop(1.7, -0.72), -0.72]} />
+      <Turned position={[1.95, tableTop(1.95, -0.95), -0.95]} profile={CARVED_BOWL} color={palette.sofaWood} />
 
-      {/* 원형 바닥 쿠션 둘. 소파에 앉아 TV를 볼 때 오른쪽(+x) 끝 옆에 둔다. 하나는 옆면에 띠를 두르고 하나는 가운데를 단추로 누른다. */}
-      <Cylinder radius={0.32} height={0.16} position={[4.7, 0.08, -0.55]} color={palette.fabric} />
-      <Cylinder radius={0.332} height={0.05} position={[4.7, 0.08, -0.55]} color={palette.fabric} />
-      <Cylinder radius={0.28} radiusTop={0.24} height={0.16} position={[4.45, 0.08, -1.35]} color={palette.rugBedroom} />
-      <Cylinder radius={0.03} height={0.01} position={[4.45, 0.163, -1.35]} color={palette.woodDark} />
+      <LivingRoomModel file="unassigned/floor-cushion/floor-cushion-green-boucle-stack.glb" {...GREEN_CUSHIONS} />
+      <LivingRoomModel file="living-room/floor-cushion/floor-cushion-round-velvet.glb" {...BROWN_CUSHION} />
       {/* 거실 앞 왼쪽 쌍기둥 옆의 큰 야자 화분 */}
-      <Pot position={[6.1, 0, 5.25]} radius={0.3} height={0.6} scale={2.2} seed={44} shape="belly" color={palette.oakLight} />
-
-      {/* 왼쪽 벽의 추상화. 통나무 조명과 곡선 책장 사이에 건다. 원목 틀 안에 크림색 바탕과 도형 셋이 있다. */}
-      <group position={[6.875, 1.55, -4.1]}>
-        <Box size={[0.05, 1.0, 1.3]} position={[-0.025, 0, 0]} color={palette.oak} />
-        <Box size={[0.02, 0.88, 1.18]} position={[-0.055, 0, 0]} color={palette.wall} roughness={1} />
-        {/* 도형은 바탕에서 조금씩 더 띄워서 서로 같은 평면에 놓이지 않게 한다. */}
-        <Cylinder radius={0.24} height={0.006} position={[-0.069, 0.1, 0.22]} rotation={[0, 0, Math.PI / 2]} color={palette.green} />
-        <Box size={[0.006, 0.5, 0.36]} position={[-0.073, -0.12, -0.2]} color={palette.wood} />
-        <Box size={[0.006, 0.12, 0.7]} position={[-0.077, -0.3, 0.05]} color={palette.greige} />
-      </group>
+      <LivingRoomModel file="living-room/areca-palm/areca-palm-rattan-planter.glb" {...ARECA_PALM} />
+      {/* +Z 정면을 거실 안쪽으로 돌린다. */}
+      <LivingRoomModel file="living-room/wall-art/wall-art-cream-wave-relief.glb" x={6.82} y={0.9} z={-4.1} turn={-Math.PI / 2} height={1.3} castShadow={false} />
 
       {/* 장난감 공 둘은 고양이가 굴릴 수 있어서 Toys.tsx에서 따로 그린다. */}
       <Toys />
 
-      {/* 통유리창 옆 구석의 흙빛 바닥 화병과 마른 팜파스 풀 넷 */}
-      <Turned position={[FLOOR_VASE.x, 0, FLOOR_VASE.z]} profile={FLOOR_VASE_PROFILE} color={palette.teak} segments={18} />
+      <LivingRoomModel file="plants/olive-tree/olive-tree-planter.glb" {...OLIVE_TREE} />
+      {/* 주방 로봇청소기 옆의 바닥 화병과 팜파스 */}
+      <Turned position={[FLOOR_VASE.x, FLOOR_VASE.y, FLOOR_VASE.z]} profile={FLOOR_VASE_PROFILE} color={palette.teak} segments={18} />
       {PAMPAS.map((stem, index) => (
-        <group key={index} position={[FLOOR_VASE.x, 0.55, FLOOR_VASE.z]} rotation={[stem.tiltX, 0, stem.tiltZ]}>
+        <group key={index} position={[FLOOR_VASE.x, FLOOR_VASE.y + 0.55, FLOOR_VASE.z]} rotation={[stem.tiltX, 0, stem.tiltZ]}>
           <Cylinder radius={0.006} height={stem.length} position={[0, stem.length / 2, 0]} color={palette.wetSand} />
           {/* 이삭. 공을 위아래로 늘려서 솜털 같은 끝을 만든다. */}
           <Ball position={[0, stem.length + 0.08, 0]} radius={0.05} color={palette.fabric} scale={[0.7, 2.2, 0.7]} />
         </group>
       ))}
 
-      {/* 1인용 소파. 소파에 앉아 TV를 볼 때 왼쪽(-x) 끝 옆에 둔다. 초승달 소파가 그리는 원 위에 놓고 그 원의 가운데를 보게 돌린다. */}
-      {/* 초승달 소파와 같은 재료다. 나무 몸통 위에 둥근 방석을 얹고 뒤쪽 반 바퀴에 등받이를 세운다. */}
-      <group position={[SINGLE_SOFA.x, 0, SINGLE_SOFA.z]} rotation={[0, SINGLE_SOFA.turn, 0]}>
-        <Cylinder radius={0.5} height={0.23} position={[0, 0.135, 0]} color={palette.sofaWood} />
-        <Cylinder radius={0.46} height={0.2} position={[0, 0.35, 0]} color={palette.fabric} />
-        <Extruded shape={chair.shell} depth={0.6} position={[0, 0.25, 0]} rotation={LAY_FLAT} color={palette.sofaWood} />
-        <Extruded shape={chair.back} depth={0.38} position={[0, 0.45, 0]} rotation={LAY_FLAT} color={palette.fabric} />
-      </group>
     </group>
   )
 }
