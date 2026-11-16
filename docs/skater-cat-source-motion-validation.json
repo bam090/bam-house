@@ -1,0 +1,71 @@
+{
+  "sourceHashUnchanged": true,
+  "units": "Millimetres with the rest model height normalized to 1 metre",
+  "note": "Data and animation sampling validated. Contact and loop quality are measurements, not a production-readiness pass.",
+  "models": [
+    {
+      "file": "cat-source-motion.glb",
+      "bytes": 1996844,
+      "skinBones": 75,
+      "triangles": 47216,
+      "clips": [
+        {
+          "name": "run",
+          "durationSeconds": 0.5833333134651184,
+          "channels": 225,
+          "samples": 121,
+          "maxJointMotionMm": 1021.1598075232502,
+          "loopJointGapMm": 51.22916790005704,
+          "loopJoint": "Thigh_Back_L",
+          "loopNonTailJointGapMm": 51.22916790005704,
+          "loopMeshGapMm": 57.35677890708855,
+          "minSoleRelativeToRestMm": -33.52838451997809
+        },
+        {
+          "name": "Walk",
+          "durationSeconds": 1.125,
+          "channels": 225,
+          "samples": 121,
+          "maxJointMotionMm": 548.9326500005315,
+          "loopJointGapMm": 40.92807250772349,
+          "loopJoint": "Tail001",
+          "loopNonTailJointGapMm": 0.00003361000064017856,
+          "loopMeshGapMm": 37.75505124941464,
+          "minSoleRelativeToRestMm": -21.809282938869426
+        }
+      ]
+    },
+    {
+      "file": "cat-angora-reference.glb",
+      "bytes": 3079268,
+      "skinBones": 75,
+      "triangles": 69488,
+      "clips": [
+        {
+          "name": "run",
+          "durationSeconds": 0.5833333134651184,
+          "channels": 225,
+          "samples": 121,
+          "maxJointMotionMm": 1021.1598075232502,
+          "loopJointGapMm": 51.22916790005704,
+          "loopJoint": "Thigh_Back_L",
+          "loopNonTailJointGapMm": 51.22916790005704,
+          "loopMeshGapMm": 57.35677921507654,
+          "minSoleRelativeToRestMm": -33.52838451997809
+        },
+        {
+          "name": "Walk",
+          "durationSeconds": 1.125,
+          "channels": 225,
+          "samples": 121,
+          "maxJointMotionMm": 548.9326500005315,
+          "loopJointGapMm": 40.92807250772349,
+          "loopJoint": "Tail001",
+          "loopNonTailJointGapMm": 0.00003361000064017856,
+          "loopMeshGapMm": 37.75505438063541,
+          "minSoleRelativeToRestMm": -21.809282938869426
+        }
+      ]
+    }
+  ]
+}

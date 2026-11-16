@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "sampledFrames": 998,
+  "bones": 25,
+  "clips": [
+    "Angora_Walk_InPlace"
+  ],
+  "triangles": 49130,
+  "bytes": 1940328,
+  "soleVertices": 3686,
+  "contactHeightErrorMm": 0.0008814676007648514,
+  "soleMinimumMm": -0.0006422498806942631,
+  "stanceSpeedErrorMmPerSecond": 0.09223547355385886,
+  "loopSeamMm": 0.000007347888889424296,
+  "maxBellyEdgeStretch": 1.2700600655996341,
+  "originalGlbSha256": "a3f2974161f2f014ef488334ce0768a5654dab8dbbb19b7e59cdfd0139cd3295",
+  "originalFbxSha256": "4e156a3b81638d07a78278889d2184c9a106fd81c2de84bd212c1bd12ea03428"
+}

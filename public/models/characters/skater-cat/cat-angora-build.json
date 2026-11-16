@@ -1,0 +1,55 @@
+{
+  "originalSha256": "a3f2974161f2f014ef488334ce0768a5654dab8dbbb19b7e59cdfd0139cd3295",
+  "sourceTriangles": 45290,
+  "furTriangles": 0,
+  "coatStyle": "soft-volume",
+  "bones": 25,
+  "duration": 1.36,
+  "keyframes": 245,
+  "bytes": 1940328,
+  "gait": {
+    "duration": 1.36,
+    "stance": 0.68,
+    "stride": 0.16,
+    "speed": 0.17301038062283733,
+    "lift": 0.048,
+    "legs": [
+      {
+        "name": "front_R_paw",
+        "phase": 0.75,
+        "rest": [
+          -0.075,
+          0.022,
+          0.18
+        ]
+      },
+      {
+        "name": "hind_R_paw",
+        "phase": 0.5,
+        "rest": [
+          -0.084,
+          0.022,
+          -0.27
+        ]
+      },
+      {
+        "name": "front_L_paw",
+        "phase": 0.25,
+        "rest": [
+          0.075,
+          0.022,
+          0.18
+        ]
+      },
+      {
+        "name": "hind_L_paw",
+        "phase": 0,
+        "rest": [
+          0.084,
+          0.022,
+          -0.27
+        ]
+      }
+    ]
+  }
+}

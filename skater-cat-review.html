@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skater Cat · FBX와 GLB 비교</title>
+  <style>
+    body { margin: 32px auto; padding: 0 20px; max-width: 1050px; background: #fbf8f2; color: #30291f; font: 16px/1.55 system-ui, sans-serif; }
+    h1 { margin-bottom: 4px; }
+    .comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    figure { margin: 0; }
+    figcaption { font-weight: 650; margin-bottom: 6px; }
+    .viewport { height: clamp(250px, 45vw, 410px); border-radius: 12px; overflow: hidden; background: #e5dbcc; }
+    canvas { display: block; width: 100%; height: 100%; }
+    button { padding: 6px 12px; }
+    @media (max-width: 580px) { .comparison { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <h1>Skater Cat</h1>
+  <p>모델을 끌어서 두 파일을 같은 각도로 돌려보세요. 스크롤로 확대할 수 있습니다.</p>
+  <button id="reset" type="button" disabled>시점 초기화</button>
+  <p id="status" role="status">모델을 불러오는 중입니다.</p>
+  <div class="comparison">
+    <figure><figcaption>GitHub 배포 FBX</figcaption><div id="fbx" class="viewport"></div></figure>
+    <figure><figcaption>웹용 GLB</figcaption><div id="glb" class="viewport"></div></figure>
+  </div>
+  <p>두 파일 모두 정적 메시입니다. GitHub FBX에는 털 시뮬레이션과 걷기·달리기 클립이 포함되어 있지 않습니다.</p>
+  <p><a href="https://blendswap.com/blend/18519">JonasDichelle · Rigged and animated Cat</a> (CC BY) · <a href="https://github.com/nrz/ylikuutio#3d-models">FBX 배포 출처</a></p>
+  <script type="module">
+    import * as THREE from 'three'
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+    import { FBXLoader } from 'three/addons/loaders/FBXLoader.js'
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+
+    const status = document.querySelector('#status')
+    const path = '/models/characters/skater-cat/cat'
+    try {
+      const [fbx, gltf] = await Promise.all([
+        new FBXLoader().loadAsync(path + '.fbx'),
+        new GLTFLoader().loadAsync(path + '.glb'),
+      ])
+      const views = [[fbx, '#fbx'], [gltf.scene, '#glb']].map(([object, selector]) => {
+        const viewport = document.querySelector(selector)
+        const renderer = new THREE.WebGLRenderer({ antialias: true })
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        viewport.append(renderer.domElement)
+        const scene = new THREE.Scene()
+        scene.background = new THREE.Color('#e5dbcc')
+        scene.add(new THREE.HemisphereLight('#fff8ed', '#b8a898', 2))
+        const light = new THREE.DirectionalLight('#fff4e5', 2)
+        light.position.set(3, 5, 4)
+        scene.add(light)
+
+        const bounds = new THREE.Box3().setFromObject(object)
+        const center = bounds.getCenter(new THREE.Vector3())
+        const size = bounds.getSize(new THREE.Vector3())
+        const model = new THREE.Group()
+        model.scale.setScalar(2 / Math.max(size.x, size.y, size.z))
+        model.position.copy(center).multiplyScalar(-model.scale.x)
+        model.add(object)
+        scene.add(model)
+
+        const camera = new THREE.PerspectiveCamera(36, 1, 0.01, 50)
+        camera.position.set(2.4, 1, 3.1)
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enablePan = false
+        controls.minDistance = 1.5
+        controls.maxDistance = 8
+        function render() {
+          renderer.setSize(viewport.clientWidth, viewport.clientHeight, false)
+          camera.aspect = viewport.clientWidth / viewport.clientHeight
+          camera.updateProjectionMatrix()
+          renderer.render(scene, camera)
+        }
+        new ResizeObserver(render).observe(viewport)
+        return { camera, controls, render }
+      })
+      for (const [index, view] of views.entries()) {
+        view.controls.addEventListener('change', () => {
+          const other = views[1 - index]
+          other.camera.position.copy(view.camera.position)
+          other.camera.quaternion.copy(view.camera.quaternion)
+          view.render()
+          other.render()
+        })
+      }
+      const reset = document.querySelector('#reset')
+      reset.disabled = false
+      reset.onclick = () => views[0].controls.reset()
+      status.textContent = '두 모델 로드 완료 · 각각 45,290 트라이앵글 · 애니메이션 0개'
+    } catch (error) {
+      status.textContent = '모델을 불러오지 못했습니다.'
+      console.error(error)
+    }
+  </script>
+</body>
+</html>

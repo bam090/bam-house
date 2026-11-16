@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>밤하우스 · Angora 걷기 미리보기</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#34403d;background:#eeeae2;font-synthesis:none}body{max-width:1360px;margin:0 auto;padding:26px}header{display:flex;align-items:end;justify-content:space-between;gap:20px}h1{font-size:30px;letter-spacing:-1.2px;margin:5px 0 10px}p{line-height:1.6;margin:8px 0}.eyebrow{font-size:11px;letter-spacing:2.5px;color:#64706a}button,select,input{font:inherit}button,select{background:#fffdf8;color:#34403d;border:1px solid #c6cbc2;border-radius:7px;padding:9px 13px;cursor:pointer}button:hover{background:#e1e7dd}button[aria-pressed=true]{background:#40594d;color:white}button:disabled{opacity:.45}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:18px 0}label{display:inline-flex;gap:7px;align-items:center;font-size:13px;margin:0 6px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px}figure{margin:0;min-width:0;background:#e2ddd3;border-radius:12px;overflow:hidden}figcaption{display:flex;justify-content:space-between;padding:14px 16px;background:#faf8f1;font-size:14px;font-weight:600}.badge{font-size:11px;font-weight:400;color:#738075}.viewport{height:440px;position:relative}canvas{display:block;width:100%;height:100%;touch-action:none}.timeline{display:flex;align-items:center;gap:16px;margin:16px 0;padding:15px;background:#faf8f1;border-radius:10px}.timeline input{flex:1;accent-color:#40594d;min-width:70px}output{font-variant-numeric:tabular-nums;min-width:55px;font-size:13px}.detail{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px}.panel{padding:15px 18px;background:#faf8f1;border-radius:10px}.contacts{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.contacts span{padding:5px 8px;background:#e5e6e0;border-radius:5px}.contacts span[data-contact=true]{background:#dce8d7;color:#345d3c}a{color:#3b6652}.muted{color:#727a72;font-size:12px}#status{font-size:12px}#diagnostics{white-space:pre-line;font-variant-numeric:tabular-nums;line-height:1.7}footer{margin:20px 0;font-size:12px;color:#68746d}@media(max-width:700px){body{padding:16px}.comparison,.detail{grid-template-columns:1fr}.viewport{height:380px}header{display:block}h1{font-size:25px}.timeline{gap:8px;padding:10px}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">BAM HOUSE / CHARACTER STUDY 01</div><h1>흰 장모, 네 발의 걸음</h1><p>Skater Cat의 원본과 터키시 앙고라 작업본을 비교합니다.</p></div><a href="/models/characters/skater-cat/cat-angora-walk.glb" download>작업본 GLB 저장 ↗</a></header>
+<div class="toolbar">
+<button id="play" disabled aria-pressed="true">걷기 정지</button><button id="side">옆에서</button><button id="front">앞에서</button><button id="angle">사선으로</button><button id="close">얼굴 가까이</button>
+<label>조명 <select id="lighting"><option value="day">실내 낮</option><option value="shade">실내 그늘</option></select></label>
+<label>속도 <select id="speed"><option value="1">1배</option><option value="0.25">0.25배</option></select></label>
+<label><input type="checkbox" id="fur" checked>부드러운 털 광택</label><label><input type="checkbox" id="rig">뼈대</label>
+</div>
+<div class="comparison"><figure><figcaption>01 · 원본 GLB<span class="badge">정적 메시</span></figcaption><div id="original" class="viewport"></div></figure><figure><figcaption>02 · Angora 작업본<span class="badge">흰 장모 · 파란 눈 · 걷기</span></figcaption><div id="working" class="viewport"></div></figure></div>
+<div class="timeline"><button id="start">루프 시작</button><label for="phase">동작 위치</label><input id="phase" type="range" min="0" max="1000" value="0"><output id="phase-value">0.0%</output><button id="end">루프 끝</button><button id="step">한 프레임</button></div>
+<div class="detail"><section class="panel"><strong>발 접지 확인</strong><div class="contacts" id="contacts"></div><label><input id="treadmill" type="checkbox" checked>걸음 속도에 맞춰 바닥 이동</label><p class="muted">제자리 걷기에서는 접지한 발이 뒤로 움직입니다. 이동 바닥의 선과 발을 비교하면 미끄러짐을 확인할 수 있습니다. 초록색은 접지 구간입니다.</p></section><section class="panel"><strong>불러온 GLB 검증</strong><div id="diagnostics">불러오는 중입니다.</div><button id="verify">접지·루프 다시 검사</button><p id="status" role="status">모델을 불러오는 중입니다.</p></section></div>
+<footer>원본: <a href="https://blendswap.com/blend/18519">JonasDichelle · Rigged and animated Cat</a> (CC BY) · <a href="https://github.com/nrz/ylikuutio#3d-models">Ylikuutio FBX 배포</a><br>수정: 네발 리그와 스킨 가중치, 제자리 걷기, 흰 장모와 파란 눈. 밤하우스 씬 적용 전의 독립 미리보기입니다. 드래그로 두 시점을 함께 회전하고 스크롤로 확대할 수 있습니다.</footer>
+<script type="module" src="/previews/skater-cat-walk.js"></script>
+</body></html>
