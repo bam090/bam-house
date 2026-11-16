@@ -13,8 +13,20 @@ interface CatProps {
   movingRef: RefObject<boolean>
 }
 
+// 집 안 그늘에서는 흰 털이 회색으로 보여서 털이 스스로 옅은 흰빛을 조금 내게 했다.
+// sheen은 천이나 털처럼 표면이 보송한 물체의 가장자리에 생기는 옅은 광택이다.
 function Fur({ color = FUR }: { color?: string }) {
-  return <meshStandardMaterial color={color} roughness={1} />
+  return (
+    <meshPhysicalMaterial
+      color={color}
+      roughness={0.9}
+      sheen={1}
+      sheenRoughness={0.5}
+      sheenColor="#ffffff"
+      emissive="#fff6ea"
+      emissiveIntensity={0.22}
+    />
+  )
 }
 
 // 파란 눈의 흰색 터키시 앙고라다.
