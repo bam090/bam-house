@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import { Path, Shape } from 'three'
 import { Box } from './Box'
+import { LivingRoomModel } from './LivingRoomModel'
 import { palette } from './palette'
-import { Cylinder, Extruded, FACE_X, Faucet, LAY_FLAT, Pot, arcBand } from './Shapes'
+import { Cylinder, Extruded, Faucet, LAY_FLAT, Pot, arcBand } from './Shapes'
 import { Shower } from './Shower'
-import { HOUSE } from './walkable'
 
 // 침실과 욕실과 변기 칸의 가구를 그리는 파일이다. 좌표는 장면 좌표이고 높이는 방바닥에서 잰 값이다.
 // 자리와 크기는 docs/house-spec.md 5번과 같다.
@@ -133,36 +133,6 @@ function Bedroom() {
   )
 }
 
-// 구불구불한 나무 틀 거울. 벽에서 본 윤곽에 타원 구멍을 뚫고 그 안에 거울을 넣는다.
-function WavyMirror({ z }: { z: number }) {
-  const shape = useMemo(() => {
-    const frame = new Shape()
-    for (let index = 0; index <= 60; index += 1) {
-      const angle = (index / 60) * Math.PI * 2
-      const wobble = 1 + 0.08 * Math.sin(angle * 6)
-      const pz = Math.cos(angle) * 0.42 * wobble
-      const py = 1.75 + Math.sin(angle) * 0.56 * wobble
-      if (index === 0) frame.moveTo(pz, py)
-      else frame.lineTo(pz, py)
-    }
-    const hole = new Path()
-    hole.absellipse(0, 1.75, 0.3, 0.43, 0, Math.PI * 2, true, 0)
-    frame.holes.push(hole)
-    return frame
-  }, [])
-  return (
-    <group position={[HOUSE.wingX + 0.125, 0, z]}>
-      <Extruded shape={shape} depth={0.04} position={[0.045, 0, 0]} rotation={FACE_X} color={palette.oak} />
-      {/* 거울 유리. 틀 구멍보다 조금 큰 타원이라서 가장자리가 틀 안에 묻힌다. 네모로 만들면 모서리가 물결 틀 밖으로 튀어나온다. */}
-      {/* 원기둥을 옆으로 눕힌 뒤 위아래와 앞뒤를 다르게 늘려서 납작한 타원 판을 만든다. */}
-      <mesh position={[0.012, 1.75, 0]} rotation={[0, 0, Math.PI / 2]} scale={[0.47, 1, 0.34]}>
-        <cylinderGeometry args={[1, 1, 0.01, 32]} />
-        <meshStandardMaterial color={palette.glass} roughness={0.05} />
-      </mesh>
-    </group>
-  )
-}
-
 function Bathroom() {
   const tub = { minX: 10.9, maxX: 13.9, minZ: -5.85, maxZ: -4.25, height: 0.55, water: 0.45 }
   const tubX = (tub.minX + tub.maxX) / 2
@@ -192,21 +162,19 @@ function Bathroom() {
       <Box size={[0.65, 0.05, 2.8]} position={[7.475, 0.875, -3.9]} color={palette.counter} />
       {[-4.6, -3.2].map((z) => (
         <group key={z}>
-          <Cylinder radius={0.16} radiusTop={0.21} height={0.11} position={[7.53, 0.955, z]} color={palette.white} />
-          <Faucet position={[7.24, 0.9, z]} height={0.3} reach={0.16} />
-          <WavyMirror z={z} />
+          <LivingRoomModel file="bathroom/vessel-sink/modern-white-sink.glb" x={7.55} y={0.9} z={z} width={0.36} height={0.18} originalMaterial />
+          <LivingRoomModel file="bathroom/faucet/axor-uno-2-warm-white.glb" x={7.33} y={0.9} z={z - 0.084} height={0.30} turn={Math.PI / 2} originalMaterial />
+          <LivingRoomModel file="bathroom/mirror/organic-wood-mirror-light-oak.glb" x={7.16} y={1.25} z={z} turn={Math.PI / 2} height={1.0} />
         </group>
       ))}
 
       {/* 샤워부스. 트래버틴 벽과 가로 니치와 투명 유리와 브라스 수전(Shower.tsx) */}
       <Shower />
 
-      {/* 수건 걸이 */}
-      <Box size={[0.8, 0.03, 0.03]} position={[10.4, 1.3, -1.16]} color={palette.oak} />
-      <Box size={[0.5, 0.6, 0.04]} position={[10.4, 1.02, -1.16]} color={palette.white} />
+      <LivingRoomModel file="bathroom/towel-rail/towel-rail-with-ivory-towel-champagne.glb" x={10.4} y={0.79} z={-1.225} turn={Math.PI} width={0.78} originalMaterial />
       {/* 나무 스툴과 화분. 스툴은 변기 칸 가는 길에 걸리지 않도록 수건 걸이 아래에 둔다. */}
       <Cylinder radius={0.17} radiusTop={0.2} height={0.45} position={[10.6, 0.225, -1.5]} color={palette.wood} />
-      <Pot position={[8.4, 0, -5.4]} seed={42} shape="footed" color={palette.white} />
+      <LivingRoomModel file="bathroom/potted-plant/potted_plant_01_4k-web.glb" x={8.4} z={-5.4} height={0.55} originalMaterial />
     </group>
   )
 }

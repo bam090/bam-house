@@ -416,10 +416,6 @@ function BedroomDecor() {
 
 // 욕실: 욕조 쟁반과 초와 병. 세면대 디스펜서와 접은 수건. 바닥 매트와 빨래 바구니와 원목 사다리 수건걸이
 function BathroomDecor() {
-  /** 사다리가 벽에 기댄 각도 */
-  const lean = 0.21
-  // 사다리의 높이 h인 자리의 z 좌표. 발은 z -5.5에 있고 위로 갈수록 벽 쪽으로 간다.
-  const ladderZ = (h: number) => -5.5 - Math.tan(lean) * h
   return (
     <group>
       {/* 욕조 턱 두 변에 걸친 원목 쟁반과 접시 위의 초와 네모난 목욕 오일 병 */}
@@ -428,24 +424,14 @@ function BathroomDecor() {
       <Box size={[0.055, 0.12, 0.055]} position={[12.3, 0.635, -4.9]} color={palette.green} />
       <Cylinder radius={0.012} height={0.03} position={[12.3, 0.71, -4.9]} color={palette.oak} />
       {/* 세면대: 대야 사이의 디스펜서와 끝에 접어 둔 수건 */}
-      <Cylinder radius={0.035} height={0.13} position={[7.5, 0.965, -3.9]} color={palette.wall} />
-      <Box size={[0.06, 0.012, 0.02]} position={[7.52, 1.045, -3.9]} color={palette.charcoal} />
-      <Cylinder radius={0.008} height={0.03} position={[7.5, 1.045, -3.9]} color={palette.charcoal} />
+      <LivingRoomModel file="bathroom/soap-dispenser/soap-dispenser-scene-oat.glb" x={7.49} y={0.9} z={-3.91} height={0.16} originalMaterial />
       {[0, 1].map((index) => (
         <Box key={index} size={[0.3 - index * 0.02, 0.05, 0.22 - index * 0.02]} position={[7.5, 0.925 + index * 0.05, -2.78]} color={palette.white} roughness={1} />
       ))}
       {/* 욕조 앞 바닥 매트 */}
-      <Box size={[1.3, 0.02, 0.6]} position={[12.3, 0.014, -3.85]} color={palette.fabric} roughness={1} castShadow={false} />
+      <LivingRoomModel file="bathroom/bath-mat/beige-fur-bathmat-ivory.glb" x={10.35} y={0.005} z={-3.12} width={1.25} maxDepth={1.25} originalMaterial />
       {/* 빨래 바구니. 변기 칸 가는 길에 걸리지 않도록 욕조 옆 구석에 둔다. */}
       <LaundryBasket position={[13.5, 0, -3.6]} />
-      {/* 뒤쪽 벽에 기대 세운 사다리 수건걸이. 세로대 둘과 가로대 넷과 걸쳐 놓은 수건 */}
-      {[10.27, 10.69].map((x) => (
-        <Box key={x} size={[0.04, 1.78, 0.04]} position={[x, 0.87, ladderZ(0.87)]} rotation={[-lean, 0, 0]} color={palette.oak} />
-      ))}
-      {[0.4, 0.8, 1.2, 1.55].map((h) => (
-        <Box key={h} size={[0.38, 0.03, 0.03]} position={[10.48, h, ladderZ(h)]} color={palette.oak} />
-      ))}
-      <Box size={[0.3, 0.4, 0.02]} position={[10.48, 1.0, ladderZ(1.2) + 0.035]} color={palette.white} roughness={1} />
     </group>
   )
 }
