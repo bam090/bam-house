@@ -20,7 +20,7 @@ const CAMERA_START: [number, number, number] = [
 function App() {
   return (
     <>
-    <Canvas shadows camera={{ position: CAMERA_START, fov: 45, near: 0.3, far: 3000 }}>
+    <Canvas shadows dpr={[1, 1.5]} camera={{ position: CAMERA_START, fov: 45, near: 0.3, far: 3000 }}>
       {/* 낮 하늘 */}
       <Sky sunPosition={SUN_POSITION} turbidity={4} rayleigh={0.8} />
 

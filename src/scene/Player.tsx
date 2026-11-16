@@ -75,6 +75,7 @@ function shortestAngle(from: number, to: number) {
 // 키보드 입력을 받아서 고양이를 움직이고 카메라가 뒤에서 따라가게 한다.
 export function Player() {
   const cat = useRef<Group>(null)
+  const reviewCamera = useRef<{ focus: Vector3; yaw: number; distance: number } | null>(null)
   const moving = useRef(false)
   const lookAt = useRef(new Vector3(START_POSITION[0], LOOK_HEIGHT, START_POSITION[2]))
   const keys = useKeyboard()
@@ -144,14 +145,21 @@ export function Player() {
     // 장면 전체도 __scene으로 연다. 면 겹침을 계산으로 찾을 때 쓴다.
     target.__scene = scene
     target.__moveCat = (x: number, y: number, z: number, nextYaw = 0, nextPitch = START_PITCH, nextDistance = START_DISTANCE) => {
+      reviewCamera.current = null
+      if (cat.current) cat.current.visible = true
       cat.current?.position.set(x, y, z)
       verticalSpeed.current = 0
       yaw.current = nextYaw
       pitch.current = nextPitch
       distance.current = nextDistance
     }
+    target.__reviewObject = (x: number, y: number, z: number, angle: number, distance = 5.1) => {
+      reviewCamera.current = { focus: new Vector3(x, y, z), yaw: angle, distance }
+      if (cat.current) cat.current.visible = false
+    }
     return () => {
       delete target.__moveCat
+      delete target.__reviewObject
       delete target.__scene
     }
   }, [scene])
@@ -159,6 +167,15 @@ export function Player() {
   useFrame((state, rawDelta) => {
     const group = cat.current
     if (!group) return
+
+    const review = reviewCamera.current
+    if (review) {
+      const [x, y, z] = cameraOffset(review.yaw, 0.29, review.distance)
+      catFocus.copy(review.focus)
+      state.camera.position.set(review.focus.x + x, review.focus.y + y - LOOK_HEIGHT, review.focus.z + z)
+      state.camera.lookAt(review.focus)
+      return
+    }
 
     // 탭을 오래 떠났다가 돌아오면 delta가 매우 커진다. 한 번에 멀리 튀지 않게 제한한다.
     const delta = Math.min(rawDelta, 0.05)
