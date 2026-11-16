@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { CanvasTexture, Path, SRGBColorSpace, Shape } from 'three'
 import type { Group } from 'three'
 import { Box } from './Box'
+import { LivingRoomModel } from './LivingRoomModel'
 import { CatWays } from './CatWays'
 import { WingRooms } from './InteriorRooms'
 import { Decor } from './Decor'
@@ -51,8 +52,7 @@ function Kitchen() {
       {/* 식기세척기. 무광 흰색 평평한 문짝 */}
       <Box size={[0.02, 0.8, 0.56]} position={[lowFace, 0.46, 1.2]} color={palette.white} roughness={1} />
       {/* 정수기 */}
-      <Box size={[0.3, 0.43, 0.2]} position={[-7.6, 1.165, 1.8]} color={palette.white} />
-      <Box size={[0.1, 0.04, 0.08]} position={[-7.42, 1.28, 1.8]} color={palette.white} />
+      <LivingRoomModel file="kitchen/water-purifier/water-purifier-white-ko.glb" x={-7.475} y={0.95} z={1.8} height={0.43} turn={Math.PI / 2} />
       {/* 인덕션. 상판에 넣은 흰 유리 판과 옅은 회색 화구 표시 셋 */}
       <Box size={[0.5, 0.012, 0.7]} position={[-7.47, 0.95, 2.5]} color={palette.white} roughness={0.2} castShadow={false} />
       {[
@@ -78,11 +78,7 @@ function Kitchen() {
       <Box size={[0.9, 0.9, 3.6]} position={[-5.55, 0.45, 2.3]} color={palette.wall} />
       <Box size={[0.9, 0.05, 3.6]} position={[-5.55, 0.925, 2.3]} color={palette.counter} />
       {[1.5, 3.1].map((z) => (
-        <group key={z} position={[-4.75, 0, z]}>
-          <Cylinder radius={0.16} height={0.03} position={[0, 0.015, 0]} color={palette.oak} />
-          <Cylinder radius={0.035} height={0.42} position={[0, 0.23, 0]} color={palette.oak} />
-          <Cylinder radius={0.2} height={0.06} position={[0, 0.47, 0]} color={palette.oak} />
-        </group>
+        <LivingRoomModel file="kitchen/island-stool/island-stool-round-upholstered.glb" key={z} x={-4.75} z={z} y={0.021} height={0.479} originalMaterial />
       ))}
 
       {/* 벽 선반과 조리대 위의 물건은 Decor.tsx에서 그린다. */}

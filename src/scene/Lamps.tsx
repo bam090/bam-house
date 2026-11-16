@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { QuadraticBezierCurve3, Vector3 } from 'three'
 import { Box } from './Box'
+import { LivingRoomModel } from './LivingRoomModel'
 import { palette } from './palette'
 import { Cylinder, Glow } from './Shapes'
 
@@ -16,28 +17,6 @@ const WARM = '#ffd9a0'
 // 스스로 빛나는 것처럼 보이는 재질. emissive는 조명을 받지 않아도 그 색으로 밝게 보이게 하는 값이다.
 function WarmGlass({ strength = 1.2 }: { strength?: number }) {
   return <meshStandardMaterial color="#fff4e0" emissive={WARM} emissiveIntensity={strength} roughness={0.6} />
-}
-
-// 50번 황동 리니어 펜던트. 아일랜드 위에 길게 매단다. position은 막대의 가운데이고 length는 z 방향 길이다.
-function LinearPendant({ position, length, ceiling }: { position: Spot; length: number; ceiling: number }) {
-  const [x, y, z] = position
-  const wire = ceiling - y - 0.025
-  return (
-    <group>
-      <Box size={[0.06, 0.05, length]} position={[x, y, z]} color={palette.column} roughness={0.4} />
-      {/* 막대 아랫면의 빛나는 띠. 막대 아랫면에서 조금 내려서 두 면이 겹치지 않게 한다. */}
-      <Glow size={[0.036, 0.012, length - 0.1]} position={[x, y - 0.031, z]} />
-      {[-1, 1].map((side) => (
-        <Cylinder
-          key={side}
-          radius={0.006}
-          height={wire}
-          position={[x, y + 0.025 + wire / 2, z + side * (length / 2 - 0.4)]}
-          color={palette.column}
-        />
-      ))}
-    </group>
-  )
 }
 
 // 52번 라탄 갓 아치 스탠드. base는 바닥 받침의 자리이고 shade는 갓 아랫면의 가운데다.
@@ -131,7 +110,7 @@ export function Lamps({ ceiling }: { ceiling: number }) {
   return (
     <group>
       {/* 아일랜드 위의 펜던트 */}
-      <LinearPendant position={[-5.55, 1.9, 2.3]} length={2.8} ceiling={ceiling} />
+      <LivingRoomModel file="kitchen/pendant-light/pendant-brass-linear-champagne.glb" x={-5.55} y={ceiling-1.65} z={2.3} width={2.4} height={1.65} turn={Math.PI / 2} originalMaterial />
       {/* 소파 끝 뒤에 세운 아치 스탠드. 조금만 휘어서 갓이 소파 끝자리 위 1.75m에 온다. */}
       <ArcFloorLamp base={[4.4, 0, 0.9]} shade={[3.5, 1.75, -0.15]} peak={3.1} />
       {/* 침대 양옆 협탁 위의 버섯형 램프 */}

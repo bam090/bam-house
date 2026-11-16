@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { DoubleSide, Shape, Vector2 } from 'three'
 import { Box } from './Box'
+import { LivingRoomModel } from './LivingRoomModel'
 import { palette } from './palette'
 import { Cylinder, Extruded, Glow, LAY_FLAT, Pot, arcBand } from './Shapes'
 import { Toys } from './Toys'
@@ -57,24 +58,12 @@ function Ring({ position, radius, tube, color, rotation = [Math.PI / 2, 0, 0], a
 }
 
 // 화병과 병의 윤곽. 하나씩만 쓴다.
-/** 목이 긴 초록 병 */
-const LONG_NECK_BOTTLE: Profile = [[0, 0], [0.04, 0], [0.045, 0.02], [0.045, 0.14], [0.03, 0.17], [0.014, 0.19], [0.014, 0.235], [0.018, 0.24], [0, 0.24]]
-/** 동그란 꽃병 */
-const ROUND_BUD_VASE: Profile = [[0, 0], [0.03, 0], [0.05, 0.035], [0.056, 0.08], [0.04, 0.13], [0.016, 0.155], [0.022, 0.19], [0, 0.19]]
-/** 손잡이 달린 항아리 */
-const AMPHORA: Profile = [[0, 0], [0.035, 0], [0.065, 0.05], [0.08, 0.12], [0.062, 0.19], [0.034, 0.215], [0.046, 0.24], [0, 0.24]]
 /** 팔각으로 깎은 원통 화병 */
 const FACETED_CYLINDER: Profile = [[0, 0], [0.055, 0], [0.065, 0.02], [0.065, 0.28], [0.058, 0.3], [0, 0.3]]
 /** 표주박 화병 */
 const GOURD_VASE: Profile = [[0, 0], [0.05, 0], [0.085, 0.06], [0.09, 0.11], [0.06, 0.17], [0.05, 0.2], [0.066, 0.25], [0.06, 0.3], [0.03, 0.33], [0.036, 0.34], [0, 0.34]]
 /** 납작한 플라스크 병. 앞뒤로 눌러서 쓴다. */
 const FLASK: Profile = [[0, 0], [0.03, 0], [0.07, 0.05], [0.075, 0.1], [0.06, 0.15], [0.02, 0.18], [0.02, 0.255], [0.024, 0.26], [0, 0.26]]
-/** 겹쳐 놓은 작은 그릇 둘 가운데 아래 것 */
-const NESTED_BOWL_LOW: Profile = [[0, 0], [0.04, 0], [0.085, 0.04], [0.09, 0.045], [0, 0.045]]
-/** 겹쳐 놓은 작은 그릇 둘 가운데 위 것 */
-const NESTED_BOWL_HIGH: Profile = [[0, 0], [0.03, 0], [0.065, 0.035], [0.07, 0.04], [0, 0.04]]
-/** 굽 달린 과일 그릇 */
-const FOOTED_BOWL: Profile = [[0, 0], [0.07, 0], [0.07, 0.015], [0.04, 0.03], [0.05, 0.04], [0.13, 0.08], [0.15, 0.095], [0.14, 0.1], [0, 0.07]]
 /** 구석에 세운 흙빛 바닥 화병. 아래가 불룩하고 목이 좁다. */
 const FLOOR_VASE_PROFILE: Profile = [[0, 0], [0.12, 0], [0.2, 0.12], [0.22, 0.26], [0.17, 0.42], [0.1, 0.52], [0.09, 0.57], [0.11, 0.6], [0, 0.58]]
 /** 팜파스 풀 줄기 넷. 길이와 기울기가 서로 다르다. 기울기는 x축과 z축으로 도는 각도다. */
@@ -144,30 +133,6 @@ function LaundryBasket({ position }: { position: Spot }) {
 }
 
 // 촛대 일곱. 모양이 서로 다르다.
-// 굵고 낮은 기둥 초
-function PillarCandle({ position }: { position: Spot }) {
-  const [x, y, z] = position
-  return (
-    <group>
-      <Cylinder radius={0.04} height={0.07} position={[x, y + 0.035, z]} color={palette.wall} />
-      <Flame position={[x, y + 0.082, z]} />
-    </group>
-  )
-}
-
-// 놋쇠 받침에 꽂은 가는 초
-function TaperInDish({ position }: { position: Spot }) {
-  const [x, y, z] = position
-  return (
-    <group>
-      <Cylinder radius={0.035} height={0.012} position={[x, y + 0.006, z]} color={palette.column} />
-      <Cylinder radius={0.012} height={0.025} position={[x, y + 0.024, z]} color={palette.column} />
-      <Cylinder radius={0.009} height={0.16} position={[x, y + 0.115, z]} color={palette.oakLight} />
-      <Flame position={[x, y + 0.205, z]} />
-    </group>
-  )
-}
-
 // 구멍이 숭숭 난 트래버틴 받침 위의 초
 function TravertineCandle({ position }: { position: Spot }) {
   const [x, y, z] = position
@@ -303,65 +268,28 @@ function KitchenDecor() {
   const counter = 0.95
   return (
     <group>
-      {/* 조리대: 벽에 기대 세운 원목 도마 세트와 스톤 양념통과 조리도구 통과 커피 머신 */}
-      {[0, 1, 2].map((index) => (
-        <Box
-          key={index}
-          size={[0.025, 0.34 - index * 0.05, 0.24 - index * 0.03]}
-          position={[-7.76 + index * 0.035, counter + (0.34 - index * 0.05) / 2, 1.3]}
-          rotation={[0, 0, -0.1]}
-          color={index === 1 ? palette.sofaWood : palette.oak}
-        />
-      ))}
-      {/* 양념통 셋. 높이와 뚜껑 색이 서로 다르다. */}
-      {[
-        { z: 3.1, height: 0.08, lid: palette.oak },
-        { z: 3.21, height: 0.1, lid: palette.greige },
-        { z: 3.32, height: 0.065, lid: palette.white },
-      ].map((jar) => (
-        <group key={jar.z}>
-          <Cylinder radius={0.035} height={jar.height} position={[-7.68, counter + jar.height / 2, jar.z]} color={palette.stoneDark} />
-          <Cylinder radius={0.037} height={0.015} position={[-7.68, counter + jar.height + 0.0075, jar.z]} color={jar.lid} />
-        </group>
-      ))}
-      <Cylinder radius={0.06} radiusTop={0.065} height={0.14} position={[-7.66, counter + 0.07, 3.6]} color={palette.wall} />
-      {[-0.25, 0.05, 0.3].map((lean) => (
-        <Cylinder key={lean} radius={0.008} height={0.24} position={[-7.66 + lean * 0.05, counter + 0.2, 3.6 + lean * 0.06]} rotation={[lean, 0, 0]} color={palette.oak} />
-      ))}
-      <Box size={[0.26, 0.3, 0.2]} position={[-7.62, counter + 0.15, 4.2]} color={palette.white} />
-      <Box size={[0.1, 0.06, 0.16]} position={[-7.46, counter + 0.25, 4.2]} color={palette.charcoal} />
-      <Box size={[0.14, 0.015, 0.18]} position={[-7.44, counter + 0.0075, 4.2]} color={palette.charcoal} />
-      <Cylinder radius={0.03} height={0.06} position={[-7.44, counter + 0.045, 4.2]} color={palette.wall} />
+      <LivingRoomModel file="kitchen/cutting-board/cutting-boards-middle-pair.glb" x={-7.46} y={counter} z={1.32} turn={Math.PI / 2} width={0.40} originalMaterial />
+      <LivingRoomModel file="kitchen/spice-jars/kitchen-set-8-glass-pots-stable.glb" x={-7.65} y={counter} z={3.2} turn={Math.PI / 2} width={0.405} originalMaterial />
+      {/* 걸이 브래킷 뒤쪽을 정수기 옆판에 맞춘다. */}
+      <LivingRoomModel file="kitchen/wooden-ladles-and-spoons/wooden-ladles-and-spoons-web.glb" x={-7.49} y={counter + 0.116} z={1.921} height={0.25} originalMaterial />
+      <LivingRoomModel file="kitchen/coffee-machine/white-retro-coffee-machine-and-grinder-stable.glb" x={-7.48} y={counter} z={4.12} width={0.72} turn={Math.PI / 2} originalMaterial castShadow={false} />
+      <LivingRoomModel file="kitchen/dish-soap/dish-soap-matte.glb" x={-7.66} y={counter} z={0.83} height={0.18} turn={Math.PI / 2} originalMaterial castShadow={false} />
 
       {/* 벽 선반 두 단. 두꺼운 통나무 판 위에 병과 꽃병과 유리 화병과 초 쟁반과 겹친 그릇을 올린다. */}
       {[1.2, 1.7].map((top) => (
         <Extruded key={top} shape={slab} depth={0.07} position={[0, top - 0.07, 0]} rotation={LAY_FLAT} color={palette.sofaWood} />
       ))}
-      <Turned position={[-7.72, 1.2, -3.35]} profile={LONG_NECK_BOTTLE} color={palette.green} />
-      <Turned position={[-7.72, 1.2, -3.17]} profile={ROUND_BUD_VASE} color={palette.wall} />
-      {/* 유리 화병. transparent와 opacity로 반투명하게 만든다. */}
-      <mesh position={[-7.72, 1.31, -2.6]}>
-        <cylinderGeometry args={[0.06, 0.045, 0.22, 10]} />
-        <meshStandardMaterial color={palette.glass} transparent opacity={0.45} roughness={0.1} />
-      </mesh>
-      <Box size={[0.14, 0.015, 0.34]} position={[-7.72, 1.7075, -2.55]} color={palette.oak} />
-      <PillarCandle position={[-7.72, 1.715, -2.65]} />
-      <TaperInDish position={[-7.72, 1.715, -2.46]} />
-      <Turned position={[-7.72, 1.7, -3.25]} profile={NESTED_BOWL_LOW} color={palette.wall} />
-      <Turned position={[-7.72, 1.72, -3.25]} profile={NESTED_BOWL_HIGH} color={palette.greige} />
-
-      {/* 아일랜드: 원목 쟁반 위의 손잡이 항아리와 굽 달린 과일 그릇 */}
-      <Box size={[0.3, 0.02, 0.46]} position={[-5.55, counter + 0.01, 2.55]} color={palette.oak} />
-      <Turned position={[-5.55, counter + 0.02, 2.45]} profile={AMPHORA} color={palette.wall} />
-      {[-1, 1].map((side) => (
-        <Ring key={side} position={[-5.55 + side * 0.07, counter + 0.2, 2.45]} radius={0.035} tube={0.007} rotation={[0, 0, side * 0.3]} arc={Math.PI} color={palette.wall} />
-      ))}
-      <Turned position={[-5.55, counter, 3.35]} profile={FOOTED_BOWL} color={palette.stoneDark} />
-      {/* 과일 셋. 귤과 풋사과와 길쭉한 레몬 */}
-      <Ball position={[-5.6, counter + 0.11, 3.32]} radius={0.045} color={palette.column} />
-      <Ball position={[-5.5, counter + 0.115, 3.3]} radius={0.048} color={palette.leafLight} />
-      <Cylinder radius={0.004} height={0.025} position={[-5.5, counter + 0.17, 3.3]} color={palette.trunk} />
-      <Ball position={[-5.54, counter + 0.105, 3.41]} radius={0.04} color={palette.sand} scale={[1.35, 1, 1]} />
+      <LivingRoomModel file="kitchen/decorative-bottle/green-glass-bottle-vase.glb" x={-7.71} y={1.2} z={-3.34} height={0.24} originalMaterial />
+      <LivingRoomModel file="kitchen/glass-vase/green-ribbed-glass-vase.glb" x={-7.71} y={1.2} z={-2.61} height={0.21} originalMaterial />
+      <LivingRoomModel file="kitchen/candle-tray/candle-and-essence-web.glb" x={-7.71} y={1.7} z={-2.52} width={0.20} originalMaterial />
+      <LivingRoomModel file="kitchen/tea-set/tea-set.glb" x={-7.71} y={1.7} z={-3.19} turn={Math.PI / 2} width={0.61} maxDepth={0.24} originalMaterial />
+      <LivingRoomModel file="kitchen/wooden-tray/wooden-serving-tray-web-bam.glb" x={-5.55} y={counter} z={2.45} turn={Math.PI / 2} width={0.44} originalMaterial />
+      <LivingRoomModel file="kitchen/ceramic-vase/matte-ceramic-organic-vase.glb" x={-5.55} y={counter + 0.012} z={2.4} height={0.23} originalMaterial />
+      <LivingRoomModel file="kitchen/fruit-bowl/footed-fruit-bowl-bam.glb" x={-5.55} y={counter} z={3.35} width={0.31} originalMaterial />
+      <Ball position={[-5.6, counter + 0.158, 3.32]} radius={0.04} color={palette.column} />
+      <Ball position={[-5.5, counter + 0.16, 3.31]} radius={0.044} color={palette.leafLight} />
+      <Ball position={[-5.55, counter + 0.156, 3.4]} radius={0.038} color={palette.sand} scale={[1.3, 1, 1]} />
+      <LivingRoomModel file="kitchen/salad-bowl/wooden-salad-bowl-and-cutlery-scene-light-oak.glb" x={-5.55} y={counter} z={1.42} height={0.15} maxDepth={0.65} originalMaterial />
     </group>
   )
 }
