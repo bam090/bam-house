@@ -5,6 +5,7 @@ import * as T from 'three'
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js'
 import { skinDualQuaternion, dualQuaternionTransform } from './dual-quaternion-skin.mjs'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { MeshBVH } from 'three-mesh-bvh'
 
 globalThis.FileReader = class {
   readAsArrayBuffer(blob) { blob.arrayBuffer().then(v => { this.result = v; this.onloadend?.() }) }
@@ -71,12 +72,16 @@ function weights(p) {
   // The crown stays on Head; a height-only mask split the skull between the two ears.
   const earMix = smooth(.815,.90,p.y)*smooth(.065,.105,Math.abs(p.x-cx)), jawMix = (1-smooth(.66,.705,p.y))*smooth(.47,.54,p.z)*headMix*.55
   add(ears[p.x > cx ? 0 : 1], headMix*earMix); add(jaw,jawMix*(1-earMix)); add(head,(headMix-jawMix)*(1-earMix))
-  const tailMix = (1-smooth(volume ? .48 : .35,volume ? .60 : .48,p.y))*smooth(.35,.45,-p.z)*Math.max(smooth(volume?.24:.14,volume?.32:.23,p.y),smooth(.37,.43,-p.z))*(1-headMix)
-  if (tailMix) {
-    let distance = Infinity, segment = 0, along = 0
-    for (let k=0;k<tail.length-1;k++) { const a=rests[tail[k]], delta=rests[tail[k+1]].clone().sub(a), t=T.MathUtils.clamp(p.clone().sub(a).dot(delta)/delta.lengthSq(),0,1), d=p.distanceToSquared(a.clone().addScaledVector(delta,t)); if(d<distance){distance=d;segment=k;along=t} }
-    add(tail[segment],tailMix*(1-along));add(tail[segment+1],tailMix*along)
+  let distance = Infinity, segment = 0, along = 0, rootDistance = 0, arc = 0
+  for (let k=0;k<tail.length-1;k++) {
+    const a=rests[tail[k]],delta=rests[tail[k+1]].clone().sub(a),raw=p.clone().sub(a).dot(delta)/delta.lengthSq(),t=T.MathUtils.clamp(raw,0,1),d=p.distanceToSquared(a.clone().addScaledVector(delta,t))
+    if(d<distance){distance=d;segment=k;along=t;rootDistance=arc+(k===0?raw:t)*delta.length()}
+    arc+=delta.length()
   }
+  // Keep the visible tail tube on tail bones; pelvis weights flattened its root in resting poses.
+  const tube=volume?smooth(-.06,.025,rootDistance)*(1-smooth(.075,.10+.05*smooth(.26,.34,p.y),Math.sqrt(distance))):0
+  const tailMix = Math.max(tube,(1-smooth(volume ? .48 : .35,volume ? .60 : .48,p.y))*smooth(.35,.45,-p.z)*Math.max(smooth(volume?.24:.14,volume?.32:.23,p.y),smooth(.37,.43,-p.z)))*(1-headMix)
+  add(tail[segment],tailMix*(1-along));add(tail[segment+1],tailMix*along)
   const leg = legs.find(l => l.front === (p.z>.04) && l.side === (p.x>cx ? 1 : -1))
   const legRegion = leg.front ? smooth(.04,.17,p.z) : 1-smooth(-.16,-.06,p.z)
   const limbSide = 1-smooth(.18,.30,p.y)*(1-smooth(.025,.075,Math.abs(p.x-cx)))
@@ -107,7 +112,7 @@ for(let i=0;i<geometry.index.count;i+=3){const tri=[0,1,2].map(k=>vertexNodes[ge
 for(let pass=0;pass<24;pass++){
   const next=nodes.map(n=>{
     const result=n.w.slice(),y=pos.getY(n.vertex)
-    if(y<.06||y>.72||!n.neighbours.size)return result
+    if(y<.06||y>.72||!n.neighbours.size||(volume&&tail.reduce((sum,i)=>sum+n.w[i],0)>.99999))return result
     for(let k=0;k<bones.length;k++){let sum=0;for(const j of n.neighbours)sum+=nodes[j].w[k];result[k]=n.w[k]*.45+.55*sum/n.neighbours.size}
     return result
   });nodes.forEach((n,i)=>n.w=next[i])
@@ -119,7 +124,7 @@ for(let i=0;i<pos.count;i++){
 geometry.setAttribute('skinIndex',new T.Uint16BufferAttribute(ids,4));geometry.setAttribute('skinWeight',new T.Float32BufferAttribute(values,4))
 const mesh=new T.SkinnedMesh(geometry,new T.MeshStandardMaterial());mesh.name='Snowdrop_Coat';root.add(mesh);mesh.bind(skeleton)
 
-// Reuse the source Walk's cycle and footfall order, then fit stride and contact to this mesh.
+// Reuse the source Walk's cycle, then fit footfalls, stride and contact to this mesh.
 const motionBytes=await fs.readFile(new URL('../public/models/characters/skater-cat/cat-source-motion.glb',import.meta.url))
 const sourceMotion=await new GLTFLoader().parseAsync(motionBytes.buffer.slice(motionBytes.byteOffset,motionBytes.byteOffset+motionBytes.length),'')
 const sourceWalk=sourceMotion.animations.find(a=>a.name==='Walk'), sourceMixer=new T.AnimationMixer(sourceMotion.scene), sourceAction=sourceMixer.clipAction(sourceWalk);sourceAction.play()
@@ -129,7 +134,9 @@ for(const leg of legs){
   for(let i=0;i<240;i++){sourceAction.time=sourceWalk.duration*i/240;sourceMixer.update(0);sourceMotion.scene.updateMatrixWorld(true);const y=b.getWorldPosition(new T.Vector3()).y;if(y>highest){highest=y;peak=i/240}}
   leg.phase=(.84-peak+1)%1
 }
-const stance=.68,stride=player?.30:.14,lift=.047,duration=sourceWalk.duration
+// Even four-beat footfalls: each forepaw follows the hind paw on the same side.
+if(volume)for(const leg of legs)leg.phase=(.84+(leg.side<0?.5:0)-(leg.front?.25:0)+1)%1
+const stance=volume?.64:.68,stride=volume?.38:player?.30:.14,lift=volume?.030:.047,duration=sourceWalk.duration
 function reset(){bones.forEach((b,i)=>{b.quaternion.identity();b.position.copy(rests[i]);const parent=definitions[i].parent;if(parent!=null)b.position.sub(rests[parent])});root.updateMatrixWorld(true)}
 function rotateWorld(i,q){const parent=bones[i].parent.getWorldQuaternion(new T.Quaternion());bones[i].quaternion.copy(parent.invert().multiply(q));root.updateMatrixWorld(true)}
 function aim(i,end,target){const start=bones[i].getWorldPosition(new T.Vector3());rotateWorld(i,new T.Quaternion().setFromUnitVectors(rests[end].clone().sub(rests[i]).normalize(),target.clone().sub(start).normalize()))}
@@ -149,8 +156,9 @@ function walkFoot(leg,p){const t=(p+leg.phase)%1,target=rests[leg.foot].clone();
 function restTail(amount,name) {
   if(volume){
     // Keep the authored plume curve rigid while resting; different segment twists flattened it.
-    const rotation=new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0),.60*amount)
-      .multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),(name==='Sit'?.20:0)*amount))
+    // Seated yaw pulled the mixed tail/pelvis attachment behind the left haunch.
+    const rotation=new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0),(name==='Sit'?0:.60)*amount)
+      .multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),(name==='Sit'?.16:0)*amount))
     for(const i of tail)rotateWorld(i,rotation)
     return
   }
@@ -171,10 +179,11 @@ function pose(name,p){
   }
   let targets=legs.map(l=>rests[l.foot].clone())
   if(name==='Walk'){
-    bones[body].position.y-=(volume?.048:player?.020:.014)-.002*Math.cos(p*Math.PI*4)
-    bones[body].position.x+=.002*Math.sin(p*Math.PI*2)
+    bones[body].position.y-=(volume?.040:player?.020:.014)-.002*Math.cos(p*Math.PI*4)
+    bones[body].position.x+=(volume?.001:.002)*Math.sin(p*Math.PI*2)
     bones[neck].rotation.x=.008*Math.sin(p*Math.PI*4);bones[head].rotation.x=-.006*Math.sin(p*Math.PI*4)
-    targets=legs.map(l=>walkFoot(l,p));tail.forEach((i,k)=>bones[i].rotation.y=.018*Math.sin(p*Math.PI*2-k*.4))
+    targets=legs.map(l=>walkFoot(l,p))
+    if(!volume)tail.forEach((i,k)=>bones[i].rotation.y=.018*Math.sin(p*Math.PI*2-k*.4))
   }else if(name==='Sit'){
     const s=smooth(.05,.88,p)
     if(volume){
@@ -205,6 +214,11 @@ function pose(name,p){
   }
   if(volume&&['Sit','Lie'].includes(name)){const s=smooth(.05,.88,p);targets.forEach((v,i)=>{if(!legs[i].front||name==='Lie')v.y+=.025*Math.sin(Math.PI*s)**2})}
   root.updateMatrixWorld(true)
+  if(volume&&name==='Walk'){
+    // Lift the whole plume clear of the longer hind-leg sweep without flattening its sections.
+    const rotation=new T.Quaternion().setFromEuler(new T.Euler(.38,.015*Math.sin(p*Math.PI*2),0))
+    for(const i of tail)rotateWorld(i,rotation)
+  }
   if(volume&&['Sit','Lie'].includes(name))for(const i of haunches)rotateWorld(i,new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-.40*smooth(.05,.88,p)))
   if(name==='Sit'||name==='Lie')restTail(smooth(.05,.88,p),name)
   legs.forEach((l,i)=>solveLeg(l,targets[i],name==='Lie'?smooth(.04,.90,p):0,['Sit','Lie'].includes(name)?smooth(.05,.88,p):0));root.updateMatrixWorld(true)
@@ -224,6 +238,28 @@ function pose(name,p){
   }
 }
 // Folded poses need corrective shapes where the generated mesh has no joint loops.
+// Match the seated left rear surface to its right-side counterpart, using rest-space correspondence.
+const sitMirror=nodes.map(()=>null),sitMirrorEdges=[]
+if(volume){
+  const right=new T.BufferGeometry(),triangles=[]
+  for(let i=0;i<geometry.index.count;i+=3){const tri=[0,1,2].map(k=>geometry.index.getX(i+k));if(tri.every(v=>pos.getX(v)<cx&&pos.getZ(v)<.10&&pos.getY(v)<.65))triangles.push(...tri)}
+  right.setAttribute('position',pos);right.setIndex(triangles)
+  const bvh=new MeshBVH(right,{indirect:true}),query=new T.Vector3(),triangle=new T.Triangle(),barycentric=new T.Vector3()
+  nodes.forEach((n,i)=>{
+    const x=pos.getX(n.vertex),y=pos.getY(n.vertex),z=pos.getZ(n.vertex)
+    const weight=smooth(.015,.05,x-cx)*(1-smooth(.48,.63,y))*(1-smooth(-.08,.06,z))*smooth(-.45,-.36,z)*(1-smooth(.85,.999,tail.reduce((sum,k)=>sum+n.w[k],0)))
+    if(!weight)return
+    query.set(2*cx-x,y,z)
+    const hit=bvh.closestPointToPoint(query),vertices=[0,1,2].map(k=>right.index.getX(hit.faceIndex*3+k))
+    triangle.set(...vertices.map(v=>new T.Vector3().fromBufferAttribute(pos,v)));triangle.getBarycoord(hit.point,barycentric)
+    sitMirror[i]={weight,nodes:vertices.map(v=>vertexNodes[v]),barycentric:barycentric.toArray()}
+  })
+  for(let i=0;i<nodes.length;i++)for(const j of nodes[i].neighbours)if(j>i&&(sitMirror[i]||sitMirror[j])){
+    const length=new T.Vector3().fromBufferAttribute(pos,nodes[i].vertex).distanceTo(new T.Vector3().fromBufferAttribute(pos,nodes[j].vertex))
+    if(length>.0005)sitMirrorEdges.push({i,j,length:length*3})
+  }
+  right.dispose()
+}
 const correctiveNames=volume?['Sit','Lie','SitMid','LieMid',...Array.from({length:8},(_,i)=>`Walk${i}`)]:['Sit','Lie'],correctives=[],correctiveNormals=[]
 function correctiveWeight(corrective,clip,p){
   if(clip==='Walk'&&corrective.startsWith('Walk')){const d=Math.abs(p*8-Number(corrective.at(-1)));return Math.max(0,1-Math.min(d,8-d))}
@@ -243,7 +279,10 @@ for(const name of correctiveNames){
     const original=points.map(p=>p.clone())
     const mask=nodes.map(n=>{
       const y=pos.getY(n.vertex),z=pos.getZ(n.vertex)
-      return smooth(.055,.09,y)*(1-smooth(.24,.32,y))*(1-smooth(-.06,.02,z))*smooth(-.40,-.32,z)
+      const tailInfluence=tail.reduce((sum,i)=>sum+n.w[i],0)
+      const legFold=smooth(.055,.09,y)*(1-smooth(.24,.32,y))*(1-smooth(-.06,.02,z))*smooth(-.40,walking?-.35:-.32,z)
+      const tailRoot=baseName==='Sit'?smooth(.46,.50,y)*(1-smooth(.56,.61,y))*smooth(.30,.37,-z)*(1-smooth(.44,.49,-z))*(1-smooth(.09,.15,Math.abs(pos.getX(n.vertex)-cx))):0
+      return Math.max(legFold,.35*tailRoot)*(1-smooth(.2,.95,tailInfluence))
     })
     for(let pass=0;pass<(walking?48:160);pass++)points=points.map((p,i)=>{
       if(!mask[i])return p
@@ -260,6 +299,28 @@ for(const name of correctiveNames){
       const delta=points[j].clone().sub(points[i]),distance=delta.length(),weight=mask[i]+mask[j]
       if(distance>length){delta.multiplyScalar((distance-length)/distance/weight);points[i].addScaledVector(delta,mask[i]);points[j].addScaledVector(delta,-mask[j])}
     }
+    let normalsBeforeMirror=null
+    if(baseName==='Sit'){
+      const before=geometry.clone();before.setAttribute('position',new T.Float32BufferAttribute(vertexNodes.flatMap(n=>points[n].toArray()),3));before.computeVertexNormals()
+      normalsBeforeMirror=nodes.map(()=>new T.Vector3());for(let i=0;i<pos.count;i++)normalsBeforeMirror[vertexNodes[i]].add(new T.Vector3().fromBufferAttribute(before.attributes.normal,i));normalsBeforeMirror.forEach(n=>n.normalize());before.dispose()
+      let offsets=points.map((point,i)=>{
+        const match=sitMirror[i];if(!match)return new T.Vector3()
+        const target=new T.Vector3();match.nodes.forEach((n,k)=>target.addScaledVector(points[n],match.barycentric[k]));target.x=2*cx-target.x
+        if(mid){const raw=new T.Vector3().fromBufferAttribute(pos,nodes[i].vertex).applyQuaternion(transforms[i].rotation).add(transforms[i].translation);target.lerp(raw,.5)}
+        return target.sub(point).multiplyScalar(match.weight)
+      })
+      // The source sides have different topology; diffuse displacement to avoid nearest-face creases.
+      for(let pass=0;pass<24;pass++)offsets=offsets.map((offset,i)=>{
+        if(!sitMirror[i])return offset
+        const mean=new T.Vector3();for(const j of nodes[i].neighbours)mean.add(offsets[j]);mean.divideScalar(nodes[i].neighbours.size)
+        return offset.clone().lerp(mean,.55)
+      })
+      points.forEach((point,i)=>point.add(offsets[i]))
+      for(let pass=0;pass<40;pass++)for(const {i,j,length}of sitMirrorEdges){
+        const a=sitMirror[i]?.weight||0,b=sitMirror[j]?.weight||0,delta=points[j].clone().sub(points[i]),distance=delta.length()
+        if(distance>length){delta.multiplyScalar((distance-length)/distance/(a+b));points[i].addScaledVector(delta,a);points[j].addScaledVector(delta,-b)}
+      }
+    }
     const surface=geometry.clone();surface.setAttribute('position',new T.Float32BufferAttribute(vertexNodes.flatMap(n=>points[n].toArray()),3));surface.computeVertexNormals()
     const normals=nodes.map(()=>new T.Vector3());for(let i=0;i<pos.count;i++)normals[vertexNodes[i]].add(new T.Vector3().fromBufferAttribute(surface.attributes.normal,i));normals.forEach(n=>n.normalize())
     const result=new Float32Array(pos.count*3),normalResult=new Float32Array(pos.count*3)
@@ -270,6 +331,8 @@ for(const name of correctiveNames){
         const normal=normals[node].clone().applyQuaternion(inverse).sub(new T.Vector3().fromBufferAttribute(geometry.attributes.normal,i))
         if(mid)normal.addScaledVector(new T.Vector3().fromBufferAttribute(correctiveNormals[baseIndex],i),-.5)
         normalResult.set(normal.toArray(),i*3)
+      }else if(baseName==='Sit'&&sitMirror[node]){
+        normalResult.set(normals[node].clone().sub(normalsBeforeMirror[node]).applyQuaternion(inverse).toArray(),i*3)
       }
     }
     const a=new T.BufferAttribute(result,3);a.name=`${name}Fold`;correctives.push(a);correctiveNormals.push(new T.BufferAttribute(normalResult,3));surface.dispose();continue
@@ -314,7 +377,7 @@ for(const [name,seconds] of [['Walk',duration],['Sit',1.3],['Lie',1.5],['Jump',1
 }
 reset()
 const gait={duration,stance,stride,speed:stride/(duration*stance),lift,legs:legs.map(l=>({...l,name:bones[l.foot].name,rest:rests[l.foot].toArray(),...(volume?{jointNames:['upper','lower','end','foot'].map(k=>bones[l[k]].name),jointRests:['upper','lower','end','foot'].map(k=>rests[l[k]].toArray())}:{})}))}
-root.userData={skinning:volume?'dualQuaternion':'linear',sourceModel:'Meshy_AI_Snowdrop_1116030454_texture.glb (user supplied)',rigSource:'JonasDichelle — Rigged and animated Cat, CC BY 3.0',rigSourceUrl:'https://blendswap.com/blend/18519',modifications:volume?'28 motion bones plus two haunch supports; local hind-leg pose corrections; rigid resting tail plume':'28 selected bone roles refit to Snowdrop; original Walk timing adapted with foot IK; Sit, Lie, Jump and EarFlick authored separately',gait}
+root.userData={skinning:volume?'dualQuaternion':'linear',sourceModel:'Meshy_AI_Snowdrop_1116030454_texture.glb (user supplied)',rigSource:'JonasDichelle — Rigged and animated Cat, CC BY 3.0',rigSourceUrl:'https://blendswap.com/blend/18519',modifications:volume?'28 motion bones plus two haunch supports; local hind-leg and tail-attachment corrections; preserved tail cross-sections':'28 selected bone roles refit to Snowdrop; original Walk timing adapted with foot IK; Sit, Lie, Jump and EarFlick authored separately',gait}
 const output=unpack(Buffer.from(await new GLTFExporter().parseAsync(root,{binary:true,animations:clips})))
 const chunks=[output.bin];let bytes=output.bin.length
 output.json.images=source.json.images.map(image=>{const view=source.json.bufferViews[image.bufferView],data=source.bin.subarray(view.byteOffset||0,(view.byteOffset||0)+view.byteLength),padding=(4-bytes%4)%4;if(padding){chunks.push(Buffer.alloc(padding));bytes+=padding}const index=output.json.bufferViews.length;output.json.bufferViews.push({buffer:0,byteOffset:bytes,byteLength:data.length});chunks.push(data);bytes+=data.length;return {...image,bufferView:index}})
@@ -323,6 +386,6 @@ output.json.buffers=[{byteLength:bytes}]
 const json=Buffer.from(JSON.stringify(output.json)),jp=Buffer.alloc((4-json.length%4)%4,32),bin=Buffer.concat(chunks),bp=Buffer.alloc((4-bin.length%4)%4),header=Buffer.alloc(12),jh=Buffer.alloc(8),bh=Buffer.alloc(8)
 header.writeUInt32LE(0x46546c67);header.writeUInt32LE(2,4);header.writeUInt32LE(28+json.length+jp.length+bin.length+bp.length,8);jh.writeUInt32LE(json.length+jp.length);jh.writeUInt32LE(0x4e4f534a,4);bh.writeUInt32LE(bin.length+bp.length);bh.writeUInt32LE(0x004e4942,4)
 await fs.writeFile(new URL(volume?'snowdrop-volume.glb':player?'snowdrop-player.glb':'snowdrop-interactions.glb',folder),Buffer.concat([header,jh,json,jp,bh,bin,bp]))
-const report={sourceSha256:createHash('sha256').update(sourceBytes).digest('hex'),sourceVertices:pos.count,triangles:geometry.index.count/3,bones:definitions,clips:clips.map(c=>({name:c.name,duration:c.duration})),gait,maxReachError,textureBytesPreserved:true,deformation:{method:volume?'runtime dual-quaternion with local hind-leg pose corrections':'dual-quaternion corrective shapes',smoothing:volume?'48 walk/160 rest local relaxation passes with bounded edge lengths; paw tips, haunch core, torso and tail excluded':'30 Taubin pairs, no 260-pass shrinking',lieWristAngleLimitDegrees:volume?null:25}}
+const report={sourceSha256:createHash('sha256').update(sourceBytes).digest('hex'),sourceVertices:pos.count,triangles:geometry.index.count/3,bones:definitions,clips:clips.map(c=>({name:c.name,duration:c.duration})),gait,maxReachError,textureBytesPreserved:true,deformation:{method:volume?'runtime dual-quaternion with local hind-leg and tail-attachment corrections':'dual-quaternion corrective shapes',smoothing:volume?'48 walk/160 rest local relaxation passes with bounded edge lengths; hind-leg folds and tail attachment only; tail tube pinned':'30 Taubin pairs, no 260-pass shrinking',lieWristAngleLimitDegrees:volume?null:25}}
 await fs.writeFile(new URL(volume?'snowdrop-volume-build.json':player?'snowdrop-player-build.json':'snowdrop-build.json',folder),JSON.stringify(report,null,2)+'\n')
 console.log(JSON.stringify({bones:bones.length,triangles:report.triangles,clips:report.clips,maxReachError},null,2))

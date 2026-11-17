@@ -327,10 +327,10 @@
   ],
   "gait": {
     "duration": 1.125,
-    "stance": 0.68,
-    "stride": 0.3,
-    "speed": 0.39215686274509803,
-    "lift": 0.047,
+    "stance": 0.64,
+    "stride": 0.38,
+    "speed": 0.5277777777777778,
+    "lift": 0.03,
     "legs": [
       {
         "side": 1,
@@ -339,7 +339,7 @@
         "lower": 13,
         "end": 14,
         "foot": 15,
-        "phase": 0.99,
+        "phase": 0.5899999999999999,
         "name": "Foot_front_L",
         "rest": [
           0,
@@ -425,7 +425,7 @@
         "lower": 21,
         "end": 22,
         "foot": 23,
-        "phase": 0.6191666666666666,
+        "phase": 0.08999999999999986,
         "name": "Foot_front_R",
         "rest": [
           -0.15,
@@ -468,7 +468,7 @@
         "lower": 25,
         "end": 26,
         "foot": 27,
-        "phase": 0.28583333333333316,
+        "phase": 0.33999999999999986,
         "name": "Foot_Back_L2_002",
         "rest": [
           -0.16999999999999998,
@@ -509,8 +509,8 @@
   "maxReachError": 0.005105122128808148,
   "textureBytesPreserved": true,
   "deformation": {
-    "method": "runtime dual-quaternion with local hind-leg pose corrections",
-    "smoothing": "48 walk/160 rest local relaxation passes with bounded edge lengths; paw tips, haunch core, torso and tail excluded",
+    "method": "runtime dual-quaternion with local hind-leg and tail-attachment corrections",
+    "smoothing": "48 walk/160 rest local relaxation passes with bounded edge lengths; hind-leg folds and tail attachment only; tail tube pinned",
     "lieWristAngleLimitDegrees": null
   }
 }

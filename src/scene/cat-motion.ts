@@ -1,4 +1,4 @@
-import { AdditiveAnimationBlendMode, AnimationClip, AnimationMixer, LoopOnce, NumberKeyframeTrack, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
+import { AdditiveAnimationBlendMode, AnimationClip, AnimationMixer, LoopOnce, NumberKeyframeTrack, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
 import type { Object3D } from 'three'
 import { createCatContactIK } from './cat-contact-ik.ts'
 
@@ -38,9 +38,24 @@ export function jumpFlightPhase(verticalSpeed: number) {
   return .28 + .44 * Math.max(0, Math.min(1, (PLAYER_JUMP_SPEED - verticalSpeed) / (2 * PLAYER_JUMP_SPEED)))
 }
 
-// 4m/s에서 쓰던 4배 주기를 이동 속도에 비례시킨다. 3m/s에서는 3배다.
+// 긴 보폭에 맞춰 발걸음 빈도를 낮춘다. 3m/s에서는 2.4배로 재생한다.
 export function walkPlaybackRate(speed: number, sourceSpeed: number) {
-  return Math.min(speed / (sourceSpeed * SNOWDROP_SCALE), 4 * speed / 4)
+  return Math.min(speed / (sourceSpeed * SNOWDROP_SCALE), .8 * speed)
+}
+
+export function createCatTailSwayClip() {
+  const duration = 8.4, times = Array.from({ length: 169 }, (_, i) => i * duration / 168)
+  const axis = new Vector3(0, 1, 0), rotation = new Quaternion()
+  const names = ['Tail', 'Tail_002', 'Tail_004', 'Tail_006', 'Tail_007']
+  const amplitudes = [.12, .009, .014, .017, .019]
+  return new AnimationClip('TailSway', duration, names.map((name, i) => {
+    const values = times.flatMap(t => {
+      // 작은 마디 회전과 시간차로 끝이 따라오게 하되 꼬리 단면의 큰 비틀림은 피한다.
+      const phase = (t - i * .10) / duration * Math.PI * 2
+      return rotation.setFromAxisAngle(axis, amplitudes[i] * (.75 * Math.sin(phase * 2) + .25 * Math.sin(phase))).toArray()
+    })
+    return new QuaternionKeyframeTrack(`${name}.quaternion`, times, values)
+  }), AdditiveAnimationBlendMode)
 }
 
 export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourceSpeed: number) {
@@ -55,7 +70,7 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
   if (morphTrack) idleTracks.push(new NumberKeyframeTrack(morphTrack.name, [0, 1], new Array(morphTrack.getValueSize() * 2).fill(0)))
   const mixer = new AnimationMixer(model)
   const solveContacts = createCatContactIK(model)
-  const actions = Object.fromEntries([...clips, new AnimationClip('Idle', 1, idleTracks)].map(c => {
+  const actions = Object.fromEntries([...clips.filter(c => c.name !== 'TailSway'), createCatTailSwayClip(), new AnimationClip('Idle', 1, idleTracks)].map(c => {
     const clip = c.name === 'Jump' ? jumpWithoutLift(c, spine.position.y) : c.name === 'EarFlick'
       ? new AnimationClip('EarFlick', c.duration, c.tracks.filter(t => /^Ear(?:_006)?\.quaternion$/.test(t.name)), AdditiveAnimationBlendMode) : c
     const action = mixer.clipAction(clip).setLoop(LoopOnce, 1)
@@ -63,7 +78,7 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
     return [c.name, action]
   }))
   for (const name of ['Idle', 'Walk', 'Jump', 'Sit', 'Lie', 'EarFlick']) if (!actions[name]) throw new Error(`${name} 동작이 없습니다.`)
-  let walkTime = 0, poseTime = 0, earTime = Infinity, landing = Infinity, wasGrounded = true
+  let walkTime = 0, tailTime = 0, poseTime = 0, earTime = Infinity, landing = Infinity, wasGrounded = true
   let restPose: 'Sit' | 'Lie' = 'Sit', resting = false, idleTime = 0, cooldown = 0, nearBefore = false
   let nextIdle = 8 + Math.random() * 6
   return {
@@ -115,9 +130,16 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
       const blendRate = !motion.grounded ? 7 : resting ? 5 : 24
       const blend = 1 - Math.exp(-dt * blendRate)
       for (const [name, action] of Object.entries(actions)) {
+        if (name === 'TailSway') continue
         if (name === 'EarFlick') action.setEffectiveWeight(earActive ? 1 : 0)
         else action.setEffectiveWeight(action.getEffectiveWeight() + ((name === target ? 1 : 0) - action.getEffectiveWeight()) * blend)
       }
+      // 걸음 주기와 분리하고 쉬는 자세·점프에 들어가면 자연스럽게 잦아들게 한다.
+      tailTime = (tailTime + dt) % actions.TailSway.getClip().duration
+      const tailWeight = motion.grounded ? actions.Idle.getEffectiveWeight() + .8 * actions.Walk.getEffectiveWeight() : 0
+      const tailBlend = 1 - Math.exp(-dt * (tailWeight > actions.TailSway.getEffectiveWeight() ? 3 : 8))
+      actions.TailSway.time = tailTime
+      actions.TailSway.setEffectiveWeight(actions.TailSway.getEffectiveWeight() + (tailWeight - actions.TailSway.getEffectiveWeight()) * tailBlend)
       mixer.update(0)
       solveContacts()
       return label

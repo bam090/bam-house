@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import assert from 'node:assert/strict'
-import { createCatAnimator } from '../src/scene/cat-motion.ts'
+import { createCatAnimator, createCatTailSwayClip } from '../src/scene/cat-motion.ts'
 import * as T from 'three'
 import { MeshBVH, ExtendedTriangle } from 'three-mesh-bvh'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
@@ -26,6 +26,8 @@ assert(tailEdges.length>100,'Tail section coverage missing')
 const bvh=new MeshBVH(geometry,{indirect:true}),tri=new ExtendedTriangle(),bounds=new T.Box3(),line=new T.Line3(),mixer=new T.AnimationMixer(gltf.scene)
 const label=vertices=>{const sums=new Map();for(const v of vertices)for(let k=0;k<4;k++){const n=mesh.skeleton.bones[skin.array[v*4+k]].name;sums.set(n,(sums.get(n)||0)+weights.array[v*4+k])}return [...sums].sort((a,b)=>b[1]-a[1])[0][0]}
 const rows=[]
+const walking=process.argv.includes('--walk')
+const swaying=process.argv.includes('--tail'),tailClip=createCatTailSwayClip()
 function inspect(name){
   gltf.scene.updateMatrixWorld(true);controller.update()
   for(let i=0;i<rest.count;i++){deformCatVertex(point,i,mesh,controller.palette);position.setXYZ(i,...point.toArray())}
@@ -44,23 +46,31 @@ function inspect(name){
   rows.push({name,intersections:count,totalLength,tailStrain,groups,examples})
 }
 inspect('Rest')
-for(const name of ['Sit','Lie']){
+for(const name of (swaying?['TailSway','Walk']:walking?['Walk']:['Sit','Lie'])){
   mixer.stopAllAction()
-  const clip=gltf.animations.find(c=>c.name===name),action=mixer.clipAction(clip)
+  const clip=name==='TailSway'?tailClip:gltf.animations.find(c=>c.name===name),action=mixer.clipAction(clip)
   action.setLoop(T.LoopOnce,1);action.clampWhenFinished=true;action.play()
-  for(const phase of (process.argv.includes('--quick')?[0,.25,.4,.45,.5,.55,.7,1]:Array.from({length:21},(_,i)=>i/20))){action.time=clip.duration*phase;mixer.update(0);inspect(`${name} ${phase}`)}
+  const overlay=swaying&&name==='Walk'?mixer.clipAction(tailClip).setEffectiveWeight(.8).play():null
+  for(const tailPhase of (overlay?Array.from({length:12},(_,i)=>i/12):[0])){
+    if(overlay)overlay.time=tailClip.duration*tailPhase
+    for(const phase of (swaying?Array.from({length:33},(_,i)=>i/32):walking?Array.from({length:121},(_,i)=>i/120):process.argv.includes('--quick')?[0,.25,.4,.45,.5,.55,.7,1]:Array.from({length:21},(_,i)=>i/20))){action.time=clip.duration*phase;mixer.update(0);inspect(`${name} ${phase}${overlay?` tail ${tailPhase}`:''}`)}
+  }
 }
 mixer.stopAllAction()
 const animator=createCatAnimator(gltf.scene,gltf.animations,gltf.scene.getObjectByName('Snowdrop').userData.gait.speed)
 const motion={speed:0,grounded:true,verticalSpeed:0,nearObject:false}
-for(const [name,command,frames]of (process.argv.includes('--quick')?[]:[['서기→앉기','sit',120],['앉기→눕기','lie',120],['눕기→앉기','sit',120],['앉기→서기','sit',90],['서기→눕기','lie',120],['전환 중 앉기','sit',10],['전환 중 눕기','lie',10],['다시 앉기','sit',120]])){
+if(swaying)for(let frame=0;frame<100;frame++)animator.update(1/60,motion,null)
+for(const [name,command,frames]of (walking||process.argv.includes('--quick')?[]:[['서기→앉기','sit',120],['앉기→눕기','lie',120],['눕기→앉기','sit',120],['앉기→서기','sit',90],['서기→눕기','lie',120],['전환 중 앉기','sit',10],['전환 중 눕기','lie',10],['다시 앉기','sit',120]])){
   for(let frame=0;frame<frames;frame++){animator.update(1/60,motion,frame===0?command:null);if(frame%4===0||frame===frames-1)inspect(`${name} ${frame}`)}
 }
 animator.dispose()
 const report={method:'Non-adjacent rear triangles, welded seam exclusion, intersection segment > 0.0005 model units',samples:rows.length,maxIntersections:Math.max(...rows.map(r=>r.intersections)),maxTailStrain:Math.max(...rows.map(r=>r.tailStrain)),tailEdges:tailEdges.length,rows}
-await fs.writeFile(new URL('../docs/snowdrop-fold-validation.json',import.meta.url),JSON.stringify(report,null,2)+'\n')
+await fs.writeFile(new URL(swaying?'../docs/snowdrop-tail-validation.json':walking?'../docs/snowdrop-walk-fold-validation.json':'../docs/snowdrop-fold-validation.json',import.meta.url),JSON.stringify(report,null,2)+'\n')
 console.log(JSON.stringify({samples:rows.length,max:report.maxIntersections,failures:rows.filter(r=>r.intersections).map(({name,intersections,totalLength,groups})=>({name,intersections,totalLength,groups}))},null,2))
 if(!process.argv.includes('--inspect')){
   assert(report.maxIntersections===0,'Rear surface self-intersection')
-  assert(report.maxTailStrain<.001,'Resting tail section changed shape')
+  if(!walking){
+    assert(report.maxTailStrain<.03,'Tail surface stretched during sway')
+    for(const row of rows.filter(r=>/^(Rest|Sit |Lie )/.test(r.name)))assert(row.tailStrain<.001,'Resting tail section changed shape')
+  }
 }

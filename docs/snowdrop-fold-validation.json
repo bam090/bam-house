@@ -2,8 +2,8 @@
   "method": "Non-adjacent rear triangles, welded seam exclusion, intersection segment > 0.0005 model units",
   "samples": 230,
   "maxIntersections": 0,
-  "maxTailStrain": 0.0005229429096857974,
-  "tailEdges": 4438,
+  "maxTailStrain": 0.022454391837758658,
+  "tailEdges": 10859,
   "rows": [
     {
       "name": "Rest",
@@ -17,7 +17,7 @@
       "name": "Sit 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.000026037862749461738,
       "groups": {},
       "examples": []
     },
@@ -25,7 +25,7 @@
       "name": "Sit 0.05",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.000026037862749461738,
       "groups": {},
       "examples": []
     },
@@ -33,7 +33,7 @@
       "name": "Sit 0.1",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00002594334658290176,
+      "tailStrain": 0.000027162216705844955,
       "groups": {},
       "examples": []
     },
@@ -41,7 +41,7 @@
       "name": "Sit 0.15",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00002319663734184907,
+      "tailStrain": 0.000029554419145094712,
       "groups": {},
       "examples": []
     },
@@ -49,7 +49,7 @@
       "name": "Sit 0.2",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000053385864981381204,
+      "tailStrain": 0.000024483472853775723,
       "groups": {},
       "examples": []
     },
@@ -57,7 +57,7 @@
       "name": "Sit 0.25",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00006832880815532683,
+      "tailStrain": 0.000030125005114012282,
       "groups": {},
       "examples": []
     },
@@ -65,7 +65,7 @@
       "name": "Sit 0.3",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00011059908564137189,
+      "tailStrain": 0.000026699419563236404,
       "groups": {},
       "examples": []
     },
@@ -73,7 +73,7 @@
       "name": "Sit 0.35",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00015241563106616063,
+      "tailStrain": 0.000026689973837479286,
       "groups": {},
       "examples": []
     },
@@ -81,7 +81,7 @@
       "name": "Sit 0.4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00019501175762637324,
+      "tailStrain": 0.0000294785983316892,
       "groups": {},
       "examples": []
     },
@@ -89,7 +89,7 @@
       "name": "Sit 0.45",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00024071472353304202,
+      "tailStrain": 0.000022332497284338615,
       "groups": {},
       "examples": []
     },
@@ -97,7 +97,7 @@
       "name": "Sit 0.5",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00029633607609214074,
+      "tailStrain": 0.000032985995595646855,
       "groups": {},
       "examples": []
     },
@@ -105,7 +105,7 @@
       "name": "Sit 0.55",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00033092621978192405,
+      "tailStrain": 0.000033658625559152,
       "groups": {},
       "examples": []
     },
@@ -113,7 +113,7 @@
       "name": "Sit 0.6",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000388904245445687,
+      "tailStrain": 0.00003159040958222725,
       "groups": {},
       "examples": []
     },
@@ -121,7 +121,7 @@
       "name": "Sit 0.65",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00040733116847135875,
+      "tailStrain": 0.00003115649187668268,
       "groups": {},
       "examples": []
     },
@@ -129,7 +129,7 @@
       "name": "Sit 0.7",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00043895676394067884,
+      "tailStrain": 0.000036078778433923375,
       "groups": {},
       "examples": []
     },
@@ -137,7 +137,7 @@
       "name": "Sit 0.75",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00047140845405135856,
+      "tailStrain": 0.00003385324239957299,
       "groups": {},
       "examples": []
     },
@@ -145,7 +145,7 @@
       "name": "Sit 0.8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000490332991286424,
+      "tailStrain": 0.00004207261542132912,
       "groups": {},
       "examples": []
     },
@@ -153,7 +153,7 @@
       "name": "Sit 0.85",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000500975533163972,
+      "tailStrain": 0.00003962088136733044,
       "groups": {},
       "examples": []
     },
@@ -161,7 +161,7 @@
       "name": "Sit 0.9",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005087366074438826,
+      "tailStrain": 0.0000451783148918139,
       "groups": {},
       "examples": []
     },
@@ -169,7 +169,7 @@
       "name": "Sit 0.95",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005087366074438826,
+      "tailStrain": 0.0000451783148918139,
       "groups": {},
       "examples": []
     },
@@ -177,7 +177,7 @@
       "name": "Sit 1",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005087366074438826,
+      "tailStrain": 0.0000451783148918139,
       "groups": {},
       "examples": []
     },
@@ -185,7 +185,7 @@
       "name": "Lie 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.000026037862749461738,
       "groups": {},
       "examples": []
     },
@@ -193,7 +193,7 @@
       "name": "Lie 0.05",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0000015872832215269028,
+      "tailStrain": 0.000004548053250008621,
       "groups": {},
       "examples": []
     },
@@ -225,7 +225,7 @@
       "name": "Lie 0.25",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000025983075866653493,
+      "tailStrain": 0.000021594821774884032,
       "groups": {},
       "examples": []
     },
@@ -233,7 +233,7 @@
       "name": "Lie 0.3",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00003280209006595314,
+      "tailStrain": 0.000030012057197881248,
       "groups": {},
       "examples": []
     },
@@ -241,7 +241,7 @@
       "name": "Lie 0.35",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000040526808438690054,
+      "tailStrain": 0.000028436143348464782,
       "groups": {},
       "examples": []
     },
@@ -249,7 +249,7 @@
       "name": "Lie 0.4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00004834515659624117,
+      "tailStrain": 0.000028327518997395273,
       "groups": {},
       "examples": []
     },
@@ -257,7 +257,7 @@
       "name": "Lie 0.45",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00005641256732191735,
+      "tailStrain": 0.0000211167453114669,
       "groups": {},
       "examples": []
     },
@@ -265,7 +265,7 @@
       "name": "Lie 0.5",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00007527559641018478,
+      "tailStrain": 0.000030267606913492173,
       "groups": {},
       "examples": []
     },
@@ -273,7 +273,7 @@
       "name": "Lie 0.55",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00009187405083710409,
+      "tailStrain": 0.000027942489459031883,
       "groups": {},
       "examples": []
     },
@@ -281,7 +281,7 @@
       "name": "Lie 0.6",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00009464244114121279,
+      "tailStrain": 0.00002921034990921445,
       "groups": {},
       "examples": []
     },
@@ -289,7 +289,7 @@
       "name": "Lie 0.65",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00011223459945219894,
+      "tailStrain": 0.000022608242888466634,
       "groups": {},
       "examples": []
     },
@@ -297,7 +297,7 @@
       "name": "Lie 0.7",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00011977864424772555,
+      "tailStrain": 0.000034580401028661,
       "groups": {},
       "examples": []
     },
@@ -305,7 +305,7 @@
       "name": "Lie 0.75",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013068971215979275,
+      "tailStrain": 0.00002561864995875851,
       "groups": {},
       "examples": []
     },
@@ -313,7 +313,7 @@
       "name": "Lie 0.8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013130903592339926,
+      "tailStrain": 0.000027883037367892882,
       "groups": {},
       "examples": []
     },
@@ -321,7 +321,7 @@
       "name": "Lie 0.85",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001377141454277364,
+      "tailStrain": 0.00002993536124229479,
       "groups": {},
       "examples": []
     },
@@ -329,7 +329,7 @@
       "name": "Lie 0.9",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013226287985990126,
+      "tailStrain": 0.00002458461186627403,
       "groups": {},
       "examples": []
     },
@@ -337,7 +337,7 @@
       "name": "Lie 0.95",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013189296913429516,
+      "tailStrain": 0.0000337991148091632,
       "groups": {},
       "examples": []
     },
@@ -345,7 +345,7 @@
       "name": "Lie 1",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013189296913429516,
+      "tailStrain": 0.0000337991148091632,
       "groups": {},
       "examples": []
     },
@@ -353,7 +353,7 @@
       "name": "서기→앉기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.0005659537214799393,
       "groups": {},
       "examples": []
     },
@@ -361,7 +361,7 @@
       "name": "서기→앉기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00001951920713472166,
+      "tailStrain": 0.0018155835673225873,
       "groups": {},
       "examples": []
     },
@@ -369,7 +369,7 @@
       "name": "서기→앉기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00002561738078898923,
+      "tailStrain": 0.001998097905550389,
       "groups": {},
       "examples": []
     },
@@ -377,7 +377,7 @@
       "name": "서기→앉기 12",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00004132306107096362,
+      "tailStrain": 0.0016286799817814002,
       "groups": {},
       "examples": []
     },
@@ -385,7 +385,7 @@
       "name": "서기→앉기 16",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00004152270223922727,
+      "tailStrain": 0.0010229641149336333,
       "groups": {},
       "examples": []
     },
@@ -393,7 +393,7 @@
       "name": "서기→앉기 20",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00007680884868421778,
+      "tailStrain": 0.0009471917349408443,
       "groups": {},
       "examples": []
     },
@@ -401,7 +401,7 @@
       "name": "서기→앉기 24",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00011451245077509498,
+      "tailStrain": 0.0010990585276426934,
       "groups": {},
       "examples": []
     },
@@ -409,7 +409,7 @@
       "name": "서기→앉기 28",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00016528239946067558,
+      "tailStrain": 0.0011149784497324067,
       "groups": {},
       "examples": []
     },
@@ -417,7 +417,7 @@
       "name": "서기→앉기 32",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00020370541724745728,
+      "tailStrain": 0.001044496155558905,
       "groups": {},
       "examples": []
     },
@@ -425,7 +425,7 @@
       "name": "서기→앉기 36",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00026235266034912996,
+      "tailStrain": 0.0009308598827497683,
       "groups": {},
       "examples": []
     },
@@ -433,7 +433,7 @@
       "name": "서기→앉기 40",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0003102716280041218,
+      "tailStrain": 0.0008154472582335703,
       "groups": {},
       "examples": []
     },
@@ -441,7 +441,7 @@
       "name": "서기→앉기 44",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00034383234786905525,
+      "tailStrain": 0.0006885554992650533,
       "groups": {},
       "examples": []
     },
@@ -449,7 +449,7 @@
       "name": "서기→앉기 48",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0003893292553678318,
+      "tailStrain": 0.000563976649575304,
       "groups": {},
       "examples": []
     },
@@ -457,7 +457,7 @@
       "name": "서기→앉기 52",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004331356873303882,
+      "tailStrain": 0.00044983609518478573,
       "groups": {},
       "examples": []
     },
@@ -465,7 +465,7 @@
       "name": "서기→앉기 56",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00047709594262768107,
+      "tailStrain": 0.0003586092836589394,
       "groups": {},
       "examples": []
     },
@@ -473,7 +473,7 @@
       "name": "서기→앉기 60",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000480623415457071,
+      "tailStrain": 0.0002850522161179647,
       "groups": {},
       "examples": []
     },
@@ -481,7 +481,7 @@
       "name": "서기→앉기 64",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004913897313216786,
+      "tailStrain": 0.00022154257423845358,
       "groups": {},
       "examples": []
     },
@@ -489,7 +489,7 @@
       "name": "서기→앉기 68",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004915335702473378,
+      "tailStrain": 0.00017003424764427955,
       "groups": {},
       "examples": []
     },
@@ -497,7 +497,7 @@
       "name": "서기→앉기 72",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005170533848490866,
+      "tailStrain": 0.000128126880856394,
       "groups": {},
       "examples": []
     },
@@ -505,7 +505,7 @@
       "name": "서기→앉기 76",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000501478082224116,
+      "tailStrain": 0.00009602771731809234,
       "groups": {},
       "examples": []
     },
@@ -513,7 +513,7 @@
       "name": "서기→앉기 80",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000507428251012243,
+      "tailStrain": 0.00007097225510532823,
       "groups": {},
       "examples": []
     },
@@ -521,7 +521,7 @@
       "name": "서기→앉기 84",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005099210218038053,
+      "tailStrain": 0.000051994894969764616,
       "groups": {},
       "examples": []
     },
@@ -529,7 +529,7 @@
       "name": "서기→앉기 88",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005144294173942132,
+      "tailStrain": 0.000037825412138259296,
       "groups": {},
       "examples": []
     },
@@ -537,7 +537,7 @@
       "name": "서기→앉기 92",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005074653622298975,
+      "tailStrain": 0.000040258168222839785,
       "groups": {},
       "examples": []
     },
@@ -545,7 +545,7 @@
       "name": "서기→앉기 96",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005100767636840864,
+      "tailStrain": 0.00003810617660238158,
       "groups": {},
       "examples": []
     },
@@ -553,7 +553,7 @@
       "name": "서기→앉기 100",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005071749346687859,
+      "tailStrain": 0.0000385833745999431,
       "groups": {},
       "examples": []
     },
@@ -561,7 +561,7 @@
       "name": "서기→앉기 104",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005168334176317568,
+      "tailStrain": 0.00004103185732673431,
       "groups": {},
       "examples": []
     },
@@ -569,7 +569,7 @@
       "name": "서기→앉기 108",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005079540672570104,
+      "tailStrain": 0.0000378786864652092,
       "groups": {},
       "examples": []
     },
@@ -577,7 +577,7 @@
       "name": "서기→앉기 112",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005125524973748075,
+      "tailStrain": 0.000042735850415809296,
       "groups": {},
       "examples": []
     },
@@ -585,7 +585,7 @@
       "name": "서기→앉기 116",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004986126299606486,
+      "tailStrain": 0.00003415375514359553,
       "groups": {},
       "examples": []
     },
@@ -593,7 +593,7 @@
       "name": "서기→앉기 119",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005009151980073234,
+      "tailStrain": 0.00004041270582111345,
       "groups": {},
       "examples": []
     },
@@ -601,7 +601,7 @@
       "name": "앉기→눕기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00046920010601203543,
+      "tailStrain": 0.00003644334549668393,
       "groups": {},
       "examples": []
     },
@@ -609,7 +609,7 @@
       "name": "앉기→눕기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0003440017492313263,
+      "tailStrain": 0.00003115664404251817,
       "groups": {},
       "examples": []
     },
@@ -617,7 +617,7 @@
       "name": "앉기→눕기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0002245893362740059,
+      "tailStrain": 0.00003636864708678189,
       "groups": {},
       "examples": []
     },
@@ -625,7 +625,7 @@
       "name": "앉기→눕기 12",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001849268234885848,
+      "tailStrain": 0.000025504619650229543,
       "groups": {},
       "examples": []
     },
@@ -633,7 +633,7 @@
       "name": "앉기→눕기 16",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001706845134581414,
+      "tailStrain": 0.000027190434763957327,
       "groups": {},
       "examples": []
     },
@@ -641,7 +641,7 @@
       "name": "앉기→눕기 20",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00016479220640275294,
+      "tailStrain": 0.00002619944672810348,
       "groups": {},
       "examples": []
     },
@@ -649,7 +649,7 @@
       "name": "앉기→눕기 24",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014937907670309336,
+      "tailStrain": 0.000028695109893783766,
       "groups": {},
       "examples": []
     },
@@ -657,7 +657,7 @@
       "name": "앉기→눕기 28",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00015093896879969648,
+      "tailStrain": 0.00003380696237520464,
       "groups": {},
       "examples": []
     },
@@ -665,7 +665,7 @@
       "name": "앉기→눕기 32",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014909935024753906,
+      "tailStrain": 0.000023849904180028858,
       "groups": {},
       "examples": []
     },
@@ -673,7 +673,7 @@
       "name": "앉기→눕기 36",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001471997155744198,
+      "tailStrain": 0.000024642467633895215,
       "groups": {},
       "examples": []
     },
@@ -681,7 +681,7 @@
       "name": "앉기→눕기 40",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014213353931968875,
+      "tailStrain": 0.000024491614028399056,
       "groups": {},
       "examples": []
     },
@@ -689,7 +689,7 @@
       "name": "앉기→눕기 44",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013725257129704183,
+      "tailStrain": 0.000026959252662939193,
       "groups": {},
       "examples": []
     },
@@ -697,7 +697,7 @@
       "name": "앉기→눕기 48",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013980275790426155,
+      "tailStrain": 0.000024833528798895443,
       "groups": {},
       "examples": []
     },
@@ -705,7 +705,7 @@
       "name": "앉기→눕기 52",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013890032216168358,
+      "tailStrain": 0.00004150725785434517,
       "groups": {},
       "examples": []
     },
@@ -713,7 +713,7 @@
       "name": "앉기→눕기 56",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013884908736305768,
+      "tailStrain": 0.00002708846768950668,
       "groups": {},
       "examples": []
     },
@@ -721,7 +721,7 @@
       "name": "앉기→눕기 60",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001391019770231594,
+      "tailStrain": 0.00003064454291901164,
       "groups": {},
       "examples": []
     },
@@ -729,7 +729,7 @@
       "name": "앉기→눕기 64",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013336667007779468,
+      "tailStrain": 0.000023142253234853527,
       "groups": {},
       "examples": []
     },
@@ -737,7 +737,7 @@
       "name": "앉기→눕기 68",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013734137901422194,
+      "tailStrain": 0.00002678394119759453,
       "groups": {},
       "examples": []
     },
@@ -745,7 +745,7 @@
       "name": "앉기→눕기 72",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001416273038576943,
+      "tailStrain": 0.00003109558282232694,
       "groups": {},
       "examples": []
     },
@@ -753,7 +753,7 @@
       "name": "앉기→눕기 76",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014101835611257663,
+      "tailStrain": 0.000024064858678674028,
       "groups": {},
       "examples": []
     },
@@ -761,7 +761,7 @@
       "name": "앉기→눕기 80",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013651820329263487,
+      "tailStrain": 0.00004136253766007236,
       "groups": {},
       "examples": []
     },
@@ -769,7 +769,7 @@
       "name": "앉기→눕기 84",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013623274419027886,
+      "tailStrain": 0.00002732278206041272,
       "groups": {},
       "examples": []
     },
@@ -777,7 +777,7 @@
       "name": "앉기→눕기 88",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013436227411500745,
+      "tailStrain": 0.00003184412339596321,
       "groups": {},
       "examples": []
     },
@@ -785,7 +785,7 @@
       "name": "앉기→눕기 92",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013734087510242077,
+      "tailStrain": 0.000029068748340410622,
       "groups": {},
       "examples": []
     },
@@ -793,7 +793,7 @@
       "name": "앉기→눕기 96",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001397060773984382,
+      "tailStrain": 0.000025981175226674758,
       "groups": {},
       "examples": []
     },
@@ -801,7 +801,7 @@
       "name": "앉기→눕기 100",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001348866818156047,
+      "tailStrain": 0.00002876664270534679,
       "groups": {},
       "examples": []
     },
@@ -809,7 +809,7 @@
       "name": "앉기→눕기 104",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013569973482230324,
+      "tailStrain": 0.000026202376043782394,
       "groups": {},
       "examples": []
     },
@@ -817,7 +817,7 @@
       "name": "앉기→눕기 108",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013686442555460587,
+      "tailStrain": 0.000026914782851106267,
       "groups": {},
       "examples": []
     },
@@ -825,7 +825,7 @@
       "name": "앉기→눕기 112",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001372710294660351,
+      "tailStrain": 0.000031399661496123166,
       "groups": {},
       "examples": []
     },
@@ -833,7 +833,7 @@
       "name": "앉기→눕기 116",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001374881148554774,
+      "tailStrain": 0.000024160405566187038,
       "groups": {},
       "examples": []
     },
@@ -841,7 +841,7 @@
       "name": "앉기→눕기 119",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013805674437983306,
+      "tailStrain": 0.00002973969926567399,
       "groups": {},
       "examples": []
     },
@@ -849,7 +849,7 @@
       "name": "눕기→앉기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014973222186909219,
+      "tailStrain": 0.00002708570413534339,
       "groups": {},
       "examples": []
     },
@@ -857,7 +857,7 @@
       "name": "눕기→앉기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001892904358278269,
+      "tailStrain": 0.000032255333425990074,
       "groups": {},
       "examples": []
     },
@@ -865,7 +865,7 @@
       "name": "눕기→앉기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00026357934222742685,
+      "tailStrain": 0.000029344676249376533,
       "groups": {},
       "examples": []
     },
@@ -873,7 +873,7 @@
       "name": "눕기→앉기 12",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0003336591923392973,
+      "tailStrain": 0.000039207041206301696,
       "groups": {},
       "examples": []
     },
@@ -881,7 +881,7 @@
       "name": "눕기→앉기 16",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0003836663991187983,
+      "tailStrain": 0.000038352549640796596,
       "groups": {},
       "examples": []
     },
@@ -889,7 +889,7 @@
       "name": "눕기→앉기 20",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004301453421982071,
+      "tailStrain": 0.000040948173474664173,
       "groups": {},
       "examples": []
     },
@@ -897,7 +897,7 @@
       "name": "눕기→앉기 24",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00045602859503501847,
+      "tailStrain": 0.000040845273148737427,
       "groups": {},
       "examples": []
     },
@@ -905,7 +905,7 @@
       "name": "눕기→앉기 28",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00046591267303397466,
+      "tailStrain": 0.000037831253181463964,
       "groups": {},
       "examples": []
     },
@@ -913,7 +913,7 @@
       "name": "눕기→앉기 32",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00046266087620194796,
+      "tailStrain": 0.000036181451449124324,
       "groups": {},
       "examples": []
     },
@@ -921,7 +921,7 @@
       "name": "눕기→앉기 36",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000488916902297909,
+      "tailStrain": 0.00003981631614635717,
       "groups": {},
       "examples": []
     },
@@ -929,7 +929,7 @@
       "name": "눕기→앉기 40",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005030994161208113,
+      "tailStrain": 0.000043884943817129596,
       "groups": {},
       "examples": []
     },
@@ -937,7 +937,7 @@
       "name": "눕기→앉기 44",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004892671137375348,
+      "tailStrain": 0.000040696161083930704,
       "groups": {},
       "examples": []
     },
@@ -945,7 +945,7 @@
       "name": "눕기→앉기 48",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004988167665240795,
+      "tailStrain": 0.00004102413762030466,
       "groups": {},
       "examples": []
     },
@@ -953,7 +953,7 @@
       "name": "눕기→앉기 52",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004987355118100112,
+      "tailStrain": 0.00003858332413586574,
       "groups": {},
       "examples": []
     },
@@ -961,7 +961,7 @@
       "name": "눕기→앉기 56",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005174776303129569,
+      "tailStrain": 0.000041064057802131515,
       "groups": {},
       "examples": []
     },
@@ -969,7 +969,7 @@
       "name": "눕기→앉기 60",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000504176866668482,
+      "tailStrain": 0.000042372871813078916,
       "groups": {},
       "examples": []
     },
@@ -977,7 +977,7 @@
       "name": "눕기→앉기 64",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000506970234781301,
+      "tailStrain": 0.0000453993019113863,
       "groups": {},
       "examples": []
     },
@@ -985,7 +985,7 @@
       "name": "눕기→앉기 68",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000519472461255166,
+      "tailStrain": 0.00004055105807054815,
       "groups": {},
       "examples": []
     },
@@ -993,7 +993,7 @@
       "name": "눕기→앉기 72",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00051316143160407,
+      "tailStrain": 0.000047372370830522925,
       "groups": {},
       "examples": []
     },
@@ -1001,7 +1001,7 @@
       "name": "눕기→앉기 76",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005115503550121581,
+      "tailStrain": 0.000040016313901158895,
       "groups": {},
       "examples": []
     },
@@ -1009,7 +1009,7 @@
       "name": "눕기→앉기 80",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005008664417831543,
+      "tailStrain": 0.00003888968916498925,
       "groups": {},
       "examples": []
     },
@@ -1017,7 +1017,7 @@
       "name": "눕기→앉기 84",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005176886322186824,
+      "tailStrain": 0.0000377603606278587,
       "groups": {},
       "examples": []
     },
@@ -1025,7 +1025,7 @@
       "name": "눕기→앉기 88",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005128125082680679,
+      "tailStrain": 0.00004016978637499946,
       "groups": {},
       "examples": []
     },
@@ -1033,7 +1033,7 @@
       "name": "눕기→앉기 92",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005036007036591794,
+      "tailStrain": 0.000042855784246453865,
       "groups": {},
       "examples": []
     },
@@ -1041,7 +1041,7 @@
       "name": "눕기→앉기 96",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005104303479628314,
+      "tailStrain": 0.000036394668686323683,
       "groups": {},
       "examples": []
     },
@@ -1049,7 +1049,7 @@
       "name": "눕기→앉기 100",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005142922273451145,
+      "tailStrain": 0.00004105182523739259,
       "groups": {},
       "examples": []
     },
@@ -1057,7 +1057,7 @@
       "name": "눕기→앉기 104",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005005486079321386,
+      "tailStrain": 0.0000413716091163252,
       "groups": {},
       "examples": []
     },
@@ -1065,7 +1065,7 @@
       "name": "눕기→앉기 108",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005025906781332967,
+      "tailStrain": 0.00003634896028370527,
       "groups": {},
       "examples": []
     },
@@ -1073,7 +1073,7 @@
       "name": "눕기→앉기 112",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005215728837091316,
+      "tailStrain": 0.00003990242788276532,
       "groups": {},
       "examples": []
     },
@@ -1081,7 +1081,7 @@
       "name": "눕기→앉기 116",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005050895129179445,
+      "tailStrain": 0.00004472395252186345,
       "groups": {},
       "examples": []
     },
@@ -1089,7 +1089,7 @@
       "name": "눕기→앉기 119",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005066943604212781,
+      "tailStrain": 0.000043064369705803074,
       "groups": {},
       "examples": []
     },
@@ -1097,7 +1097,7 @@
       "name": "앉기→서기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005066814850323009,
+      "tailStrain": 0.00004140487088366562,
       "groups": {},
       "examples": []
     },
@@ -1105,7 +1105,7 @@
       "name": "앉기→서기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005105789368378133,
+      "tailStrain": 0.0000399469890093318,
       "groups": {},
       "examples": []
     },
@@ -1113,7 +1113,7 @@
       "name": "앉기→서기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00047728561277127213,
+      "tailStrain": 0.00003889532099687898,
       "groups": {},
       "examples": []
     },
@@ -1121,7 +1121,7 @@
       "name": "앉기→서기 12",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00041026906739860536,
+      "tailStrain": 0.0000315375730925993,
       "groups": {},
       "examples": []
     },
@@ -1129,7 +1129,7 @@
       "name": "앉기→서기 16",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00030800079253956447,
+      "tailStrain": 0.000023405379401708615,
       "groups": {},
       "examples": []
     },
@@ -1137,7 +1137,7 @@
       "name": "앉기→서기 20",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00020389440481616283,
+      "tailStrain": 0.000028410911455223342,
       "groups": {},
       "examples": []
     },
@@ -1145,7 +1145,7 @@
       "name": "앉기→서기 24",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00011485247825659961,
+      "tailStrain": 0.00002287230581909938,
       "groups": {},
       "examples": []
     },
@@ -1153,7 +1153,7 @@
       "name": "앉기→서기 28",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00002888921539412337,
+      "tailStrain": 0.000030379064106744735,
       "groups": {},
       "examples": []
     },
@@ -1161,7 +1161,7 @@
       "name": "앉기→서기 32",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00003553311245185764,
+      "tailStrain": 0.00003301006591738265,
       "groups": {},
       "examples": []
     },
@@ -1169,7 +1169,7 @@
       "name": "앉기→서기 36",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.0003143550148041463,
       "groups": {},
       "examples": []
     },
@@ -1177,7 +1177,7 @@
       "name": "앉기→서기 40",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.001614169450109726,
       "groups": {},
       "examples": []
     },
@@ -1185,7 +1185,7 @@
       "name": "앉기→서기 44",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.0033384079324990656,
       "groups": {},
       "examples": []
     },
@@ -1193,7 +1193,7 @@
       "name": "앉기→서기 48",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.005258379545997838,
       "groups": {},
       "examples": []
     },
@@ -1201,7 +1201,7 @@
       "name": "앉기→서기 52",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.0072264764719587316,
       "groups": {},
       "examples": []
     },
@@ -1209,7 +1209,7 @@
       "name": "앉기→서기 56",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.009162917246845037,
       "groups": {},
       "examples": []
     },
@@ -1217,7 +1217,7 @@
       "name": "앉기→서기 60",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.01099656565774132,
       "groups": {},
       "examples": []
     },
@@ -1225,7 +1225,7 @@
       "name": "앉기→서기 64",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.013059859492540182,
       "groups": {},
       "examples": []
     },
@@ -1233,7 +1233,7 @@
       "name": "앉기→서기 68",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.015037384819599153,
       "groups": {},
       "examples": []
     },
@@ -1241,7 +1241,7 @@
       "name": "앉기→서기 72",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.016851405959012578,
       "groups": {},
       "examples": []
     },
@@ -1249,7 +1249,7 @@
       "name": "앉기→서기 76",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.018493078259430917,
       "groups": {},
       "examples": []
     },
@@ -1257,7 +1257,7 @@
       "name": "앉기→서기 80",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.019944839548313942,
       "groups": {},
       "examples": []
     },
@@ -1265,7 +1265,7 @@
       "name": "앉기→서기 84",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.02115696225068575,
       "groups": {},
       "examples": []
     },
@@ -1273,7 +1273,7 @@
       "name": "앉기→서기 88",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.02215389578759175,
       "groups": {},
       "examples": []
     },
@@ -1281,7 +1281,7 @@
       "name": "앉기→서기 89",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.02237760606518291,
       "groups": {},
       "examples": []
     },
@@ -1289,7 +1289,7 @@
       "name": "서기→눕기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000022995375827283837,
+      "tailStrain": 0.022454391837758658,
       "groups": {},
       "examples": []
     },
@@ -1297,7 +1297,7 @@
       "name": "서기→눕기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00003785792604293903,
+      "tailStrain": 0.02090686388303542,
       "groups": {},
       "examples": []
     },
@@ -1305,7 +1305,7 @@
       "name": "서기→눕기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00003117510878958285,
+      "tailStrain": 0.01780776938090145,
       "groups": {},
       "examples": []
     },
@@ -1313,7 +1313,7 @@
       "name": "서기→눕기 12",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000025703024043144396,
+      "tailStrain": 0.014329972293789517,
       "groups": {},
       "examples": []
     },
@@ -1321,7 +1321,7 @@
       "name": "서기→눕기 16",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000030131392672272383,
+      "tailStrain": 0.011096601213523405,
       "groups": {},
       "examples": []
     },
@@ -1329,7 +1329,7 @@
       "name": "서기→눕기 20",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0000313351126433048,
+      "tailStrain": 0.008344615852562631,
       "groups": {},
       "examples": []
     },
@@ -1337,7 +1337,7 @@
       "name": "서기→눕기 24",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000035177428250543485,
+      "tailStrain": 0.006116241141839951,
       "groups": {},
       "examples": []
     },
@@ -1345,7 +1345,7 @@
       "name": "서기→눕기 28",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00003386863447540911,
+      "tailStrain": 0.004393667945630009,
       "groups": {},
       "examples": []
     },
@@ -1353,7 +1353,7 @@
       "name": "서기→눕기 32",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0000442282310835207,
+      "tailStrain": 0.003097250275801766,
       "groups": {},
       "examples": []
     },
@@ -1361,7 +1361,7 @@
       "name": "서기→눕기 36",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00004893777950787381,
+      "tailStrain": 0.0021421487021174856,
       "groups": {},
       "examples": []
     },
@@ -1369,7 +1369,7 @@
       "name": "서기→눕기 40",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00006247332163633601,
+      "tailStrain": 0.0014550910714624665,
       "groups": {},
       "examples": []
     },
@@ -1377,7 +1377,7 @@
       "name": "서기→눕기 44",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00007075457230443227,
+      "tailStrain": 0.0009714652906296362,
       "groups": {},
       "examples": []
     },
@@ -1385,7 +1385,7 @@
       "name": "서기→눕기 48",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00008424316247923613,
+      "tailStrain": 0.0006337633495286932,
       "groups": {},
       "examples": []
     },
@@ -1393,7 +1393,7 @@
       "name": "서기→눕기 52",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00009577825916595728,
+      "tailStrain": 0.00040386107547785155,
       "groups": {},
       "examples": []
     },
@@ -1401,7 +1401,7 @@
       "name": "서기→눕기 56",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00010364816561714285,
+      "tailStrain": 0.00025020442927892184,
       "groups": {},
       "examples": []
     },
@@ -1409,7 +1409,7 @@
       "name": "서기→눕기 60",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00011125881506468538,
+      "tailStrain": 0.00014572345495278416,
       "groups": {},
       "examples": []
     },
@@ -1417,7 +1417,7 @@
       "name": "서기→눕기 64",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00012289488125993842,
+      "tailStrain": 0.00008090723404130529,
       "groups": {},
       "examples": []
     },
@@ -1425,7 +1425,7 @@
       "name": "서기→눕기 68",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00012815743803096247,
+      "tailStrain": 0.00003967730890952481,
       "groups": {},
       "examples": []
     },
@@ -1433,7 +1433,7 @@
       "name": "서기→눕기 72",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001363811309305074,
+      "tailStrain": 0.000027158419382278254,
       "groups": {},
       "examples": []
     },
@@ -1441,7 +1441,7 @@
       "name": "서기→눕기 76",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001353497782066171,
+      "tailStrain": 0.00002372931945116008,
       "groups": {},
       "examples": []
     },
@@ -1449,7 +1449,7 @@
       "name": "서기→눕기 80",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013136901747978769,
+      "tailStrain": 0.000026354459893518367,
       "groups": {},
       "examples": []
     },
@@ -1457,7 +1457,7 @@
       "name": "서기→눕기 84",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001369314367414276,
+      "tailStrain": 0.000027898986655339186,
       "groups": {},
       "examples": []
     },
@@ -1465,7 +1465,7 @@
       "name": "서기→눕기 88",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013529390838651345,
+      "tailStrain": 0.000022748565449592917,
       "groups": {},
       "examples": []
     },
@@ -1473,7 +1473,7 @@
       "name": "서기→눕기 92",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013881351431166422,
+      "tailStrain": 0.00002383049262499881,
       "groups": {},
       "examples": []
     },
@@ -1481,7 +1481,7 @@
       "name": "서기→눕기 96",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001388229112788686,
+      "tailStrain": 0.00002631129374486285,
       "groups": {},
       "examples": []
     },
@@ -1489,7 +1489,7 @@
       "name": "서기→눕기 100",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013765367199258804,
+      "tailStrain": 0.000027822317725245682,
       "groups": {},
       "examples": []
     },
@@ -1497,7 +1497,7 @@
       "name": "서기→눕기 104",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001378373676652611,
+      "tailStrain": 0.00002793875758488884,
       "groups": {},
       "examples": []
     },
@@ -1505,7 +1505,7 @@
       "name": "서기→눕기 108",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014063488118964962,
+      "tailStrain": 0.000030189918448608744,
       "groups": {},
       "examples": []
     },
@@ -1513,7 +1513,7 @@
       "name": "서기→눕기 112",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014127770231642245,
+      "tailStrain": 0.000022088304180156726,
       "groups": {},
       "examples": []
     },
@@ -1521,7 +1521,7 @@
       "name": "서기→눕기 116",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00013297777062559746,
+      "tailStrain": 0.00003246805273793285,
       "groups": {},
       "examples": []
     },
@@ -1529,7 +1529,7 @@
       "name": "서기→눕기 119",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0001356830949621468,
+      "tailStrain": 0.000036816432963160395,
       "groups": {},
       "examples": []
     },
@@ -1537,7 +1537,7 @@
       "name": "전환 중 앉기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00014808845387559444,
+      "tailStrain": 0.000027785560834825418,
       "groups": {},
       "examples": []
     },
@@ -1545,7 +1545,7 @@
       "name": "전환 중 앉기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00018981122208061585,
+      "tailStrain": 0.000027636885520765375,
       "groups": {},
       "examples": []
     },
@@ -1553,7 +1553,7 @@
       "name": "전환 중 앉기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00026005290790265256,
+      "tailStrain": 0.000032530531553831565,
       "groups": {},
       "examples": []
     },
@@ -1561,7 +1561,7 @@
       "name": "전환 중 앉기 9",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0002663589076556949,
+      "tailStrain": 0.00003422280288467583,
       "groups": {},
       "examples": []
     },
@@ -1569,7 +1569,7 @@
       "name": "전환 중 눕기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00026335880839956083,
+      "tailStrain": 0.00003538545462555831,
       "groups": {},
       "examples": []
     },
@@ -1577,7 +1577,7 @@
       "name": "전환 중 눕기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00019248168083385586,
+      "tailStrain": 0.00003149511680611283,
       "groups": {},
       "examples": []
     },
@@ -1585,7 +1585,7 @@
       "name": "전환 중 눕기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00017116323243948628,
+      "tailStrain": 0.00003517269688524394,
       "groups": {},
       "examples": []
     },
@@ -1593,7 +1593,7 @@
       "name": "전환 중 눕기 9",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00016855157913342467,
+      "tailStrain": 0.000025997353391371547,
       "groups": {},
       "examples": []
     },
@@ -1601,7 +1601,7 @@
       "name": "다시 앉기 0",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00017949695908159313,
+      "tailStrain": 0.00003264832782323701,
       "groups": {},
       "examples": []
     },
@@ -1609,7 +1609,7 @@
       "name": "다시 앉기 4",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0002474578595021981,
+      "tailStrain": 0.00003079389778859465,
       "groups": {},
       "examples": []
     },
@@ -1617,7 +1617,7 @@
       "name": "다시 앉기 8",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00031389458725050723,
+      "tailStrain": 0.000030705164695277176,
       "groups": {},
       "examples": []
     },
@@ -1625,7 +1625,7 @@
       "name": "다시 앉기 12",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0003689226642609178,
+      "tailStrain": 0.000038318495680034204,
       "groups": {},
       "examples": []
     },
@@ -1633,7 +1633,7 @@
       "name": "다시 앉기 16",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004033820039706093,
+      "tailStrain": 0.00004108102345656839,
       "groups": {},
       "examples": []
     },
@@ -1641,7 +1641,7 @@
       "name": "다시 앉기 20",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00042808631276436415,
+      "tailStrain": 0.000038621989803644396,
       "groups": {},
       "examples": []
     },
@@ -1649,7 +1649,7 @@
       "name": "다시 앉기 24",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.00047498338134821516,
+      "tailStrain": 0.00004133693081764811,
       "groups": {},
       "examples": []
     },
@@ -1657,7 +1657,7 @@
       "name": "다시 앉기 28",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004842533474354038,
+      "tailStrain": 0.000041400304643612884,
       "groups": {},
       "examples": []
     },
@@ -1665,7 +1665,7 @@
       "name": "다시 앉기 32",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004883230344516765,
+      "tailStrain": 0.00004195608560886299,
       "groups": {},
       "examples": []
     },
@@ -1673,7 +1673,7 @@
       "name": "다시 앉기 36",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005021040812867028,
+      "tailStrain": 0.00003529516451350467,
       "groups": {},
       "examples": []
     },
@@ -1681,7 +1681,7 @@
       "name": "다시 앉기 40",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004953231640556499,
+      "tailStrain": 0.00003878266558587917,
       "groups": {},
       "examples": []
     },
@@ -1689,7 +1689,7 @@
       "name": "다시 앉기 44",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005055970584362246,
+      "tailStrain": 0.000044596875709679296,
       "groups": {},
       "examples": []
     },
@@ -1697,7 +1697,7 @@
       "name": "다시 앉기 48",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005015073369507572,
+      "tailStrain": 0.00004027728139233133,
       "groups": {},
       "examples": []
     },
@@ -1705,7 +1705,7 @@
       "name": "다시 앉기 52",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000494642667832057,
+      "tailStrain": 0.00004278537531177129,
       "groups": {},
       "examples": []
     },
@@ -1713,7 +1713,7 @@
       "name": "다시 앉기 56",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005050400585897563,
+      "tailStrain": 0.000036559391017654264,
       "groups": {},
       "examples": []
     },
@@ -1721,7 +1721,7 @@
       "name": "다시 앉기 60",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005123527065442612,
+      "tailStrain": 0.00004409334356536565,
       "groups": {},
       "examples": []
     },
@@ -1729,7 +1729,7 @@
       "name": "다시 앉기 64",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004932244140678499,
+      "tailStrain": 0.00004500722086886455,
       "groups": {},
       "examples": []
     },
@@ -1737,7 +1737,7 @@
       "name": "다시 앉기 68",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000507031702337013,
+      "tailStrain": 0.00003948355213334587,
       "groups": {},
       "examples": []
     },
@@ -1745,7 +1745,7 @@
       "name": "다시 앉기 72",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005072361481019971,
+      "tailStrain": 0.00004258766055009744,
       "groups": {},
       "examples": []
     },
@@ -1753,7 +1753,7 @@
       "name": "다시 앉기 76",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005150765117531986,
+      "tailStrain": 0.000045554472845710237,
       "groups": {},
       "examples": []
     },
@@ -1761,7 +1761,7 @@
       "name": "다시 앉기 80",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005156477964627371,
+      "tailStrain": 0.000042753082722724045,
       "groups": {},
       "examples": []
     },
@@ -1769,7 +1769,7 @@
       "name": "다시 앉기 84",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005105296665544046,
+      "tailStrain": 0.000043583748463138505,
       "groups": {},
       "examples": []
     },
@@ -1777,7 +1777,7 @@
       "name": "다시 앉기 88",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005200847590423052,
+      "tailStrain": 0.00003816843062609543,
       "groups": {},
       "examples": []
     },
@@ -1785,7 +1785,7 @@
       "name": "다시 앉기 92",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000509060454179977,
+      "tailStrain": 0.00004536678169486663,
       "groups": {},
       "examples": []
     },
@@ -1793,7 +1793,7 @@
       "name": "다시 앉기 96",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005138355800204941,
+      "tailStrain": 0.00004236264373713716,
       "groups": {},
       "examples": []
     },
@@ -1801,7 +1801,7 @@
       "name": "다시 앉기 100",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0004998636085209451,
+      "tailStrain": 0.00003519793933715043,
       "groups": {},
       "examples": []
     },
@@ -1809,7 +1809,7 @@
       "name": "다시 앉기 104",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005195243284337181,
+      "tailStrain": 0.00003709067514390263,
       "groups": {},
       "examples": []
     },
@@ -1817,7 +1817,7 @@
       "name": "다시 앉기 108",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005039542534357455,
+      "tailStrain": 0.0000404709695156491,
       "groups": {},
       "examples": []
     },
@@ -1825,7 +1825,7 @@
       "name": "다시 앉기 112",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005229429096857974,
+      "tailStrain": 0.00003785073528428384,
       "groups": {},
       "examples": []
     },
@@ -1833,7 +1833,7 @@
       "name": "다시 앉기 116",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.0005062312300907479,
+      "tailStrain": 0.00004293372091823677,
       "groups": {},
       "examples": []
     },
@@ -1841,7 +1841,7 @@
       "name": "다시 앉기 119",
       "intersections": 0,
       "totalLength": 0,
-      "tailStrain": 0.000506916264097379,
+      "tailStrain": 0.000034881162144673183,
       "groups": {},
       "examples": []
     }

@@ -2,6 +2,7 @@ from pathlib import Path
 import bpy
 folder = Path(__file__).resolve().parent.parent / 'public/models/characters/snowdrop'
 bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.context.preferences.filepaths.save_version = 0
 bpy.ops.import_scene.gltf(filepath=str(folder / 'snowdrop-volume.glb'))
 meshes = [o for o in bpy.data.objects if o.type == 'MESH' and any(m.type == 'ARMATURE' for m in o.modifiers)]
 assert len(meshes) == 1

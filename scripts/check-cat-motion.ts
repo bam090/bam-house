@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises'
 import assert from 'node:assert/strict'
-import { SkinnedMesh, Vector3 } from 'three'
+import { LinearInterpolant, SkinnedMesh, Vector3 } from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-import { createCatAnimator, walkPlaybackRate, jumpWithoutLift, jumpFlightPhase, SNOWDROP_WALK_SPEED, SNOWDROP_MODEL_FILE } from '../src/scene/cat-motion.ts'
+import { createCatAnimator, createCatTailSwayClip, walkPlaybackRate, jumpWithoutLift, jumpFlightPhase, SNOWDROP_WALK_SPEED, SNOWDROP_MODEL_FILE } from '../src/scene/cat-motion.ts'
 import { createDualQuaternionPalette, deformCatVertex } from '../src/scene/dual-quaternion.ts'
 
 Object.assign(globalThis, { ProgressEvent: class extends Event { constructor(type: string, data: object) { super(type); Object.assign(this, data) } } })
@@ -15,7 +15,9 @@ const model = gltf.scene, spine = model.getObjectByName('Spine')!, head = model.
 const restY = spine.position.y
 const sourceSpeed = model.getObjectByName('Snowdrop')!.userData.gait.speed
 const motion = { speed: 0, grounded: true, verticalSpeed: 0, nearObject: false }
-const savedRandom = Math.random; Math.random = () => .5
+const savedRandom = Math.random; let randomSeed = 12345
+// 고정 상수는 Three의 클립 UUID까지 같게 만들어 다른 동작이 같은 액션을 공유한다.
+Math.random = () => ((randomSeed = (1664525 * randomSeed + 1013904223) >>> 0) / 2 ** 32)
 const animation = createCatAnimator(model, gltf.animations, sourceSpeed)
 let coat: SkinnedMesh
 model.traverse(o => { if (o instanceof SkinnedMesh) coat = o })
@@ -36,9 +38,42 @@ const step = (n: number, checkSurface = false) => {
   return label
 }
 try {
+  const tail = model.getObjectByName('Tail')!, tip = model.getObjectByName('Tail_007')!
+  const initialSpine = spine.position.clone(), initialHead = head.quaternion.clone(), lastTail = tail.quaternion.clone()
+  const tipMin = new Vector3(Infinity, Infinity, Infinity), tipMax = new Vector3(-Infinity, -Infinity, -Infinity)
+  for (let frame = 0; frame < 420; frame++) {
+    step(1); model.updateMatrixWorld(true)
+    const end = tip.getWorldPosition(new Vector3()); tipMin.min(end); tipMax.max(end)
+    assert(tail.quaternion.angleTo(lastTail) < .012, 'Tail motion snapped between frames'); lastTail.copy(tail.quaternion)
+    assert(spine.position.distanceTo(initialSpine) < 1e-6 && head.quaternion.angleTo(initialHead) < 1e-6, 'Tail sway moved the body or head')
+  }
+  assert(tipMax.distanceTo(tipMin) > .025 && tipMax.distanceTo(tipMin) < .20, `Tail sway is invisible or excessive: ${tipMax.distanceTo(tipMin)}`)
+  const gait = model.getObjectByName('Snowdrop')!.userData.gait
+  const touchdowns = gait.legs.map((l: { phase: number }) => (1 - l.phase + 1) % 1).sort((a: number, b: number) => a - b)
+  for (let i = 0; i < 4; i++) assert(Math.abs((touchdowns[(i + 1) % 4] - touchdowns[i] + 1) % 1 - .25) < 1e-6, 'Uneven four-beat footfalls')
+  const walk = gltf.animations.find(c => c.name === 'Walk')!
+  for (const track of [...walk.tracks, ...createCatTailSwayClip().tracks]) {
+    const size = track.getValueSize()
+    for (let i = 0; i < size; i++) assert(Math.abs(track.values[i] - track.values[track.values.length - size + i]) < 1e-5, `${track.name}: walk loop seam`)
+  }
+  const paws = walk.tracks.filter(t => /^CatGoal_\d_foot\.position$/.test(t.name)).map(t => new LinearInterpolant(t.times, t.values, 3))
+  assert.equal(paws.length, 4)
+  for (let frame = 0; frame < 240; frame++) {
+    const t = walk.duration * frame / 240
+    let grounded = 0
+    for (const paw of paws) {
+      const before = Array.from(paw.evaluate(t)), after = Array.from(paw.evaluate(t + walk.duration / 240))
+      assert(before[1] >= .027 - 1e-5 && before[1] <= .062, 'Paw clearance outside walking range')
+      if (Math.abs(before[1] - .027) < 1e-5) grounded++
+      if (Math.abs(before[1] - .027) < 1e-6 && Math.abs(after[1] - .027) < 1e-6) {
+        assert(Math.abs((after[2] - before[2]) / (walk.duration / 240) + sourceSpeed) < .005, 'Planted paw speed is not constant')
+      }
+    }
+    assert(grounded >= 2, 'Walk lost its supporting paws')
+  }
   assert.equal(SNOWDROP_WALK_SPEED, 3)
-  assert.equal(walkPlaybackRate(3, sourceSpeed), 3)
-  assert.equal(walkPlaybackRate(1.5, sourceSpeed), 1.5)
+  assert(Math.abs(walkPlaybackRate(3, sourceSpeed) - 2.4) < 1e-6)
+  assert(Math.abs(walkPlaybackRate(1.5, sourceSpeed) - 1.2) < 1e-6)
   assert.equal(walkPlaybackRate(0, sourceSpeed), 0)
   animation.update(1 / 60, motion, 'sit'); assert.equal(step(150, true), '앉기')
   const seatedY = spine.position.y, headQ = head.quaternion.clone().normalize()
@@ -65,5 +100,5 @@ try {
   const ys = jump.tracks.find(t => t.name === 'Spine.position')!.values.filter((_, i) => i % 3 === 1)
   assert(Math.max(...ys) <= restY+.000001)
   assert.equal(jumpFlightPhase(4.6), .28); assert.equal(jumpFlightPhase(0), .5); assert.equal(jumpFlightPhase(-4.6), .72)
-  console.log('PASS: 3m/s, Sit/Lie transitions, additive ear-only overlay, proximity cooldown, idle ears, physics-only Jump')
+  console.log('PASS: smooth tail-only sway, tail/walk loop seams, even four-beat Walk, planted paw speed, low swing, 3m/s, Sit/Lie transitions, additive ear-only overlay, proximity cooldown, idle ears, physics-only Jump')
 } finally { animation.dispose(); Math.random = savedRandom }

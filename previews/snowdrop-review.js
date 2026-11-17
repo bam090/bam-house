@@ -1,13 +1,16 @@
 import * as T from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { enableDualQuaternionSkinning } from '../src/scene/dual-quaternion.ts'
-import { createCatAnimator, SNOWDROP_MODEL_FILE } from '../src/scene/cat-motion.ts'
+import { createCatAnimator, createCatTailSwayClip, walkPlaybackRate, SNOWDROP_MODEL_FILE, SNOWDROP_WALK_SPEED } from '../src/scene/cat-motion.ts'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 const references=import.meta.glob('../docs/cat-reference/white-turkish-angora-*.png',{eager:true,query:'?url',import:'default'})
 const $ = s => document.querySelector(s)
+const compareSides=new URLSearchParams(location.search).get('compare')==='sides'
+$('#speed').add(new Option('밤하우스 걷기 주기', 'scene', true, true), 0)
+$('#motion').add(new Option('꼬리 살랑 · 대기', 'TailSway'))
 const views = []
 let loaded = false, playing = false, time = 0, clipName = 'rest', duration = 1
-let walkSpeed = 0
+let walkSpeed = 0, tailTime = 0
 let transition='clip', runtime=null, runtimeTime=0
 const transitions={sit:['서기 → 앉기',null,'sit'],lie:['앉기 → 눕기','sit','lie'],sitBack:['눕기 → 앉기','lie','sit'],stand:['앉기 → 서기','sit','sit'],walk:['눕기 → 걷기','lie','walk']}
 function view(selector) {
@@ -58,7 +61,7 @@ function sample(t) {
     while(runtimeTime<t-1e-6){const dt=Math.min(1/60,t-runtimeTime);runtime.update(dt,{speed:target==='walk'?3:0,grounded:true,verticalSpeed:0},runtimeTime===0&&target!=='walk'?target:null);runtimeTime+=dt}
     return
   }
-  for (const v of views) if (v.action) { v.action.time = t; v.mixer.update(0); v.model.updateMatrixWorld(true); v.model.traverse(o => { if (o.isSkinnedMesh) o.skeleton.update() }) }
+  for (const v of views) if (v.action) { v.action.time = t; if(v.swayAction)v.swayAction.time=tailTime%v.swayAction.getClip().duration; v.mixer.update(0); v.model.updateMatrixWorld(true); v.model.traverse(o => { if (o.isSkinnedMesh) o.skeleton.update() }) }
 }
 function pause() { playing = false; $('#play').textContent = '재생' }
 function seek(p) { if (!loaded || clipName === 'rest') return; pause(); time = p * duration; sample(time); update() }
@@ -70,17 +73,18 @@ function update() { $('#phase').value = Math.round(time / duration * 1000); $('#
 function selectMotion() {
   if (!loaded) return
   runtime?.dispose();runtime=null;transition='clip';$('#transition').value='clip'
-  clipName = $('#motion').value; time = 0; pause()
+  clipName = $('#motion').value; time = 0; tailTime = 0; pause()
   if(clipName==='Jump')camera([2.2,1.15,2.3],[0,.68,0])
   for (const v of views) {
-    v.mixer.stopAllAction(); v.action = null
+    v.mixer.stopAllAction(); v.action = null; v.swayAction = null
     for (const [o, p, q, s] of v.rest) { o.position.copy(p); o.quaternion.copy(q); o.scale.copy(s) }
-    if (clipName !== 'rest') { const clip = v.clips.find(c => c.name === clipName); if(!clip)continue; duration = clip.duration; v.action = v.mixer.clipAction(clip); v.action.setLoop(T.LoopOnce, 1); v.action.clampWhenFinished = true; v.action.play() }
+    if (clipName !== 'rest') { const clip = v.clips.find(c => c.name === clipName); if(!clip)continue; duration = clip.duration; v.action = v.mixer.clipAction(clip); v.action.setLoop(T.LoopOnce, 1); v.action.clampWhenFinished = true; v.action.setEffectiveWeight(1).play() }
+    if(clipName==='Walk'&&v.tailClip)v.swayAction=v.mixer.clipAction(v.tailClip).setEffectiveWeight(.8).play()
     v.model.updateMatrixWorld(true)
   }
   $('#phase').disabled = $('#play').disabled = clipName === 'rest'
   if (clipName === 'rest') { duration = 1; $('#metrics').textContent = '기본 자세 · 외형과 텍스처 비교' }
-  else { $('#metrics').textContent = `${{Walk:'걷기',Sit:'앉기',Lie:'눕기',Jump:'제자리 점프',EarFlick:'귀 털기'}[clipName]} · ${duration.toFixed(3)}초\n${clipName==='Walk'?`1배속 바닥 이동 속도 ${walkSpeed.toFixed(3)} 모델 단위/초`:['Sit','Lie'].includes(clipName)?'한 번 재생 후 자세 유지':'한 번 재생 후 기본 자세로 복귀'}`; playing = true; $('#play').textContent = '정지'; sample(0) }
+  else { $('#metrics').textContent = `${{Walk:'걷기',Sit:'앉기',Lie:'눕기',Jump:'제자리 점프',EarFlick:'귀 털기',TailSway:'꼬리 살랑 · 대기'}[clipName]} · ${duration.toFixed(3)}초\n${clipName==='Walk'?`1배속 바닥 이동 속도 ${walkSpeed.toFixed(3)} 모델 단위/초`:clipName==='TailSway'?'꼬리 끝이 늦게 따라오는 느린 반복 움직임':['Sit','Lie'].includes(clipName)?'한 번 재생 후 자세 유지':'한 번 재생 후 기본 자세로 복귀'}`; playing = true; $('#play').textContent = '정지'; sample(0) }
   const reference={Sit:'sitting',Lie:'lying'}[clipName]
   $('#pose-reference').hidden=!reference
   if(reference){
@@ -100,11 +104,13 @@ $('#transition').onchange=()=>{
 }
 window.addEventListener('keydown',e=>{if(e.repeat||e.target.closest?.('input,select,textarea,[contenteditable=true]'))return;const value={KeyX:'Sit',KeyC:'Lie'}[e.code];if(value){$('#motion').value=value;selectMotion();e.preventDefault()}})
 try {
-  const loader = new GLTFLoader(), files = ['snowdrop-source.glb',new URLSearchParams(location.search).get('rig')==='previous'?'snowdrop-player.glb':SNOWDROP_MODEL_FILE]
+  const loader = new GLTFLoader(), files = [compareSides?SNOWDROP_MODEL_FILE:'snowdrop-source.glb',new URLSearchParams(location.search).get('rig')==='previous'?'snowdrop-player.glb':SNOWDROP_MODEL_FILE]
   const models = await Promise.all(files.map(f => loader.loadAsync(`/models/characters/snowdrop/${f}`)))
   models.forEach((gltf, i) => {
     const box = new T.Box3().setFromObject(gltf.scene), size = box.getSize(new T.Vector3()), center = box.getCenter(new T.Vector3()); const v = views[i], group = new T.Group(); group.scale.setScalar(1 / size.y); group.position.set(-center.x / size.y, -box.min.y / size.y, -center.z / size.y)
+    if(compareSides&&i===0){group.scale.x*=-1;group.position.x+=2*gltf.scene.getObjectByName('Spine').position.x/size.y}
     group.add(gltf.scene); v.scene.add(group); v.model = gltf.scene; v.clips = gltf.animations; v.mixer = new T.AnimationMixer(v.model); v.rest = []
+    if(i===1){v.tailClip=createCatTailSwayClip();v.clips=[...v.clips,v.tailClip]}
     v.model.traverse(o => { v.rest.push([o, o.position.clone(), o.quaternion.clone(), o.scale.clone()]); if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; if(o.isSkinnedMesh&&v.model.getObjectByName('Snowdrop')?.userData.skinning==='dualQuaternion')enableDualQuaternionSkinning(o) } })
   })
   views[1].helper=new T.SkeletonHelper(views[1].model);views[1].helper.visible=false;views[1].scene.add(views[1].helper)
@@ -114,12 +120,21 @@ try {
   if(files[1]!==SNOWDROP_MODEL_FILE)document.querySelector('a[href$="snowdrop-volume.blend"]').hidden=true
   walkSpeed = views[1].model.getObjectByName('Snowdrop').userData.gait.speed
   loaded = true; selectMotion(); $('#status').textContent = '원본·작업본과 5개 동작 로드 완료'
+  if(compareSides){
+    $('h1').textContent='앉기 · 오른쪽 기준으로 좌우 비교'
+    $('h1').nextElementSibling.textContent='왼쪽 화면은 오른쪽 다리를 좌우 반전한 기준입니다. 같은 조명과 시점에서 오른쪽 화면의 왼쪽 다리와 비교합니다.'
+    $('#source').previousElementSibling.innerHTML='01 · 오른쪽 다리 기준<span class="muted">좌우 반전</span>'
+    $('#work').previousElementSibling.firstChild.textContent='02 · 왼쪽 다리 수정본'
+    $('#transition').hidden=true;document.querySelector('label[for="transition"]').style.display='none'
+    $('#status').textContent='오른쪽 기준과 왼쪽 수정본 로드 완료'
+    $('#motion').value='Sit';selectMotion();$('#legs-close').click()
+  }
 } catch (error) { $('#status').textContent = `불러오기 실패: ${error.message}`; console.error(error) }
 $('#skeleton').onchange=()=>{if(views[1].helper)views[1].helper.visible=$('#skeleton').checked}
 let last = performance.now(), groundDistance=0
 function render(now) {
   const dt = T.MathUtils.clamp((now - last) / 1000, 0, .05); last = now
-  if (loaded && clipName !== 'rest') { if (playing) { const step=dt*Number($('#speed').value);time+=step;if(clipName==='Walk'){time%=duration;groundDistance+=step*walkSpeed}else if(time>=duration){time=duration;pause()} } sample(time); update() }
+  if (loaded && clipName !== 'rest') { if (playing) { const rate=$('#speed').value==='scene'?(clipName==='Walk'?walkPlaybackRate(SNOWDROP_WALK_SPEED,walkSpeed):1):Number($('#speed').value);const step=dt*rate;time+=step;tailTime+=dt*($('#speed').value==='scene'?1:Number($('#speed').value));if(clipName==='Walk'){time%=duration;groundDistance+=step*walkSpeed}else if(clipName==='TailSway'){time%=duration}else if(time>=duration){time=duration;pause()} } sample(time); update() }
   views[1].grid.position.z=clipName==='Walk'&&$('#ground').checked ? -(groundDistance%.1) : 0
   views.forEach(v => v.renderer.render(v.scene, v.camera)); requestAnimationFrame(render)
 }

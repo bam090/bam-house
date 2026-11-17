@@ -1,0 +1,985 @@
+{
+  "method": "Non-adjacent rear triangles, welded seam exclusion, intersection segment > 0.0005 model units",
+  "samples": 122,
+  "maxIntersections": 0,
+  "maxTailStrain": 0.00028215473824877435,
+  "tailEdges": 4438,
+  "rows": [
+    {
+      "name": "Rest",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000006148908779146645,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026289282633440436,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.008333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002567635781900446,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.016666666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026694457538423144,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.025",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026451793524762124,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.03333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026434770343142233,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.041666666666666664",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00028215473824877435,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.05",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000271542659521673,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.058333333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002805415549755885,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.06666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002759564886953836,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.075",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002636140726641756,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.08333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002724669120006684,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.09166666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002684072019469852,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.1",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002590000400233272,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.10833333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026980422484434996,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.11666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002709294712563981,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.125",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002805531229328473,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.13333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027958007483741554,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.14166666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002728916769998424,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.15",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002746392008348142,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.15833333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002713935879508078,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.16666666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002756000507511125,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.175",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027136481787670697,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.18333333333333332",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027786621012837465,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.19166666666666668",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002800223215275732,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.2",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027281046977578605,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.20833333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00028122852920886565,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.21666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002635384524978246,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.225",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000275477325306861,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.23333333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002796878462756336,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.24166666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026353241154297713,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.25",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002745335155998063,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.25833333333333336",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026353241154297713,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.26666666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002796878462756336,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.275",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000275477325306861,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.2833333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002635384524978246,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.2916666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00028122852920886565,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.3",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027281046977578605,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.30833333333333335",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002800223215275732,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.31666666666666665",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027786621012837465,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.325",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027136481787670697,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.3333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002756000507511125,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.3416666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002713935879508078,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.35",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002746392008348142,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.35833333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002728916769998424,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.36666666666666664",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027958007483741554,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.375",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002805531229328473,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.38333333333333336",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002709294712563981,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.39166666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026980422484434996,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002590000400233272,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.4083333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002709451724274281,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.4166666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002724669120006684,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.425",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002644449676256766,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.43333333333333335",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002759564886953836,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.44166666666666665",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002805415549755885,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.45",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000271542659521673,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.4583333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00028215473824877435,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.4666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026434770343142233,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.475",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026451793524762124,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.48333333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026694457538423144,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.49166666666666664",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002567635781900446,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026289282633440436,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5083333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002687631315878569,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5166666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025867656024147756,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.525",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026317129341890677,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026485732221792624,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5416666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026875918319668735,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.55",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026812003138165785,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5583333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027686059411413666,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025554742371713957,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.575",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002600489739084111,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5833333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002607149501403505,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.5916666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026802099827150094,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025740696566733945,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6083333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026981550430105194,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6166666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002608377351211999,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.625",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002747776015163961,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002671763157517937,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6416666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002667226338051165,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.65",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002569209269207562,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6583333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002697434779825869,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6666666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002565972213359746,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.675",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002659799419268971,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6833333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026498192792145936,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.6916666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025511801308431004,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026601876788157064,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7083333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026294186113795526,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7166666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002674423159096939,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.725",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000274340703587006,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025758521964580616,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7416666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027439121269523525,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.75",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026247949248725533,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7583333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027439121269523525,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025758521964580616,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.775",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000274340703587006,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7833333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002674423159096939,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.7916666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026294186113795526,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026601876788157064,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8083333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025511801308431004,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8166666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026498192792145936,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.825",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002659799419268971,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8333333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002565972213359746,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8416666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002697434779825869,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.85",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002569209269207562,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8583333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002667226338051165,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002671763157517937,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.875",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002747776015163961,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8833333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002608377351211999,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.8916666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026981550430105194,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025740696566733945,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9083333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027054871778675604,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9166666666666666",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002607149501403505,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.925",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002600489739084111,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9333333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025554742371713957,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9416666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00027686059411413666,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.95",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026812003138165785,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9583333333333334",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026875918319668735,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9666666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026485732221792624,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.975",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026317129341890677,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9833333333333333",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00025867656024147756,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 0.9916666666666667",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002687631315878569,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Walk 1",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026289282633440436,
+      "groups": {},
+      "examples": []
+    }
+  ]
+}
