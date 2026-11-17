@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>소파 검수</title>
+<style>
+  body { margin: 0; }
+  iframe { display: block; width: 100%; height: calc(100vh - 32px); border: 0; }
+  button { height: 32px; }
+</style>
+<button data-angle="180">정면</button>
+<button data-angle="137">사선</button>
+<button data-angle="90">측면</button>
+<button id="close">근접</button>
+<button id="walk">고양이 동선 확인</button>
+<iframe src="/" title="밤하우스 거실"></iframe>
+<script type="module">
+  import { DECK_HEIGHT, FLOOR_HEIGHT, SOFA } from '/src/scene/walkable.ts'
+
+  const frame = document.querySelector('iframe')
+  const floor = DECK_HEIGHT + FLOOR_HEIGHT
+  function view(degrees) {
+    frame.contentWindow.__reviewObject?.(SOFA.x, floor + 0.48, SOFA.z, degrees * Math.PI / 180)
+  }
+  for (const button of document.querySelectorAll('[data-angle]')) {
+    button.addEventListener('click', () => view(Number(button.dataset.angle)))
+  }
+  document.querySelector('#close').addEventListener('click', () => {
+    frame.contentWindow.__reviewObject?.(SOFA.x + 1.40, floor + 0.74, SOFA.z - 0.25, 133 * Math.PI / 180, 1.85)
+  })
+  frame.addEventListener('load', () => view(137))
+  document.querySelector('#walk').addEventListener('click', () => {
+    frame.contentWindow.__moveCat?.(SOFA.x, floor, 0.02, Math.PI, 0.45, 3.3)
+    frame.contentWindow.focus()
+  })
+</script>
+</html>

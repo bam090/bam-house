@@ -3,8 +3,9 @@ import { Path, Shape } from 'three'
 import { Box } from './Box'
 import { LivingRoomModel } from './LivingRoomModel'
 import { palette } from './palette'
-import { Cylinder, Extruded, Faucet, LAY_FLAT, Pot, arcBand } from './Shapes'
+import { Cylinder, Extruded, Faucet, Pot } from './Shapes'
 import { Shower } from './Shower'
+import { BEDROOM_CHAIR } from './walkable'
 
 // 침실과 욕실과 변기 칸의 가구를 그리는 파일이다. 좌표는 장면 좌표이고 높이는 방바닥에서 잰 값이다.
 // 자리와 크기는 docs/house-spec.md 5번과 같다.
@@ -72,7 +73,7 @@ function Bedroom() {
     const hole = new Path()
     hole.absarc(0, 0.375, 0.3, 0, Math.PI * 2, true)
     ring.holes.push(hole)
-    return { ring, chairBack: arcBand(10.6, 4.8, 0.38, 0.5, 195, 345) }
+    return { ring }
   }, [])
 
   return (
@@ -96,9 +97,8 @@ function Bedroom() {
         <Box size={[0.02, 0.3, 0.012]} position={[0.06, 0.12, 0.02]} rotation={[0, 0, -0.45]} color={palette.columnCap} />
         <Box size={[0.02, 0.2, 0.012]} position={[-0.08, 0.04, 0.02]} rotation={[0, 0, 1.1]} color={palette.columnCap} />
       </group>
-      {/* 안락의자. 둥근 방석에 반원 등받이를 세운다. 등받이가 방 안쪽(-z)에 있어서 앉으면 바다를 본다. */}
-      <Cylinder radius={0.5} height={0.42} position={[10.6, 0.21, 4.8]} color={palette.wall} />
-      <Extruded shape={shapes.chairBack} depth={0.4} position={[0, 0.42, 0]} rotation={LAY_FLAT} color={palette.wall} />
+      {/* 바다를 향한 침실 안락의자 */}
+      <LivingRoomModel file="living-room/lounge-chair/lounge-chair-cream-boucle.glb" {...BEDROOM_CHAIR} ivory />
       {/* 안락의자 옆의 작은 원형 원목 탁자와 책과 컵 */}
       <Cylinder radius={0.22} height={0.03} position={[11.4, 0.435, 5.0]} color={palette.oak} />
       <Cylinder radius={0.03} height={0.4} position={[11.4, 0.22, 5.0]} color={palette.oak} />

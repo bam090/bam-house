@@ -1,0 +1,138 @@
+{
+  "pelvisBackVertices": 249,
+  "method": "DQ GPU/CPU shared palette with local hind-leg pose corrections",
+  "clips": [
+    {
+      "name": "Walk",
+      "frames": 121,
+      "minY": -0.000005020933393564869,
+      "lowest": {
+        "frame": 21,
+        "vertex": 25851,
+        "rest": [
+          0.028658900409936905,
+          0,
+          -0.26994794607162476
+        ]
+      },
+      "minimumRegionSpread": {
+        "Spine": 0.9980777396415357,
+        "Spine_003": 0.9880734184590833,
+        "Head": 0.9999882934184501,
+        "HaunchCore_-1": 0.9620019052424841,
+        "HaunchCore_1": 1.0015898797289147
+      }
+    },
+    {
+      "name": "Sit",
+      "frames": 61,
+      "minY": -0.0013339489462198416,
+      "lowest": {
+        "frame": 11,
+        "vertex": 25851,
+        "rest": [
+          0.028658900409936905,
+          0,
+          -0.26994794607162476
+        ]
+      },
+      "minimumRegionSpread": {
+        "Spine": 0.999999999957524,
+        "Spine_003": 0.9999999417267915,
+        "Head": 0.9998785558659247,
+        "HaunchCore_-1": 0.9880667364039443,
+        "HaunchCore_1": 1
+      }
+    },
+    {
+      "name": "Lie",
+      "frames": 61,
+      "minY": -0.0013339377477617472,
+      "lowest": {
+        "frame": 11,
+        "vertex": 25851,
+        "rest": [
+          0.028658900409936905,
+          0,
+          -0.26994794607162476
+        ]
+      },
+      "minimumRegionSpread": {
+        "Spine": 0.999999999957524,
+        "Spine_003": 0.9991019666682678,
+        "Head": 1.0000000126085022,
+        "HaunchCore_-1": 0.9502144939939424,
+        "HaunchCore_1": 0.9999928529053403
+      }
+    },
+    {
+      "name": "Jump",
+      "frames": 61,
+      "minY": -9.568996420269151e-9,
+      "lowest": {
+        "frame": 12,
+        "vertex": 25851,
+        "rest": [
+          0.028658900409936905,
+          0,
+          -0.26994794607162476
+        ]
+      },
+      "minimumRegionSpread": {
+        "Spine": 0.9997576249686125,
+        "Spine_003": 0.9909377276616929,
+        "Head": 1.0000000126084947,
+        "HaunchCore_-1": 0.9994178485442052,
+        "HaunchCore_1": 0.9993230100911603
+      }
+    },
+    {
+      "name": "EarFlick",
+      "frames": 61,
+      "minY": 5.2601096811599746e-9,
+      "lowest": {
+        "frame": 0,
+        "vertex": 25851,
+        "rest": [
+          0.028658900409936905,
+          0,
+          -0.26994794607162476
+        ]
+      },
+      "minimumRegionSpread": {
+        "Spine": 0.999999999957524,
+        "Spine_003": 0.9999999417267915,
+        "Head": 0.9997408529031336,
+        "HaunchCore_-1": 1,
+        "HaunchCore_1": 1
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "name": "Stand → Sit",
+      "minY": -0.0009490160155110057,
+      "minimumRegionSpread": 0.9880950321673658
+    },
+    {
+      "name": "Sit → Lie",
+      "minY": -0.000005933028660921506,
+      "minimumRegionSpread": 0.9502536989515803
+    },
+    {
+      "name": "Lie → Sit",
+      "minY": -3.6536240517738397e-9,
+      "minimumRegionSpread": 0.9590498766343938
+    },
+    {
+      "name": "Sit → Walk",
+      "minY": -0.0011570592178031807,
+      "minimumRegionSpread": 0.9632257349540627
+    },
+    {
+      "name": "Physics jump and landing",
+      "minY": -7.003545521300225e-10,
+      "minimumRegionSpread": 0.9931240591933242
+    }
+  ]
+}

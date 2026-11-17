@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>밤하우스 · 오크 화장실 장 재질 비교</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f6f3ed; color: #302820; font: 15px system-ui, sans-serif; }
+  main { width: min(100% - 32px, 1320px); margin: 28px auto; }
+  header p { margin: 0 0 4px; color: #69584a; }
+  h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.045em; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0 12px; }
+  button { min-height: 44px; padding: 0 15px; border: 1px solid #d4c8b9; border-radius: 8px; background: #fffdf8; color: inherit; font: inherit; cursor: pointer; }
+  button[aria-pressed="true"] { background: #4e3c2e; color: #fff; border-color: #4e3c2e; }
+  button:focus-visible, a:focus-visible { outline: 2px solid #946230; outline-offset: 3px; }
+  #status { color: #69584a; margin: 0 0 0 5px; font-size: 13px; }
+  #stage { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+  .view { height: clamp(265px, 35vw, 450px); position: relative; border-radius: 12px; overflow: hidden; background: #eee8de; }
+  .view h2 { position: absolute; z-index: 2; top: 12px; left: 12px; margin: 0; padding: 6px 10px; border-radius: 6px; background: #fffcf6; font-size: 14px; }
+  aside { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+  figure { margin: 0; }
+  figure a { display: grid; width: min(100%, 235px); height: 130px; place-items: center; border-radius: 8px; background: #ebe4d9; overflow: hidden; }
+  figure img { display: block; width: 100%; height: 130px; object-fit: contain; }
+  figcaption { margin-top: 4px; color: #69584a; font-size: 13px; }
+  @media (max-width: 640px) { #stage { grid-template-columns: 1fr; } .view { height: min(65vw, 330px); } }
+</style>
+</head>
+<body>
+<main>
+  <header><p>밤하우스 · 욕실 오브제</p><h1>오크 화장실 장 재질 비교</h1></header>
+  <div class="toolbar" role="group" aria-label="두 모델의 공통 시점">
+    <button data-view="front" aria-pressed="false">정면</button>
+    <button data-view="angle" aria-pressed="true">사선</button>
+    <button data-view="side" aria-pressed="false">입구 측면</button>
+    <button id="detail" aria-pressed="false">근접</button>
+    <p id="status" role="status">모델 불러오는 중…</p>
+  </div>
+  <div id="stage">
+    <section class="view"><h2>원본 · Meshy</h2></section>
+    <section class="view"><h2>수정본 · 오크와 황동</h2></section>
+  </div>
+  <aside aria-label="레퍼런스">
+    <figure><a href="/docs/research/31-cat-litter-cabinet.jpg" target="_blank" rel="noopener"><img src="/docs/research/31-cat-litter-cabinet.jpg" alt="밝은 오크 화장실 장이 놓인 31번 레퍼런스 사진"></a><figcaption>31번 레퍼런스</figcaption></figure>
+    <figure><a href="/docs/research/31-cat-litter-cabinet-cutout.png" target="_blank" rel="noopener"><img src="/docs/research/31-cat-litter-cabinet-cutout.png" alt="아치형 문과 옆면 입구가 보이는 화장실 장"></a><figcaption>형태 참고</figcaption></figure>
+  </aside>
+</main>
+<script type="module" src="/previews/cat-litter-cabinet-review.js"></script>
+</body>
+</html>

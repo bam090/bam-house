@@ -1,0 +1,1849 @@
+{
+  "method": "Non-adjacent rear triangles, welded seam exclusion, intersection segment > 0.0005 model units",
+  "samples": 230,
+  "maxIntersections": 0,
+  "maxTailStrain": 0.0005229429096857974,
+  "tailEdges": 4438,
+  "rows": [
+    {
+      "name": "Rest",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000006148908779146645,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.05",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.1",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00002594334658290176,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.15",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00002319663734184907,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.2",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000053385864981381204,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.25",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00006832880815532683,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.3",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00011059908564137189,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.35",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00015241563106616063,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00019501175762637324,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.45",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00024071472353304202,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.5",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00029633607609214074,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.55",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00033092621978192405,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.6",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000388904245445687,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.65",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00040733116847135875,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.7",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00043895676394067884,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.75",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00047140845405135856,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000490332991286424,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.85",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000500975533163972,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.9",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005087366074438826,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 0.95",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005087366074438826,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Sit 1",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005087366074438826,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.05",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0000015872832215269028,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.1",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00002746619635041192,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.15",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00003143981713948918,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.2",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000037319461690943356,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.25",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000025983075866653493,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.3",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00003280209006595314,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.35",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000040526808438690054,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00004834515659624117,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.45",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00005641256732191735,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.5",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00007527559641018478,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.55",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00009187405083710409,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.6",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00009464244114121279,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.65",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00011223459945219894,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.7",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00011977864424772555,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.75",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013068971215979275,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013130903592339926,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.85",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001377141454277364,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.9",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013226287985990126,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 0.95",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013189296913429516,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "Lie 1",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013189296913429516,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00001951920713472166,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00002561738078898923,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 12",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00004132306107096362,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 16",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00004152270223922727,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 20",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00007680884868421778,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 24",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00011451245077509498,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 28",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00016528239946067558,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 32",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00020370541724745728,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 36",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026235266034912996,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 40",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0003102716280041218,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 44",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00034383234786905525,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 48",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0003893292553678318,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 52",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004331356873303882,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 56",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00047709594262768107,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 60",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000480623415457071,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 64",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004913897313216786,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 68",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004915335702473378,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 72",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005170533848490866,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 76",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000501478082224116,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 80",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000507428251012243,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 84",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005099210218038053,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 88",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005144294173942132,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 92",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005074653622298975,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 96",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005100767636840864,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 100",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005071749346687859,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 104",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005168334176317568,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 108",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005079540672570104,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 112",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005125524973748075,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 116",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004986126299606486,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→앉기 119",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005009151980073234,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00046920010601203543,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0003440017492313263,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002245893362740059,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 12",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001849268234885848,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 16",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001706845134581414,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 20",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00016479220640275294,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 24",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014937907670309336,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 28",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00015093896879969648,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 32",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014909935024753906,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 36",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001471997155744198,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 40",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014213353931968875,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 44",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013725257129704183,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 48",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013980275790426155,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 52",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013890032216168358,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 56",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013884908736305768,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 60",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001391019770231594,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 64",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013336667007779468,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 68",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013734137901422194,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 72",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001416273038576943,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 76",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014101835611257663,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 80",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013651820329263487,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 84",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013623274419027886,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 88",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013436227411500745,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 92",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013734087510242077,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 96",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001397060773984382,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 100",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001348866818156047,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 104",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013569973482230324,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 108",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013686442555460587,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 112",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001372710294660351,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 116",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001374881148554774,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→눕기 119",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013805674437983306,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014973222186909219,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001892904358278269,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026357934222742685,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 12",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0003336591923392973,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 16",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0003836663991187983,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 20",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004301453421982071,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 24",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00045602859503501847,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 28",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00046591267303397466,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 32",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00046266087620194796,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 36",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000488916902297909,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 40",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005030994161208113,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 44",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004892671137375348,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 48",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004988167665240795,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 52",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004987355118100112,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 56",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005174776303129569,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 60",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000504176866668482,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 64",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000506970234781301,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 68",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000519472461255166,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 72",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00051316143160407,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 76",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005115503550121581,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 80",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005008664417831543,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 84",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005176886322186824,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 88",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005128125082680679,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 92",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005036007036591794,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 96",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005104303479628314,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 100",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005142922273451145,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 104",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005005486079321386,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 108",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005025906781332967,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 112",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005215728837091316,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 116",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005050895129179445,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "눕기→앉기 119",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005066943604212781,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005066814850323009,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005105789368378133,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00047728561277127213,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 12",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00041026906739860536,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 16",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00030800079253956447,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 20",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00020389440481616283,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 24",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00011485247825659961,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 28",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00002888921539412337,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 32",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00003553311245185764,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 36",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 40",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 44",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 48",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 52",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 56",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 60",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 64",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 68",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 72",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 76",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 80",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 84",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 88",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "앉기→서기 89",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000022995375827283837,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00003785792604293903,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00003117510878958285,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 12",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000025703024043144396,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 16",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000030131392672272383,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 20",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0000313351126433048,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 24",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000035177428250543485,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 28",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00003386863447540911,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 32",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0000442282310835207,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 36",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00004893777950787381,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 40",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00006247332163633601,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 44",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00007075457230443227,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 48",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00008424316247923613,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 52",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00009577825916595728,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 56",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00010364816561714285,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 60",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00011125881506468538,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 64",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00012289488125993842,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 68",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00012815743803096247,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 72",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001363811309305074,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 76",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001353497782066171,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 80",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013136901747978769,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 84",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001369314367414276,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 88",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013529390838651345,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 92",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013881351431166422,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 96",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001388229112788686,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 100",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013765367199258804,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 104",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001378373676652611,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 108",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014063488118964962,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 112",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014127770231642245,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 116",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00013297777062559746,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "서기→눕기 119",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0001356830949621468,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 앉기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00014808845387559444,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 앉기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00018981122208061585,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 앉기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026005290790265256,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 앉기 9",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002663589076556949,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 눕기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00026335880839956083,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 눕기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00019248168083385586,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 눕기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00017116323243948628,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "전환 중 눕기 9",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00016855157913342467,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 0",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00017949695908159313,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 4",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0002474578595021981,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 8",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00031389458725050723,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 12",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0003689226642609178,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 16",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004033820039706093,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 20",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00042808631276436415,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 24",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.00047498338134821516,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 28",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004842533474354038,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 32",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004883230344516765,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 36",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005021040812867028,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 40",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004953231640556499,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 44",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005055970584362246,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 48",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005015073369507572,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 52",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000494642667832057,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 56",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005050400585897563,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 60",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005123527065442612,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 64",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004932244140678499,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 68",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000507031702337013,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 72",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005072361481019971,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 76",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005150765117531986,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 80",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005156477964627371,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 84",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005105296665544046,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 88",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005200847590423052,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 92",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000509060454179977,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 96",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005138355800204941,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 100",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0004998636085209451,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 104",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005195243284337181,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 108",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005039542534357455,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 112",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005229429096857974,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 116",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.0005062312300907479,
+      "groups": {},
+      "examples": []
+    },
+    {
+      "name": "다시 앉기 119",
+      "intersections": 0,
+      "totalLength": 0,
+      "tailStrain": 0.000506916264097379,
+      "groups": {},
+      "examples": []
+    }
+  ]
+}

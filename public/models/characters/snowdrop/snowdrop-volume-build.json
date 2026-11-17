@@ -1,0 +1,516 @@
+{
+  "sourceSha256": "aa1e95453e4604c8bff6dc55aab43a2a916628ed6d73e012236fa5cd1ce7f9d8",
+  "sourceVertices": 37416,
+  "triangles": 63826,
+  "bones": [
+    {
+      "name": "Spine",
+      "sourceName": "Spine",
+      "rest": [
+        -0.075,
+        0.4,
+        -0.23
+      ]
+    },
+    {
+      "name": "Spine_003",
+      "sourceName": "Spine.003",
+      "parent": 0,
+      "rest": [
+        -0.075,
+        0.52,
+        0.22
+      ]
+    },
+    {
+      "name": "Neck",
+      "sourceName": "Neck",
+      "parent": 1,
+      "rest": [
+        -0.075,
+        0.64,
+        0.33
+      ]
+    },
+    {
+      "name": "Head",
+      "sourceName": "Head",
+      "parent": 2,
+      "rest": [
+        -0.075,
+        0.76,
+        0.43
+      ]
+    },
+    {
+      "name": "Mouth",
+      "sourceName": "Mouth",
+      "parent": 3,
+      "rest": [
+        -0.075,
+        0.69,
+        0.48
+      ]
+    },
+    {
+      "name": "Ear",
+      "sourceName": "Ear",
+      "parent": 3,
+      "rest": [
+        0.045,
+        0.84,
+        0.405
+      ]
+    },
+    {
+      "name": "Ear_006",
+      "sourceName": "Ear.006",
+      "parent": 3,
+      "rest": [
+        -0.18,
+        0.84,
+        0.405
+      ]
+    },
+    {
+      "name": "Tail",
+      "sourceName": "Tail",
+      "parent": 0,
+      "rest": [
+        -0.075,
+        0.49,
+        -0.33
+      ]
+    },
+    {
+      "name": "Tail_002",
+      "sourceName": "Tail.002",
+      "parent": 7,
+      "rest": [
+        -0.06,
+        0.38,
+        -0.395
+      ]
+    },
+    {
+      "name": "Tail_004",
+      "sourceName": "Tail.004",
+      "parent": 8,
+      "rest": [
+        0,
+        0.29,
+        -0.455
+      ]
+    },
+    {
+      "name": "Tail_006",
+      "sourceName": "Tail.006",
+      "parent": 9,
+      "rest": [
+        0.105,
+        0.247,
+        -0.515
+      ]
+    },
+    {
+      "name": "Tail_007",
+      "sourceName": "Tail.007",
+      "parent": 10,
+      "rest": [
+        0.205,
+        0.29,
+        -0.59
+      ]
+    },
+    {
+      "name": "Thigh_front_L",
+      "sourceName": "Thigh_front_L",
+      "parent": 1,
+      "rest": [
+        0,
+        0.48,
+        0.27
+      ]
+    },
+    {
+      "name": "Calf_Front_L",
+      "sourceName": "Calf_Front_L",
+      "parent": 12,
+      "rest": [
+        0,
+        0.27,
+        0.2
+      ]
+    },
+    {
+      "name": "Foot_front_L2",
+      "sourceName": "Foot_front_L2",
+      "parent": 13,
+      "rest": [
+        0,
+        0.085,
+        0.265
+      ]
+    },
+    {
+      "name": "Foot_front_L",
+      "sourceName": "Foot_front_L",
+      "parent": 14,
+      "rest": [
+        0,
+        0.027,
+        0.315
+      ]
+    },
+    {
+      "name": "Thigh_Back_L",
+      "sourceName": "Thigh_Back_L",
+      "parent": 0,
+      "rest": [
+        0.020000000000000004,
+        0.4,
+        -0.23
+      ]
+    },
+    {
+      "name": "Calf_back_L",
+      "sourceName": "Calf_back_L",
+      "parent": 16,
+      "rest": [
+        0.020000000000000004,
+        0.2,
+        -0.13
+      ]
+    },
+    {
+      "name": "Foot_Back_L",
+      "sourceName": "Foot_Back_L",
+      "parent": 17,
+      "rest": [
+        0.020000000000000004,
+        0.2,
+        -0.34
+      ]
+    },
+    {
+      "name": "Foot_Back_L2",
+      "sourceName": "Foot_Back_L2",
+      "parent": 18,
+      "rest": [
+        0.020000000000000004,
+        0.027,
+        -0.225
+      ]
+    },
+    {
+      "name": "Thigh_front_R",
+      "sourceName": "Thigh_front_R",
+      "parent": 1,
+      "rest": [
+        -0.15,
+        0.48,
+        0.27
+      ]
+    },
+    {
+      "name": "Calf_Front_R",
+      "sourceName": "Calf_Front_R",
+      "parent": 20,
+      "rest": [
+        -0.15,
+        0.27,
+        0.2
+      ]
+    },
+    {
+      "name": "Foot_front_L2_002",
+      "sourceName": "Foot_front_L2.002",
+      "parent": 21,
+      "rest": [
+        -0.15,
+        0.085,
+        0.265
+      ]
+    },
+    {
+      "name": "Foot_front_R",
+      "sourceName": "Foot_front_R",
+      "parent": 22,
+      "rest": [
+        -0.15,
+        0.027,
+        0.315
+      ]
+    },
+    {
+      "name": "Thigh_Back_R",
+      "sourceName": "Thigh_Back_R",
+      "parent": 0,
+      "rest": [
+        -0.16999999999999998,
+        0.4,
+        -0.23
+      ]
+    },
+    {
+      "name": "Calf_back_R",
+      "sourceName": "Calf_back_R",
+      "parent": 24,
+      "rest": [
+        -0.16999999999999998,
+        0.2,
+        -0.13
+      ]
+    },
+    {
+      "name": "Foot_Back_R",
+      "sourceName": "Foot_Back_R",
+      "parent": 25,
+      "rest": [
+        -0.16999999999999998,
+        0.2,
+        -0.34
+      ]
+    },
+    {
+      "name": "Foot_Back_L2_002",
+      "sourceName": "Foot_Back_L2.002",
+      "parent": 26,
+      "rest": [
+        -0.16999999999999998,
+        0.027,
+        -0.225
+      ]
+    },
+    {
+      "name": "Haunch_Support_L",
+      "sourceName": "Thigh_Back_L",
+      "parent": 0,
+      "rest": [
+        0.020000000000000004,
+        0.4,
+        -0.23
+      ]
+    },
+    {
+      "name": "Haunch_Support_R",
+      "sourceName": "Thigh_Back_R",
+      "parent": 0,
+      "rest": [
+        -0.16999999999999998,
+        0.4,
+        -0.23
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "name": "Walk",
+      "duration": 1.125
+    },
+    {
+      "name": "Sit",
+      "duration": 1.3
+    },
+    {
+      "name": "Lie",
+      "duration": 1.5
+    },
+    {
+      "name": "Jump",
+      "duration": 1.5
+    },
+    {
+      "name": "EarFlick",
+      "duration": 0.72
+    }
+  ],
+  "gait": {
+    "duration": 1.125,
+    "stance": 0.68,
+    "stride": 0.3,
+    "speed": 0.39215686274509803,
+    "lift": 0.047,
+    "legs": [
+      {
+        "side": 1,
+        "front": true,
+        "upper": 12,
+        "lower": 13,
+        "end": 14,
+        "foot": 15,
+        "phase": 0.99,
+        "name": "Foot_front_L",
+        "rest": [
+          0,
+          0.027,
+          0.315
+        ],
+        "jointNames": [
+          "Thigh_front_L",
+          "Calf_Front_L",
+          "Foot_front_L2",
+          "Foot_front_L"
+        ],
+        "jointRests": [
+          [
+            0,
+            0.48,
+            0.27
+          ],
+          [
+            0,
+            0.27,
+            0.2
+          ],
+          [
+            0,
+            0.085,
+            0.265
+          ],
+          [
+            0,
+            0.027,
+            0.315
+          ]
+        ]
+      },
+      {
+        "side": 1,
+        "front": false,
+        "upper": 16,
+        "lower": 17,
+        "end": 18,
+        "foot": 19,
+        "phase": 0.8399999999999999,
+        "name": "Foot_Back_L2",
+        "rest": [
+          0.020000000000000004,
+          0.027,
+          -0.225
+        ],
+        "jointNames": [
+          "Thigh_Back_L",
+          "Calf_back_L",
+          "Foot_Back_L",
+          "Foot_Back_L2"
+        ],
+        "jointRests": [
+          [
+            0.020000000000000004,
+            0.4,
+            -0.23
+          ],
+          [
+            0.020000000000000004,
+            0.2,
+            -0.13
+          ],
+          [
+            0.020000000000000004,
+            0.2,
+            -0.34
+          ],
+          [
+            0.020000000000000004,
+            0.027,
+            -0.225
+          ]
+        ]
+      },
+      {
+        "side": -1,
+        "front": true,
+        "upper": 20,
+        "lower": 21,
+        "end": 22,
+        "foot": 23,
+        "phase": 0.6191666666666666,
+        "name": "Foot_front_R",
+        "rest": [
+          -0.15,
+          0.027,
+          0.315
+        ],
+        "jointNames": [
+          "Thigh_front_R",
+          "Calf_Front_R",
+          "Foot_front_L2_002",
+          "Foot_front_R"
+        ],
+        "jointRests": [
+          [
+            -0.15,
+            0.48,
+            0.27
+          ],
+          [
+            -0.15,
+            0.27,
+            0.2
+          ],
+          [
+            -0.15,
+            0.085,
+            0.265
+          ],
+          [
+            -0.15,
+            0.027,
+            0.315
+          ]
+        ]
+      },
+      {
+        "side": -1,
+        "front": false,
+        "upper": 24,
+        "lower": 25,
+        "end": 26,
+        "foot": 27,
+        "phase": 0.28583333333333316,
+        "name": "Foot_Back_L2_002",
+        "rest": [
+          -0.16999999999999998,
+          0.027,
+          -0.225
+        ],
+        "jointNames": [
+          "Thigh_Back_R",
+          "Calf_back_R",
+          "Foot_Back_R",
+          "Foot_Back_L2_002"
+        ],
+        "jointRests": [
+          [
+            -0.16999999999999998,
+            0.4,
+            -0.23
+          ],
+          [
+            -0.16999999999999998,
+            0.2,
+            -0.13
+          ],
+          [
+            -0.16999999999999998,
+            0.2,
+            -0.34
+          ],
+          [
+            -0.16999999999999998,
+            0.027,
+            -0.225
+          ]
+        ]
+      }
+    ]
+  },
+  "maxReachError": 0.005105122128808148,
+  "textureBytesPreserved": true,
+  "deformation": {
+    "method": "runtime dual-quaternion with local hind-leg pose corrections",
+    "smoothing": "48 walk/160 rest local relaxation passes with bounded edge lengths; paw tips, haunch core, torso and tail excluded",
+    "lieWristAngleLimitDegrees": null
+  }
+}

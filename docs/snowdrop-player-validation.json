@@ -1,0 +1,45 @@
+{
+  "sourceHash": "aa1e95453e4604c8bff6dc55aab43a2a916628ed6d73e012236fa5cd1ce7f9d8",
+  "texturesByteIdentical": true,
+  "bones": 28,
+  "units": "Model normalized to 1 metre tall; game scale not applied",
+  "clips": [
+    {
+      "name": "Walk",
+      "samples": 481,
+      "minSurfaceY": -0.000004197788432622518,
+      "maxSurfaceY": 0.9821684004120588,
+      "startEndVertexGap": 5.867526494341126e-9,
+      "contactBoneHeightError": 0.000005203932933791483,
+      "stanceSpeedError": 0.00031412292147436904
+    },
+    {
+      "name": "Sit",
+      "samples": 181,
+      "minSurfaceY": -2.53483178593344e-8,
+      "maxSurfaceY": 1.0408549186389462,
+      "startEndVertexGap": 0.37288243291198864
+    },
+    {
+      "name": "Lie",
+      "samples": 181,
+      "minSurfaceY": -0.0011836070400035657,
+      "maxSurfaceY": 1.0000000071525572,
+      "startEndVertexGap": 0.3999999946824747
+    },
+    {
+      "name": "Jump",
+      "samples": 181,
+      "minSurfaceY": -2.4777344219324237e-8,
+      "maxSurfaceY": 1.4239029698336185,
+      "startEndVertexGap": 0
+    },
+    {
+      "name": "EarFlick",
+      "samples": 181,
+      "minSurfaceY": -1.977384103679647e-8,
+      "maxSurfaceY": 1.0147006616008314,
+      "startEndVertexGap": 0
+    }
+  ]
+}

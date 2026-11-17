@@ -1,0 +1,130 @@
+{
+  "file": "snowdrop-player.glb",
+  "method": "linear + morph",
+  "rearEdges": 42821,
+  "duplicateVertexPairs": 5501,
+  "sampleHz": 30,
+  "rows": [
+    {
+      "name": "서기→앉기",
+      "frames": 90,
+      "maxEdgeStretch": 6.072128127796927,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.035764086965492964,
+      "worstEdge": [
+        16118,
+        15951
+      ]
+    },
+    {
+      "name": "앉기→눕기",
+      "frames": 90,
+      "maxEdgeStretch": 16.460208946761064,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.1025544765508315,
+      "worstEdge": [
+        17326,
+        17610
+      ]
+    },
+    {
+      "name": "눕기→앉기",
+      "frames": 90,
+      "maxEdgeStretch": 14.815456649719197,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.06657262275055678,
+      "worstEdge": [
+        17739,
+        17603
+      ]
+    },
+    {
+      "name": "앉기→서기",
+      "frames": 60,
+      "maxEdgeStretch": 6.072241962844447,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.10547317023178533,
+      "worstEdge": [
+        16118,
+        15951
+      ]
+    },
+    {
+      "name": "서기→눕기",
+      "frames": 100,
+      "maxEdgeStretch": 16.460511981320753,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.028343503532457206,
+      "worstEdge": [
+        17326,
+        17610
+      ]
+    },
+    {
+      "name": "눕기→걷기",
+      "frames": 80,
+      "maxEdgeStretch": 16.460587849394315,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.15212987062601357,
+      "worstEdge": [
+        17326,
+        17610
+      ]
+    },
+    {
+      "name": "걷기→앉기",
+      "frames": 90,
+      "maxEdgeStretch": 6.072135668194627,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.068047015649269,
+      "worstEdge": [
+        16118,
+        15951
+      ]
+    },
+    {
+      "name": "앉는 중 눕기",
+      "frames": 10,
+      "maxEdgeStretch": 11.457665192690989,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.10255512152274157,
+      "worstEdge": [
+        17739,
+        17603
+      ]
+    },
+    {
+      "name": "전환 중 앉기",
+      "frames": 10,
+      "maxEdgeStretch": 10.950712327245986,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.05210116656816946,
+      "worstEdge": [
+        17739,
+        17603
+      ]
+    },
+    {
+      "name": "전환 중 눕기",
+      "frames": 90,
+      "maxEdgeStretch": 16.46031290387263,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.07054433447589643,
+      "worstEdge": [
+        17326,
+        17610
+      ]
+    },
+    {
+      "name": "눕기 중 귀 털기",
+      "frames": 50,
+      "maxEdgeStretch": 16.460697704512025,
+      "maxSeamGap": 0,
+      "maxVertexStep": 0.04006274354143908,
+      "worstEdge": [
+        17326,
+        17610
+      ]
+    }
+  ]
+}

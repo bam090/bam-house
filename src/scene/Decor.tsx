@@ -1,11 +1,14 @@
-import { useMemo } from 'react'
-import { DoubleSide, Shape, Vector2 } from 'three'
+import { useEffect, useMemo, useState } from 'react'
+import { useThree } from '@react-three/fiber'
+import { DoubleSide, PMREMGenerator, Shape, Vector2 } from 'three'
+import type { Texture } from 'three'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { Box } from './Box'
 import { LivingRoomModel } from './LivingRoomModel'
 import { palette } from './palette'
 import { Cylinder, Extruded, Glow, LAY_FLAT, Pot } from './Shapes'
 import { Toys } from './Toys'
-import { ARECA_PALM, BROWN_CUSHION, CAT_LITTER, DECK_HEIGHT, FLOOR_HEIGHT, FLOOR_VASE, GREEN_CUSHIONS, OLIVE_TREE, groundHeight } from './walkable'
+import { ARECA_PALM, BROWN_CUSHION, CAT_LITTER, CAT_LITTER_CUSHION, DECK_HEIGHT, FLOOR_HEIGHT, FLOOR_VASE, GREEN_CUSHIONS, OLIVE_TREE, groundHeight } from './walkable'
 
 // 구역별 오브제와 고양이 용품을 그리는 파일이다. 높이는 모두 방바닥에서 잰다.
 // 올라설 수 있는 큰 물건(벤치와 바닥 쿠션과 화장실 장 등)의 높이는 walkable.ts의 SURFACES에 따로 적는다.
@@ -75,6 +78,7 @@ const PAMPAS = [
 const CARVED_BOWL: Profile = [[0, 0], [0.06, 0], [0.1, 0.02], [0.115, 0.045], [0.105, 0.05], [0, 0.03]]
 
 // 바구니 넷. 모양이 서로 다르다.
+// 둘레에 띠를 두른 해초 바구니
 // 뚜껑과 꼭지가 있는 라탄 바구니
 function LiddedBasket({ position }: { position: Spot }) {
   const [x, y, z] = position
@@ -118,6 +122,9 @@ function LaundryBasket({ position }: { position: Spot }) {
 }
 
 // 촛대 일곱. 모양이 서로 다르다.
+// 굵고 낮은 기둥 초
+
+
 // 구멍이 숭숭 난 트래버틴 받침 위의 초
 function TravertineCandle({ position }: { position: Spot }) {
   const [x, y, z] = position
@@ -257,7 +264,7 @@ function KitchenDecor() {
       <LivingRoomModel file="kitchen/spice-jars/kitchen-set-8-glass-pots-stable.glb" x={-7.65} y={counter} z={3.2} turn={Math.PI / 2} width={0.405} originalMaterial />
       {/* 걸이 브래킷 뒤쪽을 정수기 옆판에 맞춘다. */}
       <LivingRoomModel file="kitchen/wooden-ladles-and-spoons/wooden-ladles-and-spoons-web.glb" x={-7.49} y={counter + 0.116} z={1.921} height={0.25} originalMaterial />
-      <LivingRoomModel file="kitchen/coffee-machine/white-retro-coffee-machine-and-grinder-stable.glb" x={-7.48} y={counter} z={4.12} width={0.72} turn={Math.PI / 2} originalMaterial castShadow={false} />
+      <LivingRoomModel file="kitchen/coffee-machine/white-retro-coffee-machine-and-grinder-web.glb" x={-7.48} y={counter} z={4.12} width={0.72} turn={Math.PI / 2} originalMaterial castShadow={false} />
       <LivingRoomModel file="kitchen/dish-soap/dish-soap-matte.glb" x={-7.66} y={counter} z={0.83} height={0.18} turn={Math.PI / 2} originalMaterial castShadow={false} />
 
       {/* 벽 선반 두 단. 두꺼운 통나무 판 위에 병과 꽃병과 유리 화병과 초 쟁반과 겹친 그릇을 올린다. */}
@@ -396,75 +403,41 @@ function BathroomDecor() {
   )
 }
 
-// 위가 둥근 아치 윤곽. 앞에서 본 모양이고 cx는 가운데 x이며 bottom과 top은 아랫변과 꼭대기 높이다.
-function archShape(cx: number, width: number, bottom: number, top: number) {
-  const half = width / 2
-  const shape = new Shape()
-  shape.moveTo(cx - half, bottom)
-  shape.lineTo(cx + half, bottom)
-  shape.lineTo(cx + half, top - half)
-  shape.absarc(cx, top - half, half, 0, Math.PI, false)
-  shape.closePath()
-  return shape
-}
-
-// 변기 칸의 원목 고양이 화장실 장. 세로 살 아치 문 둘과 황동 손잡이와 오른쪽 칸의 아치 입구가 있다.
-// 앞면은 +z(변기 칸 안쪽)를 본다. 윗면 왼쪽에 방석을 얹어서 고양이가 올라가 쉰다.
+// 앞면은 +z를 보고 측면 입구는 가림벽 쪽을 향한다.
 function LitterCabinet() {
   const { minX, maxX, minZ, maxZ, top } = CAT_LITTER
-  const front = maxZ
-  const width = maxX - minX
-  const doors = [minX + width * 0.185, minX + width * 0.53]
-  const doorWidth = 0.37
-  const doorBottom = 0.08
-  const doorTop = 0.56
-  const shapes = useMemo(
-    () => ({
-      doors: doors.map((cx) => archShape(cx, doorWidth, doorBottom, doorTop)),
-      opening: archShape(minX + width * 0.845, 0.28, doorBottom, 0.46),
-    }),
-    // doors는 CAT_LITTER 값으로만 정해져서 처음 한 번만 만든다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  )
-  // 세로 살. 살마다 아치 안에 들어가는 높이만큼만 세운다.
-  const flutes = (cx: number) =>
-    Array.from({ length: 11 }, (_, index) => {
-      const offset = -doorWidth / 2 + 0.03 + index * ((doorWidth - 0.06) / 10)
-      const half = doorWidth / 2
-      const archTop = doorTop - half + Math.sqrt(Math.max(0, half * half - offset * offset)) - 0.02
-      const height = archTop - doorBottom - 0.02
-      return { x: cx + offset, y: doorBottom + 0.01 + height / 2, height }
-    })
+  const cushion = CAT_LITTER_CUSHION
+  const renderer = useThree((state) => state.gl)
+  const [envMap, setEnvMap] = useState<Texture>()
+
+  useEffect(() => {
+    // 변기 칸의 간접광을 장 재질에도 반사시킨다. 반사가 없으면 황동 손잡이 정면이 거의 검게 보인다.
+    const room = new RoomEnvironment()
+    const generator = new PMREMGenerator(renderer)
+    const reflections = generator.fromScene(room, 0.04, 0.1, 100, { size: 64 })
+    room.dispose()
+    generator.dispose()
+    setEnvMap(reflections.texture)
+    return () => reflections.dispose()
+  }, [renderer])
+
   return (
     <group>
-      {/* 몸통과 아래 굽 */}
-      <Box size={[width, top - 0.05, maxZ - minZ]} position={[(minX + maxX) / 2, 0.05 + (top - 0.05) / 2, (minZ + maxZ) / 2]} color={palette.oakLight} />
-      <Box size={[width - 0.04, 0.05, maxZ - minZ - 0.04]} position={[(minX + maxX) / 2, 0.025, (minZ + maxZ) / 2 - 0.01]} color={palette.oak} />
-      {/* 문짝. 몸통 앞면에서 0.012m 튀어나온 아치 판 위에 세로 살을 붙인다. */}
-      {shapes.doors.map((shape, index) => (
-        <group key={index}>
-          <Extruded shape={shape} depth={0.012} position={[0, 0, front]} color={palette.wood} />
-          {flutes(doors[index]).map((flute) => (
-            <Box key={flute.x} size={[0.012, flute.height, 0.008]} position={[flute.x, flute.y, front + 0.016]} color={palette.oak} castShadow={false} />
-          ))}
-        </group>
-      ))}
-      {/* 두 문 사이의 둥근 황동 손잡이 둘 */}
-      {doors.map((cx, index) => (
-        <Cylinder
-          key={cx}
-          radius={0.025}
-          height={0.02}
-          position={[cx + (index === 0 ? 1 : -1) * (doorWidth / 2 - 0.035), 0.33, front + 0.022]}
-          rotation={[Math.PI / 2, 0, 0]}
-          color={palette.column}
-        />
-      ))}
-      {/* 오른쪽 칸의 아치 입구. 어두운 판을 몸통 앞면에서 조금 띄워 붙여서 구멍처럼 보이게 한다. */}
-      <Extruded shape={shapes.opening} depth={0.003} position={[0, 0, front + 0.001]} color={palette.columnCap} />
-      {/* 윗면 왼쪽의 방석 */}
-      <Box size={[0.62, 0.05, 0.4]} position={[minX + 0.4, top + 0.025, (minZ + maxZ) / 2]} color={palette.wall} roughness={1} />
+      <LivingRoomModel
+        file="bathroom/cat-litter-cabinet/cat-litter-cabinet-oak-refined.glb"
+        x={(minX + maxX) / 2}
+        z={(minZ + maxZ) / 2}
+        height={top}
+        originalMaterial
+        envMap={envMap}
+        envMapIntensity={0.42}
+      />
+      <Box
+        size={[cushion.width, cushion.thickness, cushion.depth]}
+        position={[cushion.x, top + cushion.thickness / 2, cushion.z]}
+        color={palette.wall}
+        roughness={1}
+      />
     </group>
   )
 }

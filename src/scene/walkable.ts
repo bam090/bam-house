@@ -1,9 +1,9 @@
-import { coffeeTableHeights } from './coffee-table-collider.ts'
-
 // 고양이가 걸을 수 있는 범위와 바닥 높이를 계산하는 파일이다.
-// 물리 엔진을 쓰지 않고 좌표가 어느 사각형 안에 있는지만 검사한다.
+// 물리 엔진 없이 바닥 윤곽과 높이로 이동을 계산한다.
 // 벽과 유리와 기둥과 물은 지나갈 수 없고 가구와 화단은 윗면 높이가 있는 바닥이다.
 // 자리와 높이는 docs/house-spec.md와 같다. 가구를 옮기면 이 파일의 숫자도 함께 고친다.
+
+import { SOFA_BASE, SOFA_SAMPLE, coffeeTableHeights, livingChairHeights, loungeChairHeights, mainSofaHeights } from './sofa-collider.ts'
 
 interface Rect {
   minX: number
@@ -78,21 +78,17 @@ export const STAIRS = {
 export const STEP_HEIGHT = FLOOR_HEIGHT / STAIRS.risers
 
 /** 바닥에 놓인 계단 판의 수. 맨 아래 단은 데크 바닥이라서 판이 하나 적다. */
-export const COFFEE_TABLE = { x: 1.5, z: -0.85, turn: 0, width: 1.6, maxDepth: 0.8 } as const
-export const WAVE_SCRATCHER = { x: 6.525, z: 0.9, turn: Math.PI / 2, width: 1.2 } as const
-
 export const STEP_COUNT = STAIRS.risers - 1
 
 /** 계단이 끝나는 z 좌표 */
 export const STAIRS_END_Z = STAIRS.startZ + STAIRS.stepDepth * STEP_COUNT
 
-/** 초승달 소파. 중심에서 잰 반지름과 각도(도)다. 휜 안쪽이 TV(-z)를 향한다. */
-export const SOFA = { x: 1.5, z: -1.6, inner: 2.05, outer: 3.0, from: 35, to: 145 } as const
-
-/** 1인용 소파. 초승달 소파의 -x 쪽 끝 옆이다. */
-// 초승달 소파가 그리는 원(가운데 SOFA.x와 SOFA.z) 위의 168도 자리에 놓고 원의 가운데를 보게 돌린다.
-// 그래서 초승달 소파가 한 자리 더 이어진 것처럼 보인다. turn은 y축으로 도는 각도다.
-export const SINGLE_SOFA = { x: -1.0, z: -1.07, turn: -1.36 } as const
+/** 승인된 GLB의 배치와 균일 스케일 상한이다. */
+export const SOFA = { x: 1.5, z: 1.25, turn: Math.PI, width: 4, maxDepth: 1.74 } as const
+export const SINGLE_SOFA = { x: -1, z: -1.07, turn: Math.PI - 1.36, width: 0.90 } as const
+export const BEDROOM_CHAIR = { x: 10.6, y: 0, z: 4.8, turn: 0, width: 1.12 } as const
+export const COFFEE_TABLE = { x: 1.5, z: -0.85, turn: 0, width: 1.6, maxDepth: 0.8 } as const
+export const WAVE_SCRATCHER = { x: 6.525, z: 0.9, turn: Math.PI / 2, width: 1.2 } as const
 
 /** 거실 캣워크 끝과 벽 통로를 잇는 곡선 디딤 선반. 침실 쪽 벽(x 7)의 거실 면에 붙는다. */
 // 높은 쪽(highTop)에서 평평하게 시작해서 curveFrom부터 curveTo까지 S자로 내려와 낮은 쪽(lowTop)에서 평평하게 끝난다.
@@ -128,15 +124,21 @@ export const SHOWER = {
   bench: { minX: 12.9, maxX: 13.93, minZ: -1.62, maxZ: -1.22, top: 0.45 },
 } as const
 
-/** 거실 통유리창 옆 구석의 바닥 화병 자리 */
 export const FLOOR_VASE = { x: -7.25, z: 4.96, y: 0.021 } as const
 export const OLIVE_TREE = { x: -7.02, z: -5.02, height: 1.85, turn: 0.35 } as const
 export const ARECA_PALM = { x: 6.49, z: 4.98, height: 1.32, turn: 255 * Math.PI / 180 } as const
-export const GREEN_CUSHIONS = { x: 3.78, z: 0.58, width: 0.46, y: 0.021, turn: 0.2 } as const
+export const GREEN_CUSHIONS = { x: 3.78, z: 0.58, width: 0.46, y: SOFA_BASE, turn: 0.2 } as const
 export const BROWN_CUSHION = { x: -0.20, z: -0.27, width: 0.52 } as const
 
-/** 고양이 화장실 장. 변기 칸 뒤쪽 벽(손 씻는 대 자리)에 붙는다. top은 윗면 높이다. */
-export const CAT_LITTER = { minX: 8.9, maxX: 10.6, minZ: -8.35, maxZ: -7.8, top: 0.65 } as const
+/** 화장실 장 GLB를 높이 0.65m로 맞춘 외곽. 왼쪽 입구와 가림벽 사이에 0.46m를 둔다. */
+export const CAT_LITTER = { minX: 9.06, maxX: 10.6953, minZ: -8.35, maxZ: -7.6422, top: 0.65 } as const
+export const CAT_LITTER_CUSHION = {
+  x: CAT_LITTER.minX + 0.4,
+  z: (CAT_LITTER.minZ + CAT_LITTER.maxZ) / 2,
+  width: 0.62,
+  depth: 0.4,
+  thickness: 0.05,
+} as const
 
 /** 침실 S자 캣타워. 침대 머리 쪽 벽 오른쪽 구석에 세운다. 침실 캣워크 끝에서 발판을 밟고 바닥까지 내려온다. */
 // 발판은 반원 방석이고 벽에서 방 쪽으로 튀어나온다. x는 발판 가운데이고 top은 방바닥에서 잰 윗면 높이다.
@@ -290,8 +292,6 @@ const BLOCKERS: Rect[] = [
 /** 윗면에 올라설 수 있는 물건. top은 데크 윗면에서 잰 높이다. */
 interface Surface extends Rect {
   top: number
-  /** 휜 물건은 사각형 안에서도 이 부채꼴 띠 안에 있을 때만 올라선 것으로 본다. */
-  arc?: { x: number; z: number; inner: number; outer: number; from: number; to: number }
 }
 
 // 데크 위 물건. 높이는 데크 윗면에서 잰다.
@@ -309,12 +309,59 @@ function onFloorAt(x: number, z: number, half: number, top: number): Surface {
   return onFloor(x - half, x + half, z - half, z + half, top)
 }
 
-// 초승달 소파의 방석이나 등받이
-function sofaBand(inner: number, outer: number, top: number): Surface {
-  return {
-    ...onFloor(SOFA.x - SOFA.outer, SOFA.x + SOFA.outer, SOFA.z, SOFA.z + SOFA.outer, top),
-    arc: { x: SOFA.x, z: SOFA.z, inner, outer, from: SOFA.from, to: SOFA.to },
+const loungeSurfaces = [
+  { ...SOFA, y: SOFA_BASE, rows: mainSofaHeights },
+  { ...SINGLE_SOFA, y: SOFA_BASE, rows: livingChairHeights },
+  { ...COFFEE_TABLE, y: SOFA_BASE, rows: coffeeTableHeights },
+  { ...BEDROOM_CHAIR, rows: loungeChairHeights },
+].map(({ x, y, z, turn, rows }) => ({
+  x, z, sin: Math.sin(turn), cos: Math.cos(turn),
+  baseY: DECK_HEIGHT + FLOOR_HEIGHT + y,
+  heights: rows.map((row) => row.match(/../g)!.map((cell) => cell === '..' ? 0 : parseInt(cell, 16) / 100)),
+}))
+
+const loungeBaseY = DECK_HEIGHT + FLOOR_HEIGHT + SOFA_BASE
+const mainSeatLimit = loungeBaseY + 0.54
+const surfaceContactTolerance = 0.06
+
+// 반경이 없으면 발밑 높이를, 반경이 있으면 몸 중심에 가까울수록 큰 겹침값을 돌려준다.
+function sampleLoungeFurniture(x: number, z: number, radius = 0, footY = 0) {
+  let best = -Infinity
+  let overlap = 0
+  for (const { x: centerX, z: centerZ, sin, cos, heights, baseY } of loungeSurfaces) {
+    const dx = x - centerX
+    const dz = z - centerZ
+    const u = (cos * dx - sin * dz) / SOFA_SAMPLE + (heights[0].length - 1) / 2
+    const v = (sin * dx + cos * dz) / SOFA_SAMPLE + (heights.length - 1) / 2
+    const limit = radius || 1
+    let height = 0
+    let weightSum = 0
+    for (let row = Math.max(0, Math.ceil(v - limit)); row <= Math.min(heights.length - 1, v + limit); row++) {
+      for (let col = Math.max(0, Math.ceil(u - limit)); col <= Math.min(heights[row].length - 1, u + limit); col++) {
+        const sample = heights[row][col]
+        if (!sample) continue
+        if (radius) {
+          if (baseY + sample > footY) {
+            const distanceSquared = (col - u) ** 2 + (row - v) ** 2
+            overlap += Math.max(0, radius ** 2 - distanceSquared)
+          }
+        } else {
+          const weight = (1 - Math.abs(col - u)) * (1 - Math.abs(row - v))
+          height += weight * sample
+          weightSum += weight
+        }
+      }
+    }
+    if (weightSum > 0) best = Math.max(best, baseY + height / weightSum)
   }
+  return radius ? overlap : best
+}
+
+// 좌판의 작은 내리막은 자유 낙하로 전환하지 않고 표면을 따라간다.
+export function followsFurnitureSlope(fromX: number, fromZ: number, x: number, z: number, footY: number, floor: number) {
+  return floor < footY && footY - floor <= surfaceContactTolerance &&
+    Math.abs(footY - sampleLoungeFurniture(fromX, fromZ)) <= 0.001 &&
+    Math.abs(floor - sampleLoungeFurniture(x, z)) <= 0.001
 }
 
 const SURFACES: Surface[] = [
@@ -360,7 +407,7 @@ const SURFACES: Surface[] = [
   onFloor(6.36, 6.69, 0.3, 1.5, 0.34),
   // 침실 쪽 통로 옆의 디딤 상자와 방석. 통로 바로 아래가 아니라 문 쪽으로 붙여 놓았다.
   onFloor(7.2, 7.7, 0.85, 1.45, 0.6),
-  // 통나무 조명과 곡선 책장과 통나무 탁자
+  // 통나무 조명과 곡선 책장
   onFloorAt(6.5, -5.2, 0.2, 1.8),
   onFloor(6.5, 6.85, -3, -1.1, 2.1),
   // 아치 스탠드의 받침과 대. 대가 높아서 지나가거나 올라설 수 없다.
@@ -371,19 +418,13 @@ const SURFACES: Surface[] = [
   // 소파 옆의 바닥 쿠션 둘과 거실 앞의 큰 야자 화분과 아일랜드 끝의 고양이 식기
   onFloorAt(GREEN_CUSHIONS.x, GREEN_CUSHIONS.z, 0.23, 0.531),
   onFloorAt(BROWN_CUSHION.x, BROWN_CUSHION.z, 0.26, 0.17),
-  // 1인용 소파의 방석과 등받이. 등받이는 뒤쪽 절반이다.
-  onFloorAt(SINGLE_SOFA.x, SINGLE_SOFA.z, 0.46, 0.45),
   onFloorAt(ARECA_PALM.x, ARECA_PALM.z, 0.18, 0.35),
   onFloor(-5.8, -5.3, 4.115, 4.335, 0.12),
-  // 초승달 소파의 방석과 등받이
-  sofaBand(SOFA.inner, SOFA.outer, 0.45),
-  sofaBand(SOFA.outer - 0.32, SOFA.outer, 0.85),
 
   // 침실: 침대와 협탁 둘과 바닥 조명과 안락의자와 옆 탁자와 스탠드 화면과 공기청정기와 고리 콘솔과 큰 화분
   onFloor(10.3, 12.5, -0.85, 1.3, 0.5),
   onFloor(9.85, 10.25, -0.8, -0.35, 0.45),
   onFloor(12.55, 12.95, -0.8, -0.35, 0.45),
-  onFloorAt(10.6, 4.8, 0.5, 0.42),
   onFloorAt(11.4, 5.0, 0.22, 0.45),
   onFloor(12.2, 13.0, 3.5, 3.7, 1.45),
   onFloorAt(13.4, 5.3, 0.16, 1),
@@ -416,6 +457,11 @@ const SURFACES: Surface[] = [
   onFloor(7.15, 7.8, -7.95, -7.45, 0.45),
   // 고양이 화장실 장
   onFloor(CAT_LITTER.minX, CAT_LITTER.maxX, CAT_LITTER.minZ, CAT_LITTER.maxZ, CAT_LITTER.top),
+  onFloor(
+    CAT_LITTER_CUSHION.x - CAT_LITTER_CUSHION.width / 2, CAT_LITTER_CUSHION.x + CAT_LITTER_CUSHION.width / 2,
+    CAT_LITTER_CUSHION.z - CAT_LITTER_CUSHION.depth / 2, CAT_LITTER_CUSHION.z + CAT_LITTER_CUSHION.depth / 2,
+    CAT_LITTER.top + CAT_LITTER_CUSHION.thickness,
+  ),
   onFloorAt(10.5, -6.6, 0.26, 0.5),
 ]
 
@@ -525,17 +571,8 @@ function contains(rect: Rect, x: number, z: number) {
 // 고양이 몸이 이 물건에 걸쳐 있는지 본다. 물건의 범위를 몸 폭의 절반만큼 넓혀서 검사한다.
 // margin은 범위를 넓히는 정도다. 주지 않으면 몸 폭의 절반(BODY)이다.
 function onSurface(surface: Surface, x: number, z: number, margin = BODY) {
-  const outside =
-    x < surface.minX - margin || x > surface.maxX + margin || z < surface.minZ - margin || z > surface.maxZ + margin
-  if (outside) return false
-  const arc = surface.arc
-  if (!arc) return true
-  const distance = Math.hypot(x - arc.x, z - arc.z)
-  const degree = (Math.atan2(z - arc.z, x - arc.x) * 180) / Math.PI
-  // 띠의 양 끝도 몸 폭만큼 넓힌다. 5도는 소파 반지름에서 약 0.22m다.
-  return (
-    distance >= arc.inner - BODY && distance <= arc.outer + BODY && degree >= arc.from - 5 && degree <= arc.to + 5
-  )
+  return x >= surface.minX - margin && x <= surface.maxX + margin &&
+    z >= surface.minZ - margin && z <= surface.maxZ + margin
 }
 
 // 고양이가 서 있는 자리의 바닥 높이를 구한다. 몸이 걸친 것 가운데 가장 높은 윗면을 돌려준다.
@@ -544,33 +581,12 @@ function onSurface(surface: Surface, x: number, z: number, margin = BODY) {
 // footY를 주지 않으면 떠 있는 발판을 뺀 높이를 돌려준다.
 // rising은 점프해서 올라가는 중인지다. 올라가는 중에는 발이 발판 윗면을 완전히 넘어야 그 발판을 바닥으로 친다.
 // margin은 가구 범위를 넓히는 폭이다. 고양이는 몸 폭의 절반(BODY)이고 장난감 공처럼 작은 것은 더 작게 준다.
-const coffeeTableSurface = coffeeTableHeights.map((row) =>
-  row.match(/../g)!.map((cell) => cell === '..' ? 0 : parseInt(cell, 16) / 100),
-)
-
-function coffeeTableHeight(x: number, z: number) {
-  const u = (x - COFFEE_TABLE.x) / 0.04 + (coffeeTableSurface[0].length - 1) / 2
-  const v = (z - COFFEE_TABLE.z) / 0.04 + (coffeeTableSurface.length - 1) / 2
-  let height = 0
-  let weightSum = 0
-  for (let row = Math.max(0, Math.ceil(v - 1)); row <= Math.min(coffeeTableSurface.length - 1, v + 1); row++) {
-    for (let col = Math.max(0, Math.ceil(u - 1)); col <= Math.min(coffeeTableSurface[row].length - 1, u + 1); col++) {
-      const sample = coffeeTableSurface[row][col]
-      if (!sample) continue
-      const weight = (1 - Math.abs(col - u)) * (1 - Math.abs(row - v))
-      height += weight * sample
-      weightSum += weight
-    }
-  }
-  return weightSum > 0 ? FLOOR_HEIGHT + DECK_HEIGHT + 0.021 + height / weightSum : -Infinity
-}
-
 export function groundHeight(x: number, z: number, footY = -Infinity, rising = false, margin = BODY) {
   let top = baseHeight(x, z)
   for (const surface of SURFACES) {
     if (surface.top > top && onSurface(surface, x, z, margin)) top = surface.top
   }
-  return Math.max(DECK_HEIGHT + top, coffeeTableHeight(x, z), floatingHeight(x, z, footY, FLOATING, rising))
+  return Math.max(DECK_HEIGHT + top, sampleLoungeFurniture(x, z), floatingHeight(x, z, footY, FLOATING, rising))
 }
 
 // 그 자리의 천장 높이를 돌려준다. 집 안이면 천장이고 밖이면 끝이 없다.
@@ -629,9 +645,91 @@ export function resolveMove(
 ): [number, number] {
   const grounded = footY <= groundHeight(currentX, currentZ, footY) + 0.001
   const reach = footY + (grounded ? STEP_UP : JUMP_GRACE)
-  const canStand = (x: number, z: number) => isWalkable(x, z, footY) && groundHeight(x, z, footY) <= reach
+  const furnitureHeight = sampleLoungeFurniture(currentX, currentZ)
+  // 좌판의 완만한 내리막이나 착지 직후에도 발이 표면에 가까우면 같은 좌판으로 본다.
+  const onLoungeFurniture = Math.abs(footY - furnitureHeight) <= surfaceContactTolerance
+  const onMainSeat = onLoungeFurniture &&
+    Math.abs(currentX - SOFA.x) < 1.59 && Math.abs(currentZ - SOFA.z) < SOFA.maxDepth / 2 &&
+    furnitureHeight < mainSeatLimit && footY < mainSeatLimit + surfaceContactTolerance
+  const furnitureReach = onMainSeat ? mainSeatLimit : onLoungeFurniture ? footY + JUMP_GRACE : footY
+  const collisionRadius = (onMainSeat ? 0.14 : BODY) / SOFA_SAMPLE
+  const overlapAt = (x: number, z: number) => sampleLoungeFurniture(x, z, collisionRadius, furnitureReach)
+  const currentOverlap = overlapAt(currentX, currentZ)
+  const hitsLoungeFurniture = (x: number, z: number) => {
+    const top = sampleLoungeFurniture(x, z)
+    // 메인 좌판 위에서는 장식 쿠션과 팔걸이를 걸어서 오르는 단으로 쓰지 않는다.
+    if (top > furnitureReach || (onMainSeat && top >= mainSeatLimit)) return true
+    const overlap = overlapAt(x, z)
+    // 착지하거나 내려오며 쿠션 가장자리에 겹쳤다면 겹침이 줄어드는 쪽으로 빠져나올 수 있다.
+    return overlap > 0 && overlap >= currentOverlap
+  }
+  const canStand = (x: number, z: number) => isWalkable(x, z, footY) &&
+    groundHeight(x, z, footY) <= reach && !hitsLoungeFurniture(x, z)
   if (canStand(nextX, nextZ)) return [nextX, nextZ]
+
+  const dx = nextX - currentX
+  const dz = nextZ - currentZ
+  if (onMainSeat && hitsLoungeFurniture(nextX, nextZ)) {
+    // 코너에서는 좌판 위에 남으며 입력 방향으로 전진하는 경로만 허용한다.
+    // 두 면 사이에서 반대 방향으로 보정돼 제자리로 돌아오는 것을 막는다.
+    if (Math.abs(currentX - SOFA.x) >= 0.72 && currentZ >= SOFA.z - 0.2) {
+      if (dz > 0 && Math.abs(dx) <= dz * 0.12) return [currentX, currentZ]
+      for (const angle of [25, -25, 50, -50, 75, -75]) {
+        const radians = angle * Math.PI / 180
+        const cos = Math.cos(radians)
+        const sin = Math.sin(radians)
+        const x = currentX + (cos * dx - sin * dz)
+        const z = currentZ + (sin * dx + cos * dz)
+        if (sampleLoungeFurniture(x, z) >= furnitureHeight - surfaceContactTolerance && canStand(x, z)) return [x, z]
+      }
+      return [currentX, currentZ]
+    }
+    // 등받이를 거의 정면으로 밀면 곡면의 좌우 보정이 번갈아 적용되지 않게 멈춘다.
+    if (currentZ > SOFA.z && dz > 0 && Math.abs(dx) <= dz * 0.12) return [currentX, currentZ]
+    // 등받이에 닿으면 겹침이 커지는 방향을 찾아, 그쪽으로 향하는 입력만 제거한다.
+    const probe = SOFA_SAMPLE / 2
+    const normalX = overlapAt(nextX + probe, nextZ) - overlapAt(nextX - probe, nextZ)
+    const normalZ = overlapAt(nextX, nextZ + probe) - overlapAt(nextX, nextZ - probe)
+    const normalLength = Math.hypot(normalX, normalZ)
+    if (normalLength > 0) {
+      const nx = normalX / normalLength
+      const nz = normalZ / normalLength
+      const inward = Math.max(0, dx * nx + dz * nz)
+      const slideX = dx - nx * inward
+      const slideZ = dz - nz * inward
+      if (Math.hypot(slideX, slideZ) > 0.002) {
+        for (const fraction of [1, 0.5]) {
+          const x = currentX + slideX * fraction - nx * 0.002
+          const z = currentZ + slideZ * fraction - nz * 0.002
+          if ((Math.abs(dx) < 0.002 || (x - currentX) * Math.sign(dx) >= Math.abs(dx) * 0.2) &&
+              canStand(x, z)) return [x, z]
+        }
+      }
+    }
+  }
   if (canStand(nextX, currentZ)) return [nextX, currentZ]
+  // 등받이가 좌판 쪽으로 굽는 부분에서는 옆걸음과 함께 조금 앞쪽으로 비켜야 한다.
+  if (onMainSeat && currentZ > SOFA.z && dz >= 0 && Math.abs(dx) > 0.002) {
+    for (const slope of [0.4, 0.8, 1.6]) {
+      const lateral = dx / Math.hypot(1, slope)
+      const x = currentX + lateral
+      const z = currentZ - Math.abs(lateral) * slope
+      const height = sampleLoungeFurniture(x, z)
+      if (height >= furnitureHeight - surfaceContactTolerance && canStand(x, z)) return [x, z]
+    }
+  }
   if (canStand(currentX, nextZ)) return [currentX, nextZ]
+
+  // 둥근 모서리에서는 X·Z 어느 축도 접선과 일치하지 않을 수 있다.
+  if (Math.min(Math.abs(dx), Math.abs(dz)) > 0.001 && hitsLoungeFurniture(nextX, nextZ)) {
+    for (const angle of [30, -30, 60, -60, 90, -90]) {
+      const radians = angle * Math.PI / 180
+      const cos = Math.cos(radians)
+      const sin = Math.sin(radians)
+      const x = currentX + (cos * dx - sin * dz) * 0.5
+      const z = currentZ + (sin * dx + cos * dz) * 0.5
+      if (canStand(x, z)) return [x, z]
+    }
+  }
   return [currentX, currentZ]
 }

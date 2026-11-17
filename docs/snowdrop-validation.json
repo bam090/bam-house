@@ -16,9 +16,16 @@
     {
       "name": "Sit",
       "samples": 181,
-      "minSurfaceY": -2.9076153096901404e-8,
-      "maxSurfaceY": 1.0357770536435094,
-      "startEndVertexGap": 0.31880027528384536
+      "minSurfaceY": -2.53483178593344e-8,
+      "maxSurfaceY": 1.0408549186389462,
+      "startEndVertexGap": 0.37288243291198864
+    },
+    {
+      "name": "Lie",
+      "samples": 181,
+      "minSurfaceY": -0.0011836070400035657,
+      "maxSurfaceY": 1.0000000071525572,
+      "startEndVertexGap": 0.3999999946824747
     },
     {
       "name": "Jump",

@@ -9,6 +9,7 @@ export function useKeyboard() {
     const keys = pressed.current
 
     const handleDown = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLElement && event.target.closest('input, select, textarea, button, [contenteditable="true"]')) return
       keys.add(event.code)
       // 방향키와 스페이스바가 페이지를 스크롤하지 않게 막는다.
       if (event.code.startsWith('Arrow') || event.code === 'Space') {

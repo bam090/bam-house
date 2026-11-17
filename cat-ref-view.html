@@ -1,0 +1,43 @@
+<!doctype html><meta charset="utf-8"><title>cat.fbx 참고 모델 보기</title>
+<body style="margin:0;background:#b9ab97">
+<canvas id="cv" style="width:100vw;height:100vh;display:block"></canvas>
+<script type="module">
+import * as T from 'three'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
+const cv=document.getElementById('cv')
+const R=new T.WebGLRenderer({canvas:cv,antialias:true})
+R.setPixelRatio(Math.min(2,devicePixelRatio))
+const S=new T.Scene();S.background=new T.Color('#b9ab97')
+const cam=new T.PerspectiveCamera(30,1,0.01,100)
+S.add(new T.HemisphereLight('#fff8ee','#a89880',1.6))
+const sun=new T.DirectionalLight('#fff1dc',2.5);sun.position.set(2.5,4,3);S.add(sun)
+const pivot=new T.Group();S.add(pivot)
+const info={loaded:false}
+window.__ref={info,cam,pivot,yaw:-0.75}
+new FBXLoader().load('/models/characters/skater-cat/cat.fbx',(obj)=>{
+  const box=new T.Box3().setFromObject(obj),size=box.getSize(new T.Vector3()),c=box.getCenter(new T.Vector3())
+  const k=1/size.y
+  obj.position.set(-c.x,-box.min.y,-c.z)
+  const wrap=new T.Group();wrap.add(obj);wrap.scale.setScalar(k);pivot.add(wrap)
+  const meshes=[],bones=[]
+  obj.traverse((o)=>{
+    if(o.isMesh||o.isSkinnedMesh){
+      o.geometry.computeBoundingBox()
+      const b=new T.Box3().setFromObject(o)
+      meshes.push({name:o.name,skinned:!!o.isSkinnedMesh,verts:o.geometry.attributes.position.count,min:b.min.toArray().map(v=>+(v*k).toFixed(3)),max:b.max.toArray().map(v=>+(v*k).toFixed(3)),mat:[].concat(o.material).map(m=>m.name+':'+(m.map?'map':'#'+m.color.getHexString()))})
+    }
+    if(o.isBone){const p=o.getWorldPosition(new T.Vector3());bones.push([o.name,+((p.x-c.x)*k).toFixed(3),+((p.y-box.min.y)*k).toFixed(3),+((p.z-c.z)*k).toFixed(3)])}
+  })
+  Object.assign(info,{loaded:true,size:size.toArray().map(v=>+v.toFixed(3)),norm:size.toArray().map(v=>+(v*k).toFixed(3)),meshes,bones,anims:obj.animations.map(a=>a.name+':'+a.duration.toFixed(2))})
+  window.__ref.obj=obj
+},undefined,(e)=>{info.error=String(e)})
+function loop(){
+  const w=cv.clientWidth,h=cv.clientHeight
+  if(cv.width!==w*R.getPixelRatio()){R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+  pivot.rotation.y=window.__ref.yaw
+  if(!window.__ref.manual){cam.position.set(0,0.7,3.2);cam.lookAt(0,0.5,0)}
+  R.render(S,cam);requestAnimationFrame(loop)
+}
+loop()
+</script>
+</body>

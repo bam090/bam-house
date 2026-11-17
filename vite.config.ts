@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rolldownOptions: {
-      input: { main: 'index.html', skaterCatWalk: 'skater-cat-walk-review.html', skaterReference: 'skater-cat-reference-review.html', snowdrop: 'snowdrop-review.html' },
+      input: { main: 'index.html', skaterCatWalk: 'skater-cat-walk-review.html', skaterReference: 'skater-cat-reference-review.html', snowdrop: 'snowdrop-review.html', snowdropStatic: 'snowdrop-static-poses.html' },
     },
   },
 })

@@ -293,6 +293,10 @@
       "duration": 1.3
     },
     {
+      "name": "Lie",
+      "duration": 1.5
+    },
+    {
       "name": "Jump",
       "duration": 1.5
     },
@@ -371,5 +375,10 @@
     ]
   },
   "maxReachError": 0,
-  "textureBytesPreserved": true
+  "textureBytesPreserved": true,
+  "deformation": {
+    "method": "dual-quaternion corrective shapes",
+    "smoothing": "30 Taubin pairs, no 260-pass shrinking",
+    "lieWristAngleLimitDegrees": 25
+  }
 }

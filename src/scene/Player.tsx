@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react'
+import type { RefObject } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Vector3 } from 'three'
 import type { Group } from 'three'
 import { readMove, readTilt, readTurn, useKeyboard } from '../hooks/useKeyboard'
 import { Cat } from './Cat'
+import { SnowdropCat } from './SnowdropCat'
+import { CAT_REVIEW_SPOTS, PLAYER_JUMP_SPEED, SNOWDROP_WALK_SPEED } from './cat-motion'
+import type { CatReviewSpot, CatCommand, CatTrialInput, CatVariant, PlayerStatus } from './cat-motion'
 import { catFocus, keepCameraInRoom } from './Occlusion'
-import { CAT_TALL, ceilingHeight, groundHeight, resolveMove } from './walkable'
+import { SOFA, SINGLE_SOFA, BEDROOM_CHAIR, COFFEE_TABLE, WAVE_SCRATCHER, CAT_TALL, ceilingHeight, followsFurnitureSlope, groundHeight, resolveMove } from './walkable'
 
 /** 고양이가 처음 서 있는 자리. 테라스의 오른쪽 앞이다. */
 export const START_POSITION: [number, number, number] = [7, 0, 13]
@@ -54,7 +58,7 @@ const DRAG_SENSITIVITY = 0.006
 const SPEED = 4
 
 /** 점프를 시작할 때 위로 올라가는 속도 */
-const JUMP_SPEED = 4.6
+const JUMP_SPEED = PLAYER_JUMP_SPEED
 
 /** 1초마다 아래로 당기는 속도의 크기 */
 const GRAVITY = 14
@@ -73,7 +77,11 @@ function shortestAngle(from: number, to: number) {
 }
 
 // 키보드 입력을 받아서 고양이를 움직이고 카메라가 뒤에서 따라가게 한다.
-export function Player() {
+export function Player({ variant, motionRef, commandRef, trialInputRef, reviewSpot, onModelError }: {
+  variant: CatVariant; motionRef: RefObject<PlayerStatus>; commandRef: RefObject<CatCommand>
+  trialInputRef: RefObject<CatTrialInput>
+  reviewSpot: { id: CatReviewSpot; tick: number } | null; onModelError: () => void
+}) {
   const cat = useRef<Group>(null)
   const reviewCamera = useRef<{ focus: Vector3; yaw: number; distance: number } | null>(null)
   const moving = useRef(false)
@@ -87,10 +95,38 @@ export function Player() {
   const distance = useRef(START_DISTANCE)
   // 위아래 방향의 속도. 점프하면 양수가 되고 중력 때문에 점점 줄어든다.
   const verticalSpeed = useRef(0)
+  const spaceWasDown = useRef(false)
+  const jumpOrigin = useRef(0)
+  const trackingJump = useRef(false)
   // 카메라가 기준으로 삼는 바닥 높이. 계단을 오를 때 화면이 덜컹거리지 않도록 천천히 따라간다.
   const cameraFloor = useRef(0)
   const canvas = useThree((state) => state.gl.domElement)
   const scene = useThree((state) => state.scene)
+
+  useEffect(() => { distance.current = variant === 'snowdrop' ? 2.8 : START_DISTANCE; commandRef.current = null }, [variant, commandRef])
+  useEffect(() => {
+    if (!reviewSpot || !cat.current) return
+    const spot = CAT_REVIEW_SPOTS[reviewSpot.id]
+    const floor = groundHeight(spot.x, spot.z)
+    cat.current.position.set(spot.x, floor, spot.z); cat.current.rotation.y = spot.yaw + Math.PI
+    cat.current.visible = true; verticalSpeed.current = 0; keys.current.clear(); commandRef.current = null
+    trialInputRef.current = { remaining: 0, forward: 0, jump: false }
+    trackingJump.current = false; motionRef.current.jumpPeak = 0
+    yaw.current = spot.yaw; pitch.current = .24; distance.current = 2.2; cameraFloor.current = floor
+    reviewCamera.current = null
+    lookAt.current.set(spot.x, floor + LOOK_HEIGHT, spot.z)
+  }, [reviewSpot, keys, commandRef, trialInputRef, motionRef])
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (variant !== 'snowdrop' || event.repeat || !['KeyX', 'KeyC'].includes(event.code)) return
+      if (event.target instanceof HTMLElement && event.target.closest('input, select, textarea, [contenteditable="true"]')) return
+      commandRef.current = event.code === 'KeyX' ? 'sit' : 'lie'
+      event.preventDefault()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [variant, commandRef])
 
   // 마우스나 손가락으로 화면을 끌면 시선이 좌우와 위아래로 돈다.
   useEffect(() => {
@@ -189,16 +225,27 @@ export function Player() {
     const sin = Math.sin(yaw.current)
     const cos = Math.cos(yaw.current)
     const move = readMove(keys.current)
+    const trial = trialInputRef.current
+    if (move.x || move.forward) trial.remaining = 0
+    else if (trial.remaining > 0) move.forward = trial.forward
+    trial.remaining = Math.max(0, trial.remaining - delta)
     // W를 누르면 카메라가 보는 쪽으로 가도록 입력을 시선 각도만큼 돌린다.
     const directionX = cos * move.x - sin * move.forward
     const directionZ = -sin * move.x - cos * move.forward
     const length = Math.hypot(directionX, directionZ)
-    moving.current = length > 0
+    const fromX = group.position.x
+    const fromZ = group.position.z
+    const spaceDown = keys.current.has('Space')
+    const jumpPressed = trial.jump || (spaceDown && (variant === 'legacy' || !spaceWasDown.current))
+    trial.jump = false
+    spaceWasDown.current = spaceDown
+    // 점프 중에도 같은 수평 이동 속도를 사용한다.
+    const speed = variant === 'snowdrop' ? SNOWDROP_WALK_SPEED : SPEED
 
     if (length > 0) {
       // 대각선으로 갈 때 더 빨라지지 않도록 방향의 길이를 1로 맞춘다.
-      const stepX = (directionX / length) * SPEED * delta
-      const stepZ = (directionZ / length) * SPEED * delta
+      const stepX = (directionX / length) * speed * delta
+      const stepZ = (directionZ / length) * speed * delta
       const [nextX, nextZ] = resolveMove(
         group.position.x,
         group.position.z,
@@ -214,22 +261,26 @@ export function Player() {
       const targetAngle = Math.atan2(directionX, directionZ)
       group.rotation.y += shortestAngle(group.rotation.y, targetAngle) * Math.min(1, delta * 12)
     }
+    moving.current = group.position.x !== fromX || group.position.z !== fromZ
 
     // 지금 서 있는 자리의 바닥 높이. 거실과 계단은 테라스보다 높다.
     // 발 높이를 함께 넘겨서 머리 위에 떠 있는 발판은 바닥으로 치지 않게 한다.
     // 올라가는 중인지도 넘긴다. 올라가는 중에는 발이 발판을 완전히 넘은 뒤에만 그 발판에 내려선다.
     const floor = groundHeight(group.position.x, group.position.z, group.position.y, verticalSpeed.current > 0)
     // 계단을 오를 때는 바닥보다 낮아진 만큼 바로 올려 세운다.
-    if (group.position.y < floor) {
+    if (group.position.y < floor || (moving.current && verticalSpeed.current === 0 &&
+        followsFurnitureSlope(fromX, fromZ, group.position.x, group.position.z, group.position.y, floor))) {
       group.position.y = floor
       verticalSpeed.current = 0
     }
 
     // 스페이스바를 누르면 점프한다. 바닥에 서 있을 때만 뛸 수 있다.
     const grounded = group.position.y <= floor
-    if (grounded && keys.current.has('Space')) {
+    if (grounded && jumpPressed) {
       verticalSpeed.current = JUMP_SPEED
+      jumpOrigin.current = group.position.y; motionRef.current.jumpPeak = 0; trackingJump.current = true
     }
+
     // 점프 중이거나 계단을 내려가서 발밑이 비었을 때는 중력으로 떨어진다.
     if (!grounded || verticalSpeed.current > 0) {
       // 중력으로 줄어들기 전과 후의 속도를 평균해서 높이를 옮긴다.
@@ -245,6 +296,23 @@ export function Player() {
         verticalSpeed.current = Math.min(verticalSpeed.current, 0)
       }
     }
+
+    Object.assign(motionRef.current, {
+      x: group.position.x, y: group.position.y, z: group.position.z,
+      speed: delta > 0 ? Math.hypot(group.position.x - fromX, group.position.z - fromZ) / delta : 0,
+      grounded: verticalSpeed.current === 0 && group.position.y <= floor + .001,
+      verticalSpeed: verticalSpeed.current,
+      nearObject: [SOFA, SINGLE_SOFA, BEDROOM_CHAIR, COFFEE_TABLE, WAVE_SCRATCHER].some(o => {
+        const dx = group.position.x - o.x, dz = group.position.z - o.z
+        const x = Math.abs(Math.cos(o.turn) * dx - Math.sin(o.turn) * dz)
+        const z = Math.abs(Math.sin(o.turn) * dx + Math.cos(o.turn) * dz)
+        const depth = 'maxDepth' in o ? o.maxDepth : o.width
+        return Math.hypot(Math.max(0, x - o.width / 2), Math.max(0, z - depth / 2)) < .65
+      }),
+    })
+    if (trackingJump.current && !motionRef.current.grounded) motionRef.current.jumpPeak = Math.max(motionRef.current.jumpPeak, group.position.y - jumpOrigin.current)
+    if (motionRef.current.grounded) trackingJump.current = false
+    if (variant === 'legacy') motionRef.current.pose = '기존 고양이'
 
     // 시야 가림 처리에 쓰도록 고양이 몸의 가운데 자리를 알린다.
     catFocus.set(group.position.x, group.position.y + 0.35, group.position.z)
@@ -267,11 +335,13 @@ export function Player() {
 
     lookAt.current.lerp(lookGoal, smoothing)
     state.camera.lookAt(lookAt.current)
-  })
+  }, -1)
 
   return (
     <group ref={cat} position={START_POSITION} rotation={[0, Math.PI, 0]}>
-      <Cat movingRef={moving} />
+      {variant === 'snowdrop'
+        ? <SnowdropCat moving={moving} motionRef={motionRef} commandRef={commandRef} onError={onModelError} />
+        : <Cat movingRef={moving} />}
     </group>
   )
 }

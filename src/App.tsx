@@ -1,9 +1,13 @@
 import { Canvas } from '@react-three/fiber'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Sky } from '@react-three/drei'
 import { House } from './scene/House'
 import { FadeBlockingWalls } from './scene/Occlusion'
 import { Landscape } from './scene/Landscape'
 import { CAMERA_OFFSET, Player, START_POSITION } from './scene/Player'
+import { CAT_REVIEW_SPOTS } from './scene/cat-motion'
+import type { CatReviewSpot } from './scene/cat-motion'
+import type { CatCommand, CatTrialInput, CatVariant, PlayerStatus } from './scene/cat-motion'
 import { Terrace } from './scene/Terrace'
 import { DECK_HEIGHT } from './scene/walkable'
 
@@ -18,9 +22,33 @@ const CAMERA_START: [number, number, number] = [
 ]
 
 function App() {
+  const [variant, setVariant] = useState<CatVariant>(() => new URLSearchParams(location.search).get('cat') === 'legacy' ? 'legacy' : 'snowdrop')
+  const [modelError, setModelError] = useState(false)
+  const [spot, setSpot] = useState<CatReviewSpot>('terrace')
+  const [reviewSpot, setReviewSpot] = useState<{ id: CatReviewSpot; tick: number } | null>(null)
+  const commandRef = useRef<CatCommand>(null)
+  const trialInputRef = useRef<CatTrialInput>({ remaining: 0, forward: 0, jump: false })
+  const motionRef = useRef<PlayerStatus>({ x: 7, y: 0, z: 13, speed: 0, grounded: true, verticalSpeed: 0, pose: '불러오는 중', jumpPeak: 0 })
+  const status = useRef<HTMLOutputElement>(null)
+  const changeCat = (next: CatVariant) => {
+    setVariant(next); setModelError(false)
+    const url = new URL(location.href); url.searchParams.set('cat', next); history.replaceState(null, '', url)
+  }
+  const modelFailed = useCallback(() => { setModelError(true); setVariant('legacy') }, [])
+  const poseCommand = (command: CatCommand) => {
+    commandRef.current = command
+    document.querySelector<HTMLCanvasElement>('canvas')?.focus()
+  }
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const m = motionRef.current
+      if (status.current) status.current.textContent = `${m.pose} · ${m.speed.toFixed(2)} m/s · ${m.grounded ? '지면' : '공중'}\n위치 ${m.x.toFixed(2)}, ${m.y.toFixed(2)}, ${m.z.toFixed(2)} · 점프 상승 ${m.jumpPeak.toFixed(2)}m`
+    }, 150)
+    return () => clearInterval(timer)
+  }, [])
   return (
     <>
-    <Canvas shadows dpr={[1, 1.5]} camera={{ position: CAMERA_START, fov: 45, near: 0.3, far: 3000 }}>
+    <Canvas shadows dpr={[1, 1.5]} camera={{ position: CAMERA_START, fov: 45, near: 0.3, far: 3000 }} onCreated={({ gl }) => { gl.domElement.tabIndex = 0; gl.domElement.setAttribute('aria-label', '밤하우스 플레이 화면') }}>
       {/* 낮 하늘 */}
       <Sky sunPosition={SUN_POSITION} turbidity={4} rayleigh={0.8} />
 
@@ -55,9 +83,20 @@ function App() {
         </FadeBlockingWalls>
       </group>
 
-      <Player />
+      <Player variant={variant} motionRef={motionRef} commandRef={commandRef} trialInputRef={trialInputRef} reviewSpot={reviewSpot} onModelError={modelFailed} />
     </Canvas>
-    <p className="hint">WASD 이동 · Space 점프 · 방향키나 드래그로 시선 전환 · 휠로 확대와 축소</p>
+    <section className="cat-trial" aria-label="고양이 시험 적용">
+      <label>고양이 <select aria-label="고양이 선택" value={variant} onChange={e => changeCat(e.target.value as CatVariant)}><option value="snowdrop">Snowdrop · 시험 적용</option><option value="legacy">기존 고양이</option></select></label>
+      {variant === 'snowdrop' && <div className="cat-trial-actions"><button onClick={() => poseCommand('sit')}>앉기 / 일어서기 (X)</button><button onClick={() => poseCommand('lie')}>눕기 / 일어서기 (C)</button></div>}
+      {modelError && <p role="status">모델을 불러오지 못해 기존 고양이로 전환했습니다.</p>}
+      <details><summary>시험 위치와 상태</summary>
+        <div className="cat-trial-actions"><select aria-label="확인 지점" value={spot} onChange={e => setSpot(e.target.value as CatReviewSpot)}>{Object.entries(CAT_REVIEW_SPOTS).map(([id, item]) => <option key={id} value={id}>{item.label}</option>)}</select><button onClick={() => setReviewSpot({ id: spot, tick: Date.now() })}>이동</button></div>
+        <div className="cat-trial-actions"><button onClick={() => { trialInputRef.current = { remaining: 2, forward: 1, jump: false } }}>앞으로 2초</button><button onClick={() => { trialInputRef.current = { remaining: 2, forward: -1, jump: false } }}>뒤로 2초</button></div>
+        <div className="cat-trial-actions"><button onClick={() => { trialInputRef.current = { remaining: 0, forward: 0, jump: true } }}>제자리 점프</button><button onClick={() => { trialInputRef.current = { remaining: .25, forward: 1, jump: true } }}>앞으로 점프</button></div>
+        <output ref={status} data-testid="player-status" />
+      </details>
+    </section>
+    <p className="hint">WASD 이동 · X 앉기 · C 눕기 · Space 점프 · 방향키나 드래그로 시선 전환 · 휠로 확대와 축소</p>
     </>
   )
 }

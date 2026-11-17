@@ -2,9 +2,10 @@ import { Suspense, useMemo } from 'react'
 import type { ComponentProps } from 'react'
 import { useLoader } from '@react-three/fiber'
 import { Box3, Group, Mesh, MeshStandardMaterial, Vector3 } from 'three'
+import type { Texture } from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
-function Model({ file, x, y = 0, z, turn = 0, width = Infinity, maxDepth = Infinity, height = Infinity, ivory = false, originalMaterial = false, pitch = 0, castShadow = true }: {
+function Model({ file, x, y = 0, z, turn = 0, width = Infinity, maxDepth = Infinity, height = Infinity, ivory = false, originalMaterial = false, pitch = 0, castShadow = true, envMap, envMapIntensity = 1 }: {
   file: string
   x: number
   y?: number
@@ -17,6 +18,8 @@ function Model({ file, x, y = 0, z, turn = 0, width = Infinity, maxDepth = Infin
   originalMaterial?: boolean
   pitch?: number
   castShadow?: boolean
+  envMap?: Texture
+  envMapIntensity?: number
 }) {
   const { scene } = useLoader(GLTFLoader, `${import.meta.env.BASE_URL}models/${file}`)
   const model = useMemo(() => {
@@ -35,17 +38,23 @@ function Model({ file, x, y = 0, z, turn = 0, width = Infinity, maxDepth = Infin
       if (object instanceof Mesh) {
         object.castShadow = castShadow
         object.receiveShadow = true
-        if (!originalMaterial && object.material instanceof MeshStandardMaterial) {
+        if ((!originalMaterial || envMap) && object.material instanceof MeshStandardMaterial) {
           const material = object.material.clone()
-          material.metalness = 0
-          // 라운지 소파의 노란 기를 줄이고 GLB에 들어 있는 부클레 결을 살린다.
-          if (ivory) material.color.setRGB(0.94, 0.98, 1.24)
+          if (!originalMaterial) {
+            material.metalness = 0
+            // 라운지 소파의 노란 기를 줄이고 GLB에 들어 있는 부클레 결을 살린다.
+            if (ivory) material.color.setRGB(0.94, 0.98, 1.24)
+          }
+          if (envMap) {
+            material.envMap = envMap
+            material.envMapIntensity = envMapIntensity
+          }
           object.material = material
         }
       }
     })
     return furniture
-  }, [scene, width, maxDepth, height, ivory, originalMaterial, pitch, castShadow])
+  }, [scene, width, maxDepth, height, ivory, originalMaterial, pitch, castShadow, envMap, envMapIntensity])
 
   return (
     <group position={[x, y, z]} rotation={[0, turn, 0]}>

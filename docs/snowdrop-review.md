@@ -1,10 +1,9 @@
 # Snowdrop 외형과 상호작용용 리그
 
-2026-11-16. 사용자가 제공한 `Meshy_AI_Snowdrop_1116030454_texture.glb`를 별도 작업본으로 연결했다. 밤하우스 씬과 기존 Skater Cat 파일은 변경하지 않았다.
+2026-11-16. 사용자가 제공한 `Meshy_AI_Snowdrop_1116030454_texture.glb`를 별도 작업본으로 연결했다. 이 문서는 최초 별도 미리보기 기록이다. 이후 씬 시험 적용과 귀·앉기·눕기 수정은 [최신 시험 기록](snowdrop-house-trial.md)을 참고한다. 기존 Skater Cat 원본은 보존했다.
 
 ## 확인하기
 
-- 빌드 미리보기: http://127.0.0.1:5189/snowdrop-review.html
 - 개발 미리보기: http://127.0.0.1:5173/snowdrop-review.html
 - 작업본: `public/models/characters/snowdrop/snowdrop-interactions.glb`
 - Blender 작업본: `public/models/characters/snowdrop/snowdrop-interactions.blend`
@@ -35,6 +34,7 @@ JonasDichelle의 기존 리그에서 사용할 뼈 역할을 골라 새 모델�
 |---|---:|---|
 | Walk | 1.125초 | 반복 제자리 걷기 |
 | Sit | 1.3초 | 앉은 뒤 마지막 자세 유지 |
+| Lie | 1.5초 | 누운 뒤 마지막 자세 유지 |
 | Jump | 1.5초 | 웅크리기·도약·착지 후 기본 자세 복귀 |
 | EarFlick | 0.72초 | 좌우 귀를 짧게 털고 기본 자세 복귀 |
 
@@ -60,7 +60,7 @@ Blender 파일은 외형 검토를 위해 Rest Position으로 저장했다. 동�
 
 변경 JavaScript의 oxlint 검사와 `npm run build`가 통과했다. 빌드에는 기존 대형 번들 경고가 남아 있다. Blender에서도 28개 뼈와 네 액션이 들어 있는 사본을 저장했다.
 
-아직 구현하지 않은 범위는 밥 먹기·눕기 클립, 오브제 위치와 높이에 맞추는 기능, 게임 이동·충돌·점프 물리다. 원본 메시의 수염은 얇은 표면 형태이며 아주 가까이 보면 리본처럼 보일 수 있다.
+아직 구현하지 않은 범위는 밥 먹기 클립과 오브제별 자세 정렬이다. 눕기와 씬 이동·점프 연결은 후속 시험 적용에서 추가했다. 원본 메시의 수염은 얇은 표면 형태이며 아주 가까이 보면 리본처럼 보일 수 있다.
 
 ## 재생성과 원본 보존
 

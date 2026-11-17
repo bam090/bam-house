@@ -1,7 +1,7 @@
 // 걷기 규칙이 정해 둔 조건을 지키는지 숫자로 검사하는 스크립트다.
 // 실행 방법: node scripts/check-walk.ts
 // 주요 지점의 바닥 높이와 지나갈 수 없는 자리를 보고 고양이를 실제 계산과 같은 순서로 움직여서 점프 길을 확인한다.
-import { BODY, CAT_TALL, DECK_HEIGHT, FLOOR_HEIGHT, POOL_WATER, ceilingHeight, floatingHeight, groundHeight, isWalkable, resolveMove } from '../src/scene/walkable.ts'
+import { BODY, CAT_LITTER, CAT_LITTER_CUSHION, CAT_TALL, DECK_HEIGHT, FLOOR_HEIGHT, POOL_WATER, BEDROOM_CHAIR, SINGLE_SOFA, ceilingHeight, floatingHeight, followsFurnitureSlope, groundHeight, isWalkable, resolveMove } from '../src/scene/walkable.ts'
 
 // Player.tsx와 같은 값이다. 그 파일의 값을 바꾸면 여기도 함께 바꾼다.
 const SPEED = 4
@@ -34,20 +34,25 @@ const heights: [string, number, number, number][] = [
   ['조리대', -7.4, 1.2, FLOOR + 0.95],
   ['주방 수전 꼭대기', -7.5, 0.5, FLOOR + 1.45],
   ['냉장고 위', -7.3, -0.4, FLOOR + 2.25],
-  ['소파 방석', 1.5, 0.7, FLOOR + 0.45],
-  ['소파 등받이', 1.5, 1.3, FLOOR + 0.85],
-  ['소파 안쪽 러그', 1.5, 0.2, FLOOR],
+  ['메인 소파 좌판', 1.5, 1.25, FLOOR + 0.461],
+  ['1인용 소파 좌판', -1, -1.07, FLOOR + 0.621],
+  ['메인 소파 등받이', 1.5, 2.0, FLOOR + 0.829],
+  ['소파 왼쪽 통로', -0.8, 1.05, FLOOR],
+  ['소파 오른쪽 통로', 3.8, 1.05, FLOOR],
+  ['소파 뒤쪽 통로', 1.5, 2.22, FLOOR],
+  ['소파 앞쪽 러그', 1.5, -0.06, FLOOR],
   ['커피 테이블', 1.5, -0.85, FLOOR + 0.571],
   ['TV 아래 낮은 장', 1.5, -5.2, FLOOR + 0.7],
   ['통유리창 앞 바닥', -6, -5.4, FLOOR],
   ['침대', 11.4, 0.5, FLOOR + 0.5],
   ['협탁', 10.05, -0.5, FLOOR + 0.45],
-  ['안락의자', 10.6, 4.8, FLOOR + 0.42],
+  ['안락의자', 10.6, 4.8, FLOOR + 0.53],
   ['욕조 돌 턱', 12.4, -4.3, FLOOR + 0.55],
   ['세면대', 7.6, -4, FLOOR + 0.9],
   ['나무 스툴', 10.6, -1.5, FLOOR + 0.45],
   ['변기', 7.6, -7.7, FLOOR + 0.45],
-  ['고양이 화장실 장', 9.2, -8, FLOOR + 0.65],
+  ['고양이 화장실 장 상판', 10.3, -8, FLOOR + CAT_LITTER.top],
+  ['고양이 화장실 장 방석', CAT_LITTER_CUSHION.x, CAT_LITTER_CUSHION.z, FLOOR + CAT_LITTER.top + CAT_LITTER_CUSHION.thickness],
   ['수영장 테두리', 0, 8.35, DECK_HEIGHT + 0.3],
   ['선베드', 5.55, 10, DECK_HEIGHT + 0.47],
   ['데크 돌 벤치', -7.4, 13.3, DECK_HEIGHT + 0.55],
@@ -101,6 +106,8 @@ interface Cat {
 
 // 한 화면만큼 움직인다. Player.tsx의 useFrame과 같은 순서로 계산한다.
 function frame(cat: Cat, directionX: number, directionZ: number, jump: boolean) {
+  const fromX = cat.x
+  const fromZ = cat.z
   const length = Math.hypot(directionX, directionZ)
   if (length > 0) {
     const stepX = (directionX / length) * SPEED * FRAME
@@ -110,7 +117,7 @@ function frame(cat: Cat, directionX: number, directionZ: number, jump: boolean) 
     cat.z = nextZ
   }
   const floor = groundHeight(cat.x, cat.z, cat.y, cat.speed > 0)
-  if (cat.y < floor) {
+  if (cat.y < floor || (cat.speed === 0 && followsFurnitureSlope(fromX, fromZ, cat.x, cat.z, cat.y, floor))) {
     cat.y = floor
     cat.speed = 0
   }
@@ -165,6 +172,136 @@ for (const rate of [60, 30, 20]) {
   check(`거실 바닥에서 냉장고 위까지 점프 길(1초에 ${rate}번)`, routePassed, routeLog.join(' → '))
 }
 FRAME = 1 / 60
+
+const litterX = 10.01
+const litterZ = CAT_LITTER_CUSHION.z
+const litterCat: Cat = { x: litterX, z: -7, y: FLOOR, speed: 0 }
+go(litterCat, litterX, litterZ, false)
+const litterGap = litterCat.z - CAT_LITTER.maxZ
+check('화장실 장 앞에서 걸음 멈춤', near(litterCat.y, FLOOR) && litterGap >= BODY && litterGap < BODY + SPEED * FRAME,
+  `앞면에서 ${litterGap.toFixed(2)}m 떨어져 멈춤`)
+go(litterCat, litterX, litterZ, true)
+check('화장실 장 상판에 점프 착지', Math.abs(litterCat.z - litterZ) < SPEED * FRAME && near(litterCat.y, FLOOR + CAT_LITTER.top),
+  `높이 ${(litterCat.y - FLOOR).toFixed(2)}m`)
+go(litterCat, CAT_LITTER_CUSHION.x, litterZ, false)
+check('화장실 장 상판에서 방석에 올라섬',
+  Math.abs(litterCat.x - CAT_LITTER_CUSHION.x) < SPEED * FRAME && near(litterCat.y, FLOOR + CAT_LITTER.top + CAT_LITTER_CUSHION.thickness),
+  `높이 ${(litterCat.y - FLOOR).toFixed(2)}m`)
+go(litterCat, CAT_LITTER_CUSHION.x, -7, false)
+check('화장실 장에서 바닥으로 내려옴', Math.abs(litterCat.z + 7) < SPEED * FRAME && near(litterCat.y, FLOOR),
+  `높이 ${(litterCat.y - FLOOR).toFixed(2)}m`)
+
+const litterPass = { x: 9.65, z: -5.35, y: FLOOR, speed: 0 }
+const litterPath = [[9.65, -6.57], [8.79, -6.57], [8.79, litterZ]]
+let litterPasses = true
+for (const [x, z] of [...litterPath, ...litterPath.slice(0, -1).reverse(), [9.65, -5.35]]) {
+  go(litterPass, x, z, false)
+  litterPasses &&= Math.hypot(litterPass.x - x, litterPass.z - z) < SPEED * FRAME && near(litterPass.y, FLOOR)
+}
+check('욕실 문에서 화장실 장 측면까지 바닥으로 왕복', litterPasses, `도착 z ${litterPass.z.toFixed(2)}m`)
+
+const sofaRoutes = [
+  { name: '메인 소파', x: 1.5, z: 1.25, dx: 0, dz: -1, seat: 0.461 },
+  { name: '1인용 소파', ...SINGLE_SOFA, dx: Math.sin(SINGLE_SOFA.turn), dz: Math.cos(SINGLE_SOFA.turn), seat: 0.621 },
+  { name: '침실 안락의자', ...BEDROOM_CHAIR, dx: 0, dz: 1, seat: 0.53 },
+
+]
+for (const rate of [60, 30, 20]) {
+  FRAME = 1 / rate
+  for (const { name, x, z, dx, dz, seat } of sofaRoutes) {
+    const cat: Cat = { x: x + dx * 0.83, z: z + dz * 0.83, y: FLOOR, speed: 0 }
+    go(cat, x, z, false)
+    const distance = Math.hypot(cat.x - x, cat.z - z)
+    check(`${name} 앞에서 걸음 멈춤 (${rate}fps)`,
+      near(cat.y, FLOOR) && distance > 0.25 && distance <= 0.84, `목표까지 ${distance.toFixed(2)}m`)
+    go(cat, x, z, true)
+    check(`${name} 좌판에 점프 착지 (${rate}fps)`,
+      Math.hypot(cat.x - x, cat.z - z) < SPEED * FRAME && Math.abs(cat.y - FLOOR - seat) < 0.025,
+      `높이 ${(cat.y - FLOOR).toFixed(3)}m`)
+  }
+}
+FRAME = 1 / 60
+
+const cornerCat: Cat = { x: 0.30, z: 0.29, y: FLOOR, speed: 0 }
+let cornerOnFloor = true
+for (let count = 0; count < 36; count += 1) {
+  frame(cornerCat, -1, 0.55, false)
+  cornerOnFloor &&= near(cornerCat.y, FLOOR) && near(groundHeight(cornerCat.x, cornerCat.z), FLOOR)
+}
+check('메인 소파 앞 모서리를 대각선으로 돌아감', cornerOnFloor && cornerCat.x < -1,
+  `도착 위치 (${cornerCat.x.toFixed(2)}, ${cornerCat.z.toFixed(2)})`)
+
+const seatCat: Cat = { x: 1.5, z: 1.25, y: FLOOR + 0.461, speed: 0 }
+for (let count = 0; count < 36; count += 1) frame(seatCat, 0, -1, false)
+check('메인 소파 좌판에서 걸어서 내려옴', seatCat.z < 0.38 && near(seatCat.y, FLOOR),
+  `도착 z ${seatCat.z.toFixed(2)}m, 높이 ${(seatCat.y - FLOOR).toFixed(2)}m`)
+
+const lowSeatZ = 1.12
+const lowSeatX = 1.37
+const lowSeatY = groundHeight(lowSeatX, lowSeatZ)
+const [settlingX] = resolveMove(lowSeatX, lowSeatZ, lowSeatX + 0.055, lowSeatZ, lowSeatY + 0.025)
+check('낮은 좌판에 착지하는 중에도 옆으로 계속 움직임', near(settlingX, lowSeatX + 0.055),
+  `이동 거리 ${(settlingX - lowSeatX).toFixed(3)}m`)
+
+for (const rate of [60, 30, 20]) {
+  FRAME = 1 / rate
+  const cat: Cat = { x: 1, z: lowSeatZ, y: groundHeight(1, lowSeatZ), speed: 0 }
+  let continuous = true
+  for (const direction of [1, -1]) {
+    for (let step = 0; step < Math.floor(0.28 * rate); step++) {
+      const { x, y } = cat
+      frame(cat, direction, 0, false)
+      continuous &&= near((cat.x - x) * direction, SPEED * FRAME) && cat.speed === 0 && Math.abs(cat.y - y) < 0.06
+    }
+  }
+  check(`메인 소파 좌판 양방향 이동 (${rate}fps)`, continuous, `왕복 후 x ${cat.x.toFixed(2)}m`)
+}
+FRAME = 1 / 60
+
+const backrestCat: Cat = { x: 0.8, z: 1.35, y: groundHeight(0.8, 1.35), speed: 0 }
+for (let count = 0; count < 25; count += 1) frame(backrestCat, 0, 1, false)
+const stoppedAtBackrest = backrestCat.z < 1.7 && backrestCat.y < FLOOR + 0.55
+const stoppedZ = backrestCat.z
+for (let count = 0; count < 60; count += 1) frame(backrestCat, 0, 1, false)
+check('등받이를 정면으로 계속 밀어도 제자리에 멈춤', near(backrestCat.x, 0.8) && near(backrestCat.z, stoppedZ),
+  `정지 위치 (${backrestCat.x.toFixed(3)}, ${backrestCat.z.toFixed(3)})`)
+for (let count = 0; count < 8; count += 1) frame(backrestCat, 0, -1, false)
+check('등받이를 걸어 오르지 않고 앞쪽으로 물러남', stoppedAtBackrest && backrestCat.z < 1.25,
+  `물러난 뒤 z ${backrestCat.z.toFixed(2)}m`)
+
+for (const direction of [-1, 1]) {
+  const cat: Cat = { x: 1.5, z: 1.45, y: groundHeight(1.5, 1.45), speed: 0 }
+  let continuous = true
+  for (let step = 0; step < 17; step++) {
+    const x = cat.x
+    frame(cat, direction, 0.9, false)
+    continuous &&= (cat.x - x) * direction > 0.002 && cat.y > FLOOR + 0.35 && cat.y < FLOOR + 0.56
+  }
+  check(`등받이에 비비며 ${direction > 0 ? '오른쪽' : '왼쪽'}으로 이동`, continuous && Math.abs(cat.x - 1.5) > 0.5,
+    `도착 위치 (${cat.x.toFixed(2)}, ${cat.z.toFixed(2)})`)
+}
+
+const armCornerCat: Cat = { x: 2.35, z: 1.29, y: groundHeight(2.35, 1.29), speed: 0 }
+for (let step = 0; step < 25; step++) frame(armCornerCat, 0.5, 0.866, false)
+const { x: cornerStopX, z: cornerStopZ } = armCornerCat
+for (let step = 0; step < 60; step++) frame(armCornerCat, 0.5, 0.866, false)
+const heldAtCorner = near(armCornerCat.x, cornerStopX) && near(armCornerCat.z, cornerStopZ)
+for (let step = 0; step < 8; step++) frame(armCornerCat, -0.5, -0.866, false)
+check('팔걸이 안쪽 코너에서 좌판을 따라 움직이고 빠져나옴', heldAtCorner && cornerStopZ > 1.44 && armCornerCat.z < cornerStopZ - 0.2,
+  `정지 위치 (${cornerStopX.toFixed(3)}, ${cornerStopZ.toFixed(3)})`)
+
+for (const [name, x, z, targetX, targetZ] of [
+  ['탁자와 메인 소파 사이', 0.2, 0.02, 3.2, 0.02],
+  ['메인 소파 뒤', -0.6, 2.62, 3.6, 2.62],
+  ['두 소파 사이', -1.5, -0.12, 0.35, -0.12],
+  ['메인 소파 오른쪽 끝과 쿠션 바깥', 4.9, 0.05, 4.9, 2.6],
+  ['메인 소파 왼쪽 끝', -0.65, -0.12, -0.65, 2.6],
+] as const) {
+  const cat: Cat = { x, z, y: FLOOR, speed: 0 }
+  go(cat, targetX, targetZ, false)
+  check(`${name} 통과`, Math.hypot(cat.x - targetX, cat.z - targetZ) < SPEED * FRAME && near(cat.y, FLOOR),
+    `도착 위치 (${cat.x.toFixed(2)}, ${cat.z.toFixed(2)})`)
+}
 
 // 4. 바닥에서 바로 오를 수 없어야 하는 곳
 const direct: [string, number, number, number, number][] = [

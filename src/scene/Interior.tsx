@@ -2,15 +2,16 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { CanvasTexture, Path, SRGBColorSpace, Shape } from 'three'
 import type { Group } from 'three'
-import { Box } from './Box'
 import { LivingRoomModel } from './LivingRoomModel'
+import { Box } from './Box'
 import { CatWays } from './CatWays'
 import { WingRooms } from './InteriorRooms'
 import { Decor } from './Decor'
 import { Lamps } from './Lamps'
 import { palette } from './palette'
-import { Cylinder, Extruded, FACE_X, Faucet, Glow, LAY_FLAT, arcBand } from './Shapes'
-import { CEILING_HEIGHT, COFFEE_TABLE, HOUSE, SOFA } from './walkable'
+import { Cylinder, Extruded, FACE_X, Faucet, Glow, LAY_FLAT } from './Shapes'
+import { CEILING_HEIGHT, COFFEE_TABLE, HOUSE, SINGLE_SOFA, SOFA } from './walkable'
+import { SOFA_BASE } from './sofa-collider'
 
 // 집 안의 가구를 그리는 파일이다. 좌표는 장면 좌표이고 높이는 거실 바닥에서 잰 값이다.
 // 자리와 크기는 docs/house-spec.md 4번과 같다. 걷기 규칙(walkable.ts)의 윗면 높이도 같은 값을 쓴다.
@@ -411,43 +412,14 @@ function CurvedBookcase() {
   )
 }
 
-// 초승달 소파와 통나무 탁자와 러그
+// 소파와 통나무 탁자와 러그
 function Lounge() {
-  const { x, z, inner, outer, from, to } = SOFA
-  const shapes = useMemo(() => {
-    return {
-      base: arcBand(x, z, inner, outer, from, to),
-      seat: arcBand(x, z, inner + 0.03, outer - 0.3, from + 1, to - 1),
-      shell: arcBand(x, z, outer - 0.1, outer, from, to),
-      back: arcBand(x, z, outer - 0.32, outer - 0.1, from + 1, to - 1),
-      // 방석과 나무 껍데기 사이의 빈틈을 메우는 띠. 이것이 없으면 소파 양 끝 단면에 네모난 구멍이 보인다.
-      filler: arcBand(x, z, outer - 0.3, outer - 0.1, from + 1, to - 1),
-    }
-  }, [x, z, inner, outer, from, to])
-
   return (
     <group>
-      <Box size={[6.2, 0.02, 5.2]} position={[1.5, 0.011, -0.4]} color={palette.rugLiving} castShadow={false} />
-      {/* 나무 몸통 위에 방석을 얹고 바깥 가장자리에 등받이를 세운다. 방석 윗면이 0.45m다. */}
-      <Extruded shape={shapes.base} depth={0.23} position={[0, 0.02, 0]} rotation={LAY_FLAT} color={palette.sofaWood} />
-      <Extruded shape={shapes.seat} depth={0.2} position={[0, 0.25, 0]} rotation={LAY_FLAT} color={palette.fabric} />
-      <Extruded shape={shapes.shell} depth={0.6} position={[0, 0.25, 0]} rotation={LAY_FLAT} color={palette.sofaWood} />
-      <Extruded shape={shapes.filler} depth={0.2} position={[0, 0.25, 0]} rotation={LAY_FLAT} color={palette.fabric} />
-      <Extruded shape={shapes.back} depth={0.38} position={[0, 0.45, 0]} rotation={LAY_FLAT} color={palette.fabric} />
-      {/* 양 끝의 그린 쿠션 */}
-      {[from + 7, to - 7].map((degree) => {
-        const angle = (degree * Math.PI) / 180
-        return (
-          <Box
-            key={degree}
-            size={[0.46, 0.36, 0.16]}
-            position={[x + Math.cos(angle) * 2.56, 0.64, z + Math.sin(angle) * 2.56]}
-            rotation={[0, Math.PI / 2 - angle, 0]}
-            color={palette.green}
-          />
-        )
-      })}
-      <LivingRoomModel file="living-room/coffee-table/coffee-table-pale-wood-sculptural.glb" {...COFFEE_TABLE} y={0.021} />
+      <Box size={[6.2, 0.02, 5.2]} position={[1.5, SOFA_BASE - 0.01, -0.4]} color={palette.rugLiving} castShadow={false} />
+      <LivingRoomModel file="living-room/main-sofa/curved-boucle-wood-base/main-sofa-curved-boucle-wood-base-light-wood.glb" {...SOFA} y={SOFA_BASE} originalMaterial />
+      <LivingRoomModel file="living-room/lounge-chair/cream-boucle-wood-frame/lounge-chair-cream-boucle-wood-frame-main-sofa-palette.glb" {...SINGLE_SOFA} y={SOFA_BASE} originalMaterial />
+      <LivingRoomModel file="living-room/coffee-table/coffee-table-pale-wood-sculptural.glb" {...COFFEE_TABLE} y={SOFA_BASE} />
     </group>
   )
 }

@@ -36,3 +36,30 @@ canvas {
   white-space: nowrap;
   pointer-events: none;
 }
+
+.cat-trial {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  max-width: calc(100vw - 56px);
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 253, 247, 0.94);
+  color: #34403d;
+  font-size: 13px;
+  box-shadow: 0 2px 12px #0001;
+}
+.cat-trial select, .cat-trial button {
+  border: 1px solid #c6cbc2;
+  border-radius: 6px;
+  padding: 7px 9px;
+  background: #fffdf8;
+  color: inherit;
+  font: inherit;
+}
+.cat-trial-actions { display: flex; gap: 6px; margin-top: 8px; }
+.cat-trial details { margin-top: 10px; }
+.cat-trial summary { cursor: pointer; }
+.cat-trial output { display: block; margin-top: 8px; white-space: pre-line; font-variant-numeric: tabular-nums; line-height: 1.6; }
+.cat-trial p { margin: 8px 0 0; }
+@media (max-width: 700px) { .hint { max-width: calc(100vw - 64px); white-space: normal; text-align: center; font-size: 12px; bottom: 12px; } }
