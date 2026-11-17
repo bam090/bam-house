@@ -28,7 +28,7 @@ function App() {
   const [reviewSpot, setReviewSpot] = useState<{ id: CatReviewSpot; tick: number } | null>(null)
   const commandRef = useRef<CatCommand>(null)
   const trialInputRef = useRef<CatTrialInput>({ remaining: 0, forward: 0, jump: false })
-  const motionRef = useRef<PlayerStatus>({ x: 7, y: 0, z: 13, speed: 0, grounded: true, verticalSpeed: 0, pose: '불러오는 중', jumpPeak: 0 })
+  const motionRef = useRef<PlayerStatus>({ x: 7, y: 0, z: 13, speed: 0, grounded: true, verticalSpeed: 0, pose: '불러오는 중', jumpPeak: 0, movementBlocked: false })
   const status = useRef<HTMLOutputElement>(null)
   const changeCat = (next: CatVariant) => {
     setVariant(next); setModelError(false)

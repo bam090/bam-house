@@ -19,8 +19,8 @@ export const PLAYER_JUMP_SPEED = 4.6
 export type CatVariant = 'snowdrop' | 'legacy'
 export type CatCommand = 'sit' | 'lie' | 'ears' | null
 export interface CatTrialInput { remaining: number; forward: number; jump: boolean }
-export interface CatMotion { speed: number; grounded: boolean; verticalSpeed: number; nearObject?: boolean }
-export interface PlayerStatus extends CatMotion { x: number; y: number; z: number; pose: string; jumpPeak: number }
+export interface CatMotion { speed: number; grounded: boolean; verticalSpeed: number; nearObject?: boolean; moveRequested?: boolean }
+export interface PlayerStatus extends CatMotion { x: number; y: number; z: number; pose: string; jumpPeak: number; movementBlocked: boolean }
 
 // 점프 위치는 Player 물리에서만 올린다. 클립에는 웅크리는 움직임만 남긴다.
 export function jumpWithoutLift(clip: AnimationClip, restY: number) {
@@ -82,9 +82,16 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
   let restPose: 'Sit' | 'Lie' = 'Sit', resting = false, idleTime = 0, cooldown = 0, nearBefore = false
   let nextIdle = 8 + Math.random() * 6
   return {
+    get movementBlocked() {
+      // 전환 중 남아 있는 다른 휴식 자세의 블렌드까지 풀려야 위치를 이동한다.
+      return wasGrounded && (resting || poseTime > 0 ||
+        actions.Sit.time * actions.Sit.getEffectiveWeight() > .001 ||
+        actions.Lie.time * actions.Lie.getEffectiveWeight() > .001)
+    },
     update(dt: number, motion: CatMotion, command: CatCommand) {
       const moving = motion.speed > .005
-      if ((command === 'sit' || command === 'lie') && motion.grounded && !moving) {
+      const wantsToMove = moving || motion.moveRequested
+      if ((command === 'sit' || command === 'lie') && motion.grounded && !wantsToMove) {
         const next = command === 'sit' ? 'Sit' : 'Lie'
         // A reversing command must not jump the time of a pose that still contributes to the mesh.
         if (next !== restPose) poseTime = resting
@@ -93,8 +100,8 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
         resting = next !== restPose || !resting
         restPose = next
       }
-      if (moving || !motion.grounded) resting = false
-      idleTime = moving || !motion.grounded ? 0 : idleTime + dt
+      if (wantsToMove || !motion.grounded) resting = false
+      idleTime = wantsToMove || !motion.grounded ? 0 : idleTime + dt
       cooldown = Math.max(0, cooldown - dt)
       const approaching = !!motion.nearObject && !nearBefore
       nearBefore = !!motion.nearObject
@@ -115,7 +122,8 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
           actions.Jump.time = actions.Jump.getClip().duration * (.72 + .28 * landing / .18)
         } else {
           poseTime = Math.max(0, Math.min(actions[restPose].getClip().duration, poseTime + dt * (resting ? 1 : -2.2)))
-          if (poseTime > 0) { target = restPose; label = resting ? restPose === 'Sit' ? '앉기' : '눕기' : '일어서기'; actions[restPose].time = poseTime }
+          actions[restPose].time = poseTime
+          if (poseTime > 0) { target = restPose; label = resting ? restPose === 'Sit' ? '앉기' : '눕기' : '일어서기' }
           else if (moving) {
             target = 'Walk'; label = '걷기'
             // shortcut: 빠른 이동에서는 발 미끄러짐이 남는다. 달리기를 추가할 때 보폭을 다시 맞춘다.

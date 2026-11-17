@@ -14,7 +14,7 @@ const gltf = await new GLTFLoader().parseAsync(JSON.stringify(json), '')
 const model = gltf.scene, spine = model.getObjectByName('Spine')!, head = model.getObjectByName('Head')!
 const restY = spine.position.y
 const sourceSpeed = model.getObjectByName('Snowdrop')!.userData.gait.speed
-const motion = { speed: 0, grounded: true, verticalSpeed: 0, nearObject: false }
+const motion = { speed: 0, grounded: true, verticalSpeed: 0, nearObject: false, moveRequested: false }
 const savedRandom = Math.random; let randomSeed = 12345
 // 고정 상수는 Three의 클립 UUID까지 같게 만들어 다른 동작이 같은 액션을 공유한다.
 Math.random = () => ((randomSeed = (1664525 * randomSeed + 1013904223) >>> 0) / 2 ** 32)
@@ -100,5 +100,45 @@ try {
   const ys = jump.tracks.find(t => t.name === 'Spine.position')!.values.filter((_, i) => i % 3 === 1)
   assert(Math.max(...ys) <= restY+.000001)
   assert.equal(jumpFlightPhase(4.6), .28); assert.equal(jumpFlightPhase(0), .5); assert.equal(jumpFlightPhase(-4.6), .72)
+  const standBeforeWalk = (expected: string) => {
+    assert(animation.movementBlocked, `${expected}: 휴식 중 이동이 허용됨`)
+    let waitingFrames = 0, distance = 0
+    motion.moveRequested = true
+    for (let frame = 0; frame < 120; frame++) {
+      const blocked = animation.movementBlocked
+      motion.speed = blocked ? 0 : SNOWDROP_WALK_SPEED
+      if (!blocked && distance === 0) {
+        assert(Math.abs(spine.position.y - restY) < .002, `${expected}: 일어서기 전에 이동 시작`)
+        model.updateMatrixWorld(true)
+        for (let i = 2; i < 4; i++) {
+          const goal = model.getObjectByName(`CatGoal_${i}_foot`)!
+          assert(goal.position.y < .04, `${expected}: 뒷발을 들고 이동 시작`)
+        }
+      }
+      const label = step(1)
+      if (blocked) { waitingFrames++; assert(!label.startsWith('걷기'), `${expected}: 일어서기 중 걷기 재생`) }
+      distance += motion.speed / 60
+    }
+    assert(waitingFrames > 5 && waitingFrames < 90, `${expected}: 이동 대기 시간 ${waitingFrames / 60}`)
+    assert(distance > 0, `${expected}: 일어난 뒤에도 이동 잠금`)
+    assert.equal(step(1).split(' · ')[0], '걷기')
+    motion.speed = 0; motion.moveRequested = false; step(60)
+    return waitingFrames / 60
+  }
+  const standDelays: Record<string, number> = {}
+  for (const command of ['sit', 'lie'] as const) {
+    animation.update(1 / 60, motion, command); step(150)
+    standDelays[command] = standBeforeWalk(command)
+  }
+  animation.update(1 / 60, motion, 'sit'); step(150)
+  animation.update(1 / 60, motion, 'lie'); step(6)
+  standDelays['sit→lie'] = standBeforeWalk('앉기→눕기 전환 중 이동')
+  animation.update(1 / 60, motion, 'sit'); step(20)
+  motion.moveRequested = true; assert.match(step(1), /^일어서기/)
+  motion.moveRequested = false
+  assert.equal(step(120).split(' · ')[0], '대기')
+  assert(!animation.movementBlocked, '이동 키를 짧게 누른 뒤 일어서기가 끝나지 않음')
+  assert.equal(motion.speed, 0, '이동 키를 떼었는데 이동함')
+  console.log('PASS: stand before movement, interrupted rest transition, released input; wait seconds', standDelays)
   console.log('PASS: smooth tail-only sway, tail/walk loop seams, even four-beat Walk, planted paw speed, low swing, 3m/s, Sit/Lie transitions, additive ear-only overlay, proximity cooldown, idle ears, physics-only Jump')
 } finally { animation.dispose(); Math.random = savedRandom }

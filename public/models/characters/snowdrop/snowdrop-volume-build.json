@@ -1,7 +1,7 @@
 {
   "sourceSha256": "aa1e95453e4604c8bff6dc55aab43a2a916628ed6d73e012236fa5cd1ce7f9d8",
   "sourceVertices": 37416,
-  "triangles": 63826,
+  "triangles": 61938,
   "bones": [
     {
       "name": "Spine",
@@ -512,5 +512,69 @@
     "method": "runtime dual-quaternion with local hind-leg and tail-attachment corrections",
     "smoothing": "48 walk/160 rest local relaxation passes with bounded edge lengths; hind-leg folds and tail attachment only; tail tube pinned",
     "lieWristAngleLimitDegrees": null
+  },
+  "vertices": 40370,
+  "usedVertices": 35771,
+  "whiskerCleanup": {
+    "removedTriangles": 6186,
+    "caps": [
+      16,
+      53,
+      53
+    ],
+    "capIndexStart": 172920,
+    "capIndexEnd": 176214,
+    "sourceCount": 37416,
+    "patchVertices": 847,
+    "whiskers": [
+      {
+        "side": -1,
+        "row": 0,
+        "first": 37907,
+        "count": 202
+      },
+      {
+        "side": -1,
+        "row": 1,
+        "first": 38109,
+        "count": 202
+      },
+      {
+        "side": -1,
+        "row": 2,
+        "first": 38311,
+        "count": 202
+      },
+      {
+        "side": -1,
+        "row": 3,
+        "first": 38513,
+        "count": 202
+      },
+      {
+        "side": 1,
+        "row": 0,
+        "first": 38715,
+        "count": 202
+      },
+      {
+        "side": 1,
+        "row": 1,
+        "first": 38917,
+        "count": 202
+      },
+      {
+        "side": 1,
+        "row": 2,
+        "first": 39119,
+        "count": 202
+      },
+      {
+        "side": 1,
+        "row": 3,
+        "first": 39321,
+        "count": 202
+      }
+    ]
   }
 }

@@ -103,7 +103,10 @@ export function Player({ variant, motionRef, commandRef, trialInputRef, reviewSp
   const canvas = useThree((state) => state.gl.domElement)
   const scene = useThree((state) => state.scene)
 
-  useEffect(() => { distance.current = variant === 'snowdrop' ? 2.8 : START_DISTANCE; commandRef.current = null }, [variant, commandRef])
+  useEffect(() => {
+    distance.current = variant === 'snowdrop' ? 2.8 : START_DISTANCE
+    commandRef.current = null; motionRef.current.movementBlocked = false
+  }, [variant, commandRef, motionRef])
   useEffect(() => {
     if (!reviewSpot || !cat.current) return
     const spot = CAT_REVIEW_SPOTS[reviewSpot.id]
@@ -226,9 +229,10 @@ export function Player({ variant, motionRef, commandRef, trialInputRef, reviewSp
     const cos = Math.cos(yaw.current)
     const move = readMove(keys.current)
     const trial = trialInputRef.current
+    const movementBlocked = variant === 'snowdrop' && motionRef.current.movementBlocked
     if (move.x || move.forward) trial.remaining = 0
     else if (trial.remaining > 0) move.forward = trial.forward
-    trial.remaining = Math.max(0, trial.remaining - delta)
+    if (!movementBlocked) trial.remaining = Math.max(0, trial.remaining - delta)
     // W를 누르면 카메라가 보는 쪽으로 가도록 입력을 시선 각도만큼 돌린다.
     const directionX = cos * move.x - sin * move.forward
     const directionZ = -sin * move.x - cos * move.forward
@@ -242,7 +246,7 @@ export function Player({ variant, motionRef, commandRef, trialInputRef, reviewSp
     // 점프 중에도 같은 수평 이동 속도를 사용한다.
     const speed = variant === 'snowdrop' ? SNOWDROP_WALK_SPEED : SPEED
 
-    if (length > 0) {
+    if (length > 0 && !movementBlocked) {
       // 대각선으로 갈 때 더 빨라지지 않도록 방향의 길이를 1로 맞춘다.
       const stepX = (directionX / length) * speed * delta
       const stepZ = (directionZ / length) * speed * delta
@@ -300,6 +304,7 @@ export function Player({ variant, motionRef, commandRef, trialInputRef, reviewSp
     Object.assign(motionRef.current, {
       x: group.position.x, y: group.position.y, z: group.position.z,
       speed: delta > 0 ? Math.hypot(group.position.x - fromX, group.position.z - fromZ) / delta : 0,
+      moveRequested: length > 0,
       grounded: verticalSpeed.current === 0 && group.position.y <= floor + .001,
       verticalSpeed: verticalSpeed.current,
       nearObject: [SOFA, SINGLE_SOFA, BEDROOM_CHAIR, COFFEE_TABLE, WAVE_SCRATCHER].some(o => {

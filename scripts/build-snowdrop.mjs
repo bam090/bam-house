@@ -6,6 +6,7 @@ import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js'
 import { skinDualQuaternion, dualQuaternionTransform } from './dual-quaternion-skin.mjs'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { MeshBVH } from 'three-mesh-bvh'
+import { cleanSnowdropWhiskers } from './clean-snowdrop-whiskers.mjs'
 
 globalThis.FileReader = class {
   readAsArrayBuffer(blob) { blob.arrayBuffer().then(v => { this.result = v; this.onloadend?.() }) }
@@ -376,6 +377,7 @@ for(const [name,seconds] of [['Walk',duration],['Sit',1.3],['Lie',1.5],['Jump',1
   clips.push(new T.AnimationClip(name,seconds,[...goals.map((g,i)=>new T.VectorKeyframeTrack(`${g.object.name}.position`,times,goalSamples[i])),new T.NumberKeyframeTrack('Snowdrop_Coat.morphTargetInfluences',times,phases.flatMap(p=>correctiveNames.map(n=>correctiveWeight(n,name,p)))),...bones.flatMap((b,i)=>[new T.QuaternionKeyframeTrack(`${b.name}.quaternion`,times,samples[i].q),...(i===body?[new T.VectorKeyframeTrack(`${b.name}.position`,times,samples[i].p)]:[])])]))
 }
 reset()
+const whiskerCleanup=volume?cleanSnowdropWhiskers(geometry,head):null
 const gait={duration,stance,stride,speed:stride/(duration*stance),lift,legs:legs.map(l=>({...l,name:bones[l.foot].name,rest:rests[l.foot].toArray(),...(volume?{jointNames:['upper','lower','end','foot'].map(k=>bones[l[k]].name),jointRests:['upper','lower','end','foot'].map(k=>rests[l[k]].toArray())}:{})}))}
 root.userData={skinning:volume?'dualQuaternion':'linear',sourceModel:'Meshy_AI_Snowdrop_1116030454_texture.glb (user supplied)',rigSource:'JonasDichelle — Rigged and animated Cat, CC BY 3.0',rigSourceUrl:'https://blendswap.com/blend/18519',modifications:volume?'28 motion bones plus two haunch supports; local hind-leg and tail-attachment corrections; preserved tail cross-sections':'28 selected bone roles refit to Snowdrop; original Walk timing adapted with foot IK; Sit, Lie, Jump and EarFlick authored separately',gait}
 const output=unpack(Buffer.from(await new GLTFExporter().parseAsync(root,{binary:true,animations:clips})))
@@ -387,5 +389,6 @@ const json=Buffer.from(JSON.stringify(output.json)),jp=Buffer.alloc((4-json.leng
 header.writeUInt32LE(0x46546c67);header.writeUInt32LE(2,4);header.writeUInt32LE(28+json.length+jp.length+bin.length+bp.length,8);jh.writeUInt32LE(json.length+jp.length);jh.writeUInt32LE(0x4e4f534a,4);bh.writeUInt32LE(bin.length+bp.length);bh.writeUInt32LE(0x004e4942,4)
 await fs.writeFile(new URL(volume?'snowdrop-volume.glb':player?'snowdrop-player.glb':'snowdrop-interactions.glb',folder),Buffer.concat([header,jh,json,jp,bh,bin,bp]))
 const report={sourceSha256:createHash('sha256').update(sourceBytes).digest('hex'),sourceVertices:pos.count,triangles:geometry.index.count/3,bones:definitions,clips:clips.map(c=>({name:c.name,duration:c.duration})),gait,maxReachError,textureBytesPreserved:true,deformation:{method:volume?'runtime dual-quaternion with local hind-leg and tail-attachment corrections':'dual-quaternion corrective shapes',smoothing:volume?'48 walk/160 rest local relaxation passes with bounded edge lengths; hind-leg folds and tail attachment only; tail tube pinned':'30 Taubin pairs, no 260-pass shrinking',lieWristAngleLimitDegrees:volume?null:25}}
+report.vertices=geometry.attributes.position.count;report.usedVertices=new Set(geometry.index.array).size;report.whiskerCleanup=whiskerCleanup
 await fs.writeFile(new URL(volume?'snowdrop-volume-build.json':player?'snowdrop-player-build.json':'snowdrop-build.json',folder),JSON.stringify(report,null,2)+'\n')
 console.log(JSON.stringify({bones:bones.length,triangles:report.triangles,clips:report.clips,maxReachError},null,2))
