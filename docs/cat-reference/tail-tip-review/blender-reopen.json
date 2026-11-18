@@ -1,0 +1,16 @@
+{
+  "bones": 30,
+  "shapeKeys": 14,
+  "actions": [
+    "EarFlick",
+    "Jump",
+    "Lie",
+    "Sit",
+    "TailSway",
+    "TailSwayLie",
+    "TailSwaySit",
+    "TailSwayWalk",
+    "Walk"
+  ],
+  "allImagesPacked": true
+}

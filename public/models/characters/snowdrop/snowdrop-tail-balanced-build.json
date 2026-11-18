@@ -1,0 +1,27 @@
+{
+  "blender": "5.2.4 LTS",
+  "sourceSha256": "e1978d34c6f4ab4dd647569143b00d294c27dc9e2a97708c3884b8f1609f456d",
+  "sourceUnchanged": true,
+  "output": "snowdrop-tail-balanced.glb",
+  "bytes": 21092108,
+  "maxReachError": 0,
+  "poses": {},
+  "tailSway": {
+    "Idle": {
+      "centreYaw": 0.8738357191376234,
+      "rootAmplitude": 0.36
+    },
+    "Walk": {
+      "centreYaw": 0.7892975224712692,
+      "rootAmplitude": 0.32
+    },
+    "Sit": {
+      "centreYaw": 0.7892974813331497,
+      "rootAmplitude": 0.32
+    },
+    "Lie": {
+      "centreYaw": 0.2377465919958911,
+      "rootAmplitude": 0.3
+    }
+  }
+}

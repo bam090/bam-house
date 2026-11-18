@@ -13,7 +13,7 @@ export const CAT_REVIEW_SPOTS = {
 export type CatReviewSpot = keyof typeof CAT_REVIEW_SPOTS
 
 export const SNOWDROP_SCALE = 0.64
-export const SNOWDROP_MODEL_FILE = 'snowdrop-rest-paws.glb'
+export const SNOWDROP_MODEL_FILE = 'snowdrop-tail-clean.glb'
 export const SNOWDROP_WALK_SPEED = 3
 export const PLAYER_JUMP_SPEED = 4.6
 export type CatVariant = 'snowdrop' | 'legacy'
@@ -43,10 +43,12 @@ export function walkPlaybackRate(speed: number, sourceSpeed: number) {
   return Math.min(speed / (sourceSpeed * SNOWDROP_SCALE), .8 * speed)
 }
 
-export function createCatTailSwayClip(clips: AnimationClip[] = []) {
-  const authored = clips.find(c => c.name === 'TailSway')
+export function createCatTailSwayClip(clips: AnimationClip[] = [], pose = 'Idle') {
+  const name = `TailSway${pose === 'Idle' ? '' : pose}`
+  const authored = clips.find(c => c.name === name) ?? clips.find(c => c.name === 'TailSway')
   if (authored) {
     const clip = authored.clone()
+    clip.name = name
     clip.blendMode = AdditiveAnimationBlendMode
     return clip
   }
@@ -54,7 +56,7 @@ export function createCatTailSwayClip(clips: AnimationClip[] = []) {
   const axis = new Vector3(0, 1, 0), rotation = new Quaternion()
   const names = ['Tail', 'Tail_002', 'Tail_004', 'Tail_006', 'Tail_007']
   const amplitudes = [.12, .009, .014, .017, .019]
-  return new AnimationClip('TailSway', duration, names.map((name, i) => {
+  return new AnimationClip(name, duration, names.map((name, i) => {
     const values = times.flatMap(t => {
       // 작은 마디 회전과 시간차로 끝이 따라오게 하되 꼬리 단면의 큰 비틀림은 피한다.
       const phase = (t - i * .10) / duration * Math.PI * 2
@@ -78,13 +80,17 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
   const solveContacts = createCatContactIK(model)
   const coat = model.getObjectByName('Snowdrop_Coat') as SkinnedMesh | undefined
   const restBlend = coat?.morphTargetDictionary?.RestBlendFold
-  const actions = Object.fromEntries([...clips.filter(c => c.name !== 'TailSway'), createCatTailSwayClip(clips), new AnimationClip('Idle', 1, idleTracks)].map(c => {
+  const tailPoses = ['Idle', 'Walk', 'Sit', 'Lie'] as const
+  const actions = Object.fromEntries([...clips.filter(c => !c.name.startsWith('TailSway')), ...tailPoses.map(p => createCatTailSwayClip(clips, p)), new AnimationClip('Idle', 1, idleTracks)].map(c => {
     const clip = c.name === 'Jump' ? jumpWithoutLift(c, spine.position.y) : c.name === 'EarFlick'
       ? new AnimationClip('EarFlick', c.duration, c.tracks.filter(t => /^Ear(?:_006)?\.quaternion$/.test(t.name)), AdditiveAnimationBlendMode) : c
     const action = mixer.clipAction(clip).setLoop(LoopOnce, 1)
     action.clampWhenFinished = true; action.play(); action.setEffectiveWeight(c.name === 'Idle' ? 1 : 0)
     return [c.name, action]
   }))
+  // Spawn with the centred idle tail already posed; subsequent changes blend with the body.
+  actions.TailSway.setEffectiveWeight(1)
+  mixer.update(0)
   for (const name of ['Idle', 'Walk', 'Jump', 'Sit', 'Lie', 'EarFlick']) if (!actions[name]) throw new Error(`${name} 동작이 없습니다.`)
   let walkTime = 0, tailTime = 0, poseTime = 0, earTime = Infinity, landing = Infinity, wasGrounded = true
   let restPose: 'Sit' | 'Lie' = 'Sit', resting = false, idleTime = 0, cooldown = 0, nearBefore = false
@@ -146,16 +152,18 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
       const blendRate = !motion.grounded ? 7 : resting ? 5 : 24
       const blend = 1 - Math.exp(-dt * blendRate)
       for (const [name, action] of Object.entries(actions)) {
-        if (name === 'TailSway') continue
+        if (name.startsWith('TailSway')) continue
         if (name === 'EarFlick') action.setEffectiveWeight(earActive ? 1 : 0)
         else action.setEffectiveWeight(action.getEffectiveWeight() + ((name === target ? 1 : 0) - action.getEffectiveWeight()) * blend)
       }
-      // 휴식 자세에서는 작은 폭으로 이어지고 점프 중에는 잦아든다.
+      // 자세별 중심·회전축은 Blender에서 만든다. 몸의 혼합 비율로 연결한다.
       tailTime = (tailTime + dt) % actions.TailSway.getClip().duration
-      const tailWeight = motion.grounded ? actions.Idle.getEffectiveWeight() + .65 * actions.Walk.getEffectiveWeight() + .45 * actions.Sit.getEffectiveWeight() + .35 * actions.Lie.getEffectiveWeight() : 0
-      const tailBlend = 1 - Math.exp(-dt * (tailWeight > actions.TailSway.getEffectiveWeight() ? 3 : 8))
-      actions.TailSway.time = tailTime
-      actions.TailSway.setEffectiveWeight(actions.TailSway.getEffectiveWeight() + (tailWeight - actions.TailSway.getEffectiveWeight()) * tailBlend)
+      for (const pose of tailPoses) {
+        const name = `TailSway${pose === 'Idle' ? '' : pose}`
+        const legacyScale = clips.some(c => c.name === name) ? 1 : { Idle: 1, Walk: .65, Sit: .45, Lie: .35 }[pose]
+        actions[name].time = tailTime
+        actions[name].setEffectiveWeight(actions[pose].getEffectiveWeight() * legacyScale)
+      }
       mixer.update(0)
       if (restBlend !== undefined && coat?.morphTargetInfluences) {
         const phase = Math.min(actions.Sit.time / actions.Sit.getClip().duration, actions.Lie.time / actions.Lie.getClip().duration)

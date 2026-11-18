@@ -40,18 +40,23 @@ const step = (n: number, checkSurface = false) => {
   }
   return label
 }
-const checkRestSway = (name: string) => {
+const checkSway = (name: string, planted = true) => {
   const joints = ['Tail', 'Tail_002', 'Tail_004'].map(n => model.getObjectByName(n)!)
   const start = joints.map(j => j.quaternion.clone().normalize()), ranges = joints.map(() => 0)
   const paws = ['Foot_Back_L2', 'Foot_Back_L2_002'].map(n => model.getObjectByName(n)!)
   model.updateMatrixWorld(true)
   const contacts = paws.map(p => p.getWorldPosition(new Vector3()))
-  for (let frame = 0; frame < 216; frame++) {
+  let tipMinX = Infinity, tipMaxX = -Infinity
+  for (let frame = 0; frame < 432; frame++) {
     step(1); model.updateMatrixWorld(true)
+    const x = model.getObjectByName('Tail_007')!.getWorldPosition(new Vector3()).x - spine.getWorldPosition(new Vector3()).x
+    tipMinX = Math.min(tipMinX, x); tipMaxX = Math.max(tipMaxX, x)
     joints.forEach((j, i) => { ranges[i] = Math.max(ranges[i], start[i].angleTo(j.quaternion.clone().normalize())) })
-    paws.forEach((p, i) => assert(p.getWorldPosition(new Vector3()).distanceTo(contacts[i]) < .00001, `${name}: 꼬리 살랑거림이 뒷발 접지를 움직임`))
+    if (planted) paws.forEach((p, i) => assert(p.getWorldPosition(new Vector3()).distanceTo(contacts[i]) < .00001, `${name}: 꼬리 살랑거림이 뒷발 접지를 움직임`))
   }
   assert(ranges.every(r => r > .015), `${name}: 꼬리 뿌리·중간 살랑거림이 멈춤 ${ranges}`)
+  assert(tipMinX < -.04 && tipMaxX > .04, `${name}: 꼬리가 몸의 양쪽으로 움직이지 않음 ${tipMinX}..${tipMaxX}`)
+  console.log(`${name}: 좌우 꼬리 범위`, tipMinX, tipMaxX)
 }
 try {
   const tail = model.getObjectByName('Tail')!, tip = model.getObjectByName('Tail_007')!
@@ -63,7 +68,8 @@ try {
     assert(tail.quaternion.angleTo(lastTail) < .012, 'Tail motion snapped between frames'); lastTail.copy(tail.quaternion)
     assert(spine.position.distanceTo(initialSpine) < 1e-6 && head.quaternion.angleTo(initialHead) < 1e-6, 'Tail sway moved the body or head')
   }
-  assert(tipMax.distanceTo(tipMin) > .025 && tipMax.distanceTo(tipMin) < .20, `Tail sway is invisible or excessive: ${tipMax.distanceTo(tipMin)}`)
+  assert(tipMax.distanceTo(tipMin) > .08 && tipMax.distanceTo(tipMin) < .40, `Tail sway is invisible or excessive: ${tipMax.distanceTo(tipMin)}`)
+  assert(tipMin.x < initialSpine.x - .04 && tipMax.x > initialSpine.x + .04, `대기: 꼬리 편향 ${tipMin.x - initialSpine.x}..${tipMax.x - initialSpine.x}`)
   const gait = model.getObjectByName('Snowdrop')!.userData.gait
   const touchdowns = gait.legs.map((l: { phase: number }) => (1 - l.phase + 1) % 1).sort((a: number, b: number) => a - b)
   for (let i = 0; i < 4; i++) assert(Math.abs((touchdowns[(i + 1) % 4] - touchdowns[i] + 1) % 1 - .25) < 1e-6, 'Uneven four-beat footfalls')
@@ -71,7 +77,9 @@ try {
   const tailClip = createCatTailSwayClip(gltf.animations)
   for (const track of tailClip.tracks) {
     const yaw = Array.from(track.values).filter((_, i) => i % 4 === 1)
-    assert(Math.max(...yaw) - Math.min(...yaw) > .05, `${track.name}: 중간 마디가 거의 움직이지 않음`)
+    if (track.name === 'Tail.quaternion') {
+      assert(Math.max(...yaw.map(Math.abs)) < .025, '꼬리 뿌리에 큰 회전을 몰아 연결부가 휘어짐')
+    } else assert(Math.max(...yaw) - Math.min(...yaw) > .04, `${track.name}: 중간 마디가 거의 움직이지 않음`)
   }
   for (const track of [...walk.tracks, ...tailClip.tracks]) {
     const size = track.getValueSize()
@@ -96,7 +104,9 @@ try {
   assert(Math.abs(walkPlaybackRate(3, sourceSpeed) - 2.4) < 1e-6)
   assert(Math.abs(walkPlaybackRate(1.5, sourceSpeed) - 1.2) < 1e-6)
   assert.equal(walkPlaybackRate(0, sourceSpeed), 0)
-  animation.update(1 / 60, motion, 'sit'); assert.equal(step(150, true), '앉기')
+  // Reset the idle timer before testing proximity; clip UUID allocation must not affect it.
+  motion.moveRequested = true; step(1); motion.moveRequested = false
+  animation.update(1 / 60, motion, 'sit'); assert.equal(step(150, true).split(' · ')[0], '앉기')
   const seatedY = spine.position.y, headQ = head.quaternion.clone().normalize()
   motion.nearObject = true
   assert.match(animation.update(1 / 60, motion, null), /앉기 · 귀 털기/)
@@ -105,16 +115,17 @@ try {
   assert(head.quaternion.clone().normalize().angleTo(headQ) < 1e-5, '귀 털기가 머리를 회전시킴')
   step(60); motion.nearObject = false; step(1); motion.nearObject = true
   assert(!animation.update(1 / 60, motion, null).includes('귀 털기'), '접근 쿨다운 실패')
-  checkRestSway('Sit')
-  animation.update(1 / 60, motion, 'lie'); assert.equal(step(150, true), '눕기')
-  checkRestSway('Lie')
+  checkSway('Sit')
+  animation.update(1 / 60, motion, 'lie'); assert.equal(step(150, true).split(' · ')[0], '눕기')
+  checkSway('Lie')
   if (restBlendIndex !== undefined) {
     assert(restBlendPeak > .9, '앉기·눕기 사이 연결부 보정이 재생되지 않음')
     assert(coat!.morphTargetInfluences![restBlendIndex] < .0001, '전환 보정이 정지 자세에 남음')
   }
   const lieY = spine.position.y; assert(lieY < .27)
-  animation.update(1 / 60, motion, 'sit'); assert.equal(step(150, true), '앉기')
+  animation.update(1 / 60, motion, 'sit'); assert.equal(step(150, true).split(' · ')[0], '앉기')
   motion.speed = SNOWDROP_WALK_SPEED; assert.equal(step(80, true), '걷기')
+  checkSway('Walk', false)
   motion.grounded = false; motion.verticalSpeed = 4.6
   assert.equal(step(1), '상승')
   for (let i = 0; i <= 60; i++) { motion.verticalSpeed = 4.6 - i * 9.2 / 60; step(1); assert(spine.position.y <= restY+.00001) }

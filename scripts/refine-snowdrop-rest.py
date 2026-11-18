@@ -3,7 +3,7 @@
 blender -b --factory-startup --disable-autoexec --python-exit-code 1 \
   --python scripts/refine-snowdrop-rest.py
 
-원본 UV, 가중치, 얼굴, 걷기·점프·귀 동작과 DQ 메타데이터를 보존한다.
+원본 UV, 꼬리 밖 형상·가중치, 얼굴, 걷기·점프·귀 동작과 DQ 메타데이터를 보존한다.
 """
 import hashlib
 import json
@@ -19,9 +19,10 @@ from mathutils.bvhtree import BVHTree
 
 ROOT = Path(__file__).resolve().parents[1]
 FOLDER = ROOT / 'public/models/characters/snowdrop'
-SOURCE = FOLDER / 'snowdrop-volume.glb'
-OUTPUT = FOLDER / 'snowdrop-rest-paws.glb'
-REVIEW = ROOT / 'docs/cat-reference/rest-paws-review'
+TAIL_ONLY = '--tail-only' in sys.argv
+SOURCE = FOLDER / ('snowdrop-rest-paws.glb' if TAIL_ONLY else 'snowdrop-volume.glb')
+OUTPUT = FOLDER / 'snowdrop-tail-smooth.glb'
+REVIEW = ROOT / 'docs/cat-reference/tail-smooth-review'
 SKILLS = Path.home() / '.codex/skills'
 sys.path.extend([str(SKILLS / 'blender-sculpting/scripts'), str(SKILLS / 'blender-expert/scripts')])
 from bx_sculpt import Sculptor
@@ -405,125 +406,387 @@ def sculpt_pose(name, amount):
     return corrective, normal_delta
 
 
-for name, endpoint_index, midpoint_index in [('Sit', 0, 2), ('Lie', 1, 3)]:
-    for amount, index in [(1., endpoint_index), (.5, midpoint_index)]:
-        cp, cn = sculpt_pose(name, amount)
-        replace(primitive['targets'][index]['POSITION'], cp)
-        replace(primitive['targets'][index]['NORMAL'], cn)
+if not TAIL_ONLY:
+    for name, endpoint_index, midpoint_index in [('Sit', 0, 2), ('Lie', 1, 3)]:
+        for amount, index in [(1., endpoint_index), (.5, midpoint_index)]:
+            cp, cn = sculpt_pose(name, amount)
+            replace(primitive['targets'][index]['POSITION'], cp)
+            replace(primitive['targets'][index]['NORMAL'], cn)
 
-# Correct the shared attachment when the two endpoint actions overlap in the web mixer.
-sit_matrices, _ = pose('Sit', 1)
-lie_matrices, _ = pose('Lie', 1)
-for i in range(1, 31):
-    locals_ = [m.get(parents[i], Matrix.Identity(4)).inverted() @ m[i] for m in (sit_matrices, lie_matrices)]
-    translation = locals_[0].translation.lerp(locals_[1].translation, .5)
-    rotation = locals_[0].to_quaternion().slerp(locals_[1].to_quaternion(), .5)
-    rest_translation = rests[i] - rests.get(parents[i], Vector())
-    bone(i).matrix_basis = Matrix.Translation(B.to_3x3() @ (translation - rest_translation)) @ B @ rotation.to_matrix().to_4x4() @ BI
-bpy.context.view_layer.update()
-blend_matrices = {i: global_matrix(i) for i in range(1, 31)}
-blend_q, blend_t = deformation(blend_matrices)
-blend_shape = sum(read(primitive['targets'][i]['POSITION']) for i in (0, 1)) * .5
-blend_normal = normals + sum(read(primitive['targets'][i]['NORMAL']) for i in (0, 1)) * .5
-blend_points = rotate(blend_q, positions + blend_shape) + blend_t
-blend_mesh = bpy.data.meshes.new('SitLie_Transition')
-blend_mesh.from_pydata((blend_points[representatives] @ np.array(B.to_3x3()).T).tolist(), [], weld_faces.tolist())
-blend_mesh.update()
-blend_object = bpy.data.objects.new('SitLie_Transition', blend_mesh)
-bpy.context.collection.objects.link(blend_object)
-blend_sculpt = Sculptor(blend_object, symmetry_x=False)
-blend_mask = root_region[representatives] * (1 - smooth(.8, .99999, tail_weight[representatives]))
-blend_sculpt.mask = 1 - blend_mask
-blend_sculpt.smooth(strength=.45, iterations=180, preserve_volume=False)
-blend_sculpt.commit()
-blend_sculpt._normals()
-blend_mesh.shade_smooth()
-blend_inverse = blend_q.copy()
-blend_inverse[:, :3] *= -1
-blend_delta = np.zeros_like(positions)
-blend_delta[used] = (blend_sculpt.co @ np.array(BI.to_3x3()).T)[weld[used]] - blend_points[used]
-blend_corrective = rotate(blend_inverse, blend_delta)
-blend_normals = np.zeros_like(normals)
-blend_normals[used] = (blend_sculpt.vn @ np.array(BI.to_3x3()).T)[weld[used]]
-blend_normal_delta = (rotate(blend_inverse, blend_normals) - blend_normal) * root_region[:, None]
-blend_target = {}
-for key, data in [('POSITION', blend_corrective), ('NORMAL', blend_normal_delta)]:
-    index = len(doc['accessors'])
-    doc['accessors'].append({'bufferView': 0, 'componentType': 5126, 'count': 0, 'type': 'VEC3'})
-    if key == 'POSITION':
-        doc['accessors'][-1].update(min=data.min(axis=0).tolist(), max=data.max(axis=0).tolist())
-    replace(index, data)
-    blend_target[key] = index
-primitive['targets'].append(blend_target)
-doc['meshes'][0]['extras']['targetNames'].append('RestBlendFold')
-doc['meshes'][0]['weights'].append(0)
-snapshots['SitLie'] = blend_object
+    # Correct the shared attachment when the two endpoint actions overlap in the web mixer.
+    sit_matrices, _ = pose('Sit', 1)
+    lie_matrices, _ = pose('Lie', 1)
+    for i in range(1, 31):
+        locals_ = [m.get(parents[i], Matrix.Identity(4)).inverted() @ m[i] for m in (sit_matrices, lie_matrices)]
+        translation = locals_[0].translation.lerp(locals_[1].translation, .5)
+        rotation = locals_[0].to_quaternion().slerp(locals_[1].to_quaternion(), .5)
+        rest_translation = rests[i] - rests.get(parents[i], Vector())
+        bone(i).matrix_basis = Matrix.Translation(B.to_3x3() @ (translation - rest_translation)) @ B @ rotation.to_matrix().to_4x4() @ BI
+    bpy.context.view_layer.update()
+    blend_matrices = {i: global_matrix(i) for i in range(1, 31)}
+    blend_q, blend_t = deformation(blend_matrices)
+    blend_shape = sum(read(primitive['targets'][i]['POSITION']) for i in (0, 1)) * .5
+    blend_normal = normals + sum(read(primitive['targets'][i]['NORMAL']) for i in (0, 1)) * .5
+    blend_points = rotate(blend_q, positions + blend_shape) + blend_t
+    blend_mesh = bpy.data.meshes.new('SitLie_Transition')
+    blend_mesh.from_pydata((blend_points[representatives] @ np.array(B.to_3x3()).T).tolist(), [], weld_faces.tolist())
+    blend_mesh.update()
+    blend_object = bpy.data.objects.new('SitLie_Transition', blend_mesh)
+    bpy.context.collection.objects.link(blend_object)
+    blend_sculpt = Sculptor(blend_object, symmetry_x=False)
+    blend_mask = root_region[representatives] * (1 - smooth(.8, .99999, tail_weight[representatives]))
+    blend_sculpt.mask = 1 - blend_mask
+    blend_sculpt.smooth(strength=.45, iterations=180, preserve_volume=False)
+    blend_sculpt.commit()
+    blend_sculpt._normals()
+    blend_mesh.shade_smooth()
+    blend_inverse = blend_q.copy()
+    blend_inverse[:, :3] *= -1
+    blend_delta = np.zeros_like(positions)
+    blend_delta[used] = (blend_sculpt.co @ np.array(BI.to_3x3()).T)[weld[used]] - blend_points[used]
+    blend_corrective = rotate(blend_inverse, blend_delta)
+    blend_normals = np.zeros_like(normals)
+    blend_normals[used] = (blend_sculpt.vn @ np.array(BI.to_3x3()).T)[weld[used]]
+    blend_normal_delta = (rotate(blend_inverse, blend_normals) - blend_normal) * root_region[:, None]
+    blend_target = {}
+    for key, data in [('POSITION', blend_corrective), ('NORMAL', blend_normal_delta)]:
+        index = len(doc['accessors'])
+        doc['accessors'].append({'bufferView': 0, 'componentType': 5126, 'count': 0, 'type': 'VEC3'})
+        if key == 'POSITION':
+            doc['accessors'][-1].update(min=data.min(axis=0).tolist(), max=data.max(axis=0).tolist())
+        replace(index, data)
+        blend_target[key] = index
+    primitive['targets'].append(blend_target)
+    doc['meshes'][0]['extras']['targetNames'].append('RestBlendFold')
+    doc['meshes'][0]['weights'].append(0)
+    snapshots['SitLie'] = blend_object
 
-for animation in doc['animations']:
-    if animation['name'] not in ('Sit', 'Lie'):
+    for animation in doc['animations']:
+        if animation['name'] not in ('Sit', 'Lie'):
+            for channel in animation['channels']:
+                if channel['target']['path'] == 'weights':
+                    index = animation['samplers'][channel['sampler']]['output']
+                    replace(index, np.pad(read(index).reshape(-1, 12), ((0, 0), (0, 1))))
+            continue
+        name = animation['name']
+        translation_accessor = len(doc['accessors'])
+        doc['accessors'].append({'bufferView': 0, 'componentType': 5126, 'count': 0, 'type': 'VEC3'})
+        animation['channels'].append({'sampler': len(animation['samplers']), 'target': {'node': 16, 'path': 'translation'}})
+        animation['samplers'].append({'input': animation['samplers'][0]['input'], 'output': translation_accessor, 'interpolation': 'LINEAR'})
+        times = read(animation['samplers'][0]['input']).ravel()
+        samples = []
+        for time in times:
+            amount = float(smooth(.04, .92, time / times[-1]))
+            matrices, goals = pose(name, amount)
+            samples.append((amount, matrices, goals))
         for channel in animation['channels']:
-            if channel['target']['path'] == 'weights':
-                index = animation['samplers'][channel['sampler']]['output']
-                replace(index, np.pad(read(index).reshape(-1, 12), ((0, 0), (0, 1))))
-        continue
-    name = animation['name']
-    translation_accessor = len(doc['accessors'])
-    doc['accessors'].append({'bufferView': 0, 'componentType': 5126, 'count': 0, 'type': 'VEC3'})
-    animation['channels'].append({'sampler': len(animation['samplers']), 'target': {'node': 16, 'path': 'translation'}})
-    animation['samplers'].append({'input': animation['samplers'][0]['input'], 'output': translation_accessor, 'interpolation': 'LINEAR'})
-    times = read(animation['samplers'][0]['input']).ravel()
-    samples = []
-    for time in times:
-        amount = float(smooth(.04, .92, time / times[-1]))
-        matrices, goals = pose(name, amount)
-        samples.append((amount, matrices, goals))
-    for channel in animation['channels']:
-        target = channel['target']
-        node, path = target['node'], target['path']
-        values = []
-        for amount, matrices, goals in samples:
-            if path == 'weights':
-                w = [0.] * 13
-                w[0 if name == 'Sit' else 1] = max(0, 2 * amount - 1)
-                w[2 if name == 'Sit' else 3] = 1 - abs(2 * amount - 1)
-                values.extend(w)
-            elif node in goals:
-                values.append(list(goals[node]))
-            else:
-                local = matrices.get(parents[node], Matrix.Identity(4)).inverted() @ matrices[node]
-                if path == 'rotation':
-                    q = local.to_quaternion().normalized()
-                    values.append([q.x, q.y, q.z, q.w])
-                elif path == 'translation':
-                    values.append(list(local.translation))
-        replace(animation['samplers'][channel['sampler']]['output'], values)
+            target = channel['target']
+            node, path = target['node'], target['path']
+            values = []
+            for amount, matrices, goals in samples:
+                if path == 'weights':
+                    w = [0.] * 13
+                    w[0 if name == 'Sit' else 1] = max(0, 2 * amount - 1)
+                    w[2 if name == 'Sit' else 3] = 1 - abs(2 * amount - 1)
+                    values.extend(w)
+                elif node in goals:
+                    values.append(list(goals[node]))
+                else:
+                    local = matrices.get(parents[node], Matrix.Identity(4)).inverted() @ matrices[node]
+                    if path == 'rotation':
+                        q = local.to_quaternion().normalized()
+                        values.append([q.x, q.y, q.z, q.w])
+                    elif path == 'translation':
+                        values.append(list(local.translation))
+            replace(animation['samplers'][channel['sampler']]['output'], values)
 
-doc['nodes'][0]['extras']['restRefinement'] = {'tool': f'Blender {bpy.app.version_string}', 'source': SOURCE.name,
-    'method': 'Reference chest silhouette, relaxed neck and tail attachment, forward supported rear paws; DQ pose correctives'}
+    doc['nodes'][0]['extras']['restRefinement'] = {'tool': f'Blender {bpy.app.version_string}', 'source': SOURCE.name,
+        'method': 'Reference chest silhouette, relaxed neck and tail attachment, forward supported rear paws; DQ pose correctives'}
 
-# Author the whole tail chain in Blender; the web mixer uses this as an additive layer.
-tail_animation = {'name': 'TailSway', 'channels': [], 'samplers': []}
+# Smooth the complete plume in Blender, including the corrective surfaces.
+# Taubin relaxation preserves its fullness; the sacral attachment fades to zero.
+finish = smooth(.55, .99999, tail_weight) * smooth(.35, .45, -positions[:, 2])
+finish_used = finish[representatives]
+collar = smooth(.08, .5, tail_weight) * (1 - smooth(.12, .18, np.linalg.norm(positions - np.array(rests[16]), axis=1)))
+collar *= smooth(.30, .39, -positions[:, 2]) * smooth(.30, .38, positions[:, 1])
+move_mask = np.maximum(finish, collar)
+move_used = move_mask[representatives]
+mesh = bpy.data.meshes.new('TailSurfaceFinish')
+mesh.from_pydata((base @ np.array(B.to_3x3()).T).tolist(), [], weld_faces.tolist())
+ob = bpy.data.objects.new(mesh.name, mesh); bpy.context.collection.objects.link(ob)
+sculpt = Sculptor(ob, symmetry_x=False)
+sculpt.mask = 1 - move_used
+sculpt.edges = sculpt.edges[np.any(move_used[sculpt.edges] > 0, axis=1)]
+before_positions, before_normals = positions.copy(), normals.copy()
+
+# Fit one continuous centre curve and a broad radius profile, rather than
+# preserving the AI mesh's alternating bulges in every cross-section.
+centres = np.array([rests[i] for i in range(16, 21)])
+knots = np.r_[0, np.cumsum(np.linalg.norm(np.diff(centres, axis=0), axis=1))]
+knots /= knots[-1]
+t = knots[1:-1, None]
+controls = np.linalg.lstsq(np.hstack((3 * (1-t)**2 * t, 3 * (1-t) * t**2)),
+    centres[1:-1] - (1-t)**3 * centres[0] - t**3 * centres[-1], rcond=None)[0]
+curve_points = np.vstack((centres[0], controls, centres[-1]))
+
+def curve(t):
+    t = np.asarray(t)[:, None]; a, b, c, d = curve_points
+    return (1-t)**3*a + 3*(1-t)**2*t*b + 3*(1-t)*t*t*c + t**3*d
+
+def curve_parameter(coords):
+    samples = np.linspace(0, 1, 129)
+    samples_co = curve(samples)
+    result = np.zeros(len(coords))
+    for start in range(0, len(coords), 2048):
+        chunk = coords[start:start+2048]
+        result[start:start+2048] = samples[np.argmin(np.sum((chunk[:,None] - samples_co)**2, axis=2), axis=1)]
+    a, b, c, d = curve_points
+    for _ in range(8):
+        t = result[:,None]
+        derivative = 3*(1-t)**2*(b-a) + 6*(1-t)*t*(c-b) + 3*t*t*(d-c)
+        second = 6*(1-t)*(c-2*b+a) + 6*t*(d-2*c+b)
+        difference = curve(result) - coords
+        denominator = np.sum(derivative**2 + difference * second, axis=1)
+        step = np.sum(difference * derivative, axis=1) / np.maximum(.01, denominator)
+        result = np.clip(result - np.clip(step, -.05, .05), 0, 1)
+    return result
+
+core = np.flatnonzero(finish > 0)
+base_t = curve_parameter(before_positions[core])
+base_r = np.linalg.norm(before_positions[core] - curve(base_t), axis=1)
+stations = np.linspace(.12, .92, 17)
+radii = np.array([np.median(base_r[np.abs(base_t-s) < .06]) for s in stations])
+radius_fit = np.polynomial.Polynomial.fit(stations, radii, 3)
+
+def finish_surface(coords):
+    sculpt.co = coords[representatives] @ np.array(B.to_3x3()).T
+    sculpt.mask = 1 - move_used
+    sculpt.smooth(strength=.5, iterations=240, preserve_volume=True)
+    p = sculpt.co @ np.array(BI.to_3x3()).T
+    selected = np.flatnonzero(finish_used > 0)
+    t = curve_parameter(p[selected]); centre = curve(t)
+    radial = p[selected] - centre
+    radius = np.clip(radius_fit(t), .045, .085)
+    target = centre + radial * (radius / np.maximum(1e-8, np.linalg.norm(radial, axis=1)))[:,None]
+    p[selected] += (target - p[selected]) * (.95 * finish_used[selected])[:,None]
+    sculpt.co = p @ np.array(B.to_3x3()).T
+    sculpt.smooth(strength=.4, iterations=25, preserve_volume=True)
+    result = coords.copy()
+    result[used] = (sculpt.co @ np.array(BI.to_3x3()).T)[weld[used]]
+    result[move_mask == 0] = coords[move_mask == 0]
+    ns = np.zeros_like(normals)
+    ns[used] = (sculpt.vn @ np.array(BI.to_3x3()).T)[weld[used]]
+    # The smooth tube's analytic normals avoid shading dents caused by uneven
+    # imported triangles. Its silhouette is already rebuilt in the mesh above.
+    selected = np.flatnonzero(finish > 0)
+    t = curve_parameter(result[selected]); radial = result[selected] - curve(t)
+    radial /= np.maximum(1e-8, np.linalg.norm(radial, axis=1))[:,None]
+    tt = t[:,None]; a,b,c,d = curve_points
+    derivative = 3*(1-tt)**2*(b-a) + 6*(1-tt)*tt*(c-b) + 3*tt*tt*(d-c)
+    speed = np.linalg.norm(derivative, axis=1)
+    slope = radius_fit.deriv()(t) / speed * smooth(0, .08, t) * (1 - smooth(.90, 1, t))
+    analytic = radial - derivative / speed[:,None] * slope[:,None]
+    analytic /= np.linalg.norm(analytic, axis=1)[:,None]
+    blend = .9 * finish[selected,None]
+    ns[selected] = ns[selected] * (1-blend) + analytic * blend
+    ns[selected] /= np.linalg.norm(ns[selected], axis=1)[:,None]
+    return result, ns
+
+positions, smooth_normals = finish_surface(before_positions)
+normals = before_normals * (1 - move_mask[:, None]) + smooth_normals * move_mask[:, None]
+normals /= np.maximum(1e-8, np.linalg.norm(normals, axis=1))[:, None]
+normals[move_mask == 0] = before_normals[move_mask == 0]
+for target in primitive['targets']:
+    old_delta, old_normal = read(target['POSITION']), read(target['NORMAL'])
+    coords, ns = finish_surface(before_positions + old_delta)
+    delta = old_delta.copy(); delta[move_mask > 0] = (coords - positions)[move_mask > 0]
+    target_normal = (before_normals + old_normal) * (1 - move_mask[:, None]) + ns * move_mask[:, None]
+    target_normal /= np.maximum(1e-8, np.linalg.norm(target_normal, axis=1))[:, None]
+    normal_delta = old_normal.copy(); normal_delta[move_mask > 0] = (target_normal - normals)[move_mask > 0]
+    replace(target['POSITION'], delta); replace(target['NORMAL'], normal_delta)
+replace(primitive['attributes']['POSITION'], positions)
+replace(primitive['attributes']['NORMAL'], normals)
+
+# Continuous four-joint weights remove the linear weight boundaries at each bend.
+centres = np.array([rests[i] for i in range(16, 21)])
+lengths = np.linalg.norm(np.diff(centres, axis=0), axis=1)
+distance, arc = np.full(len(positions), np.inf), np.zeros(len(positions))
+offset = 0.
+for a, b, length in zip(centres[:-1], centres[1:], lengths):
+    direction = (b - a) / length
+    along = np.clip((before_positions - a) @ direction, 0, length)
+    d = np.linalg.norm(before_positions - a - along[:, None] * direction, axis=1)
+    closer = d < distance
+    arc[closer] = offset + along[closer]; distance[closer] = d[closer]
+    offset += length
+field = arc[representatives].copy()
+for _ in range(80):
+    average = np.zeros(len(field))
+    np.add.at(average, sculpt.edges[:, 0], field[sculpt.edges[:, 1]])
+    np.add.at(average, sculpt.edges[:, 1], field[sculpt.edges[:, 0]])
+    field += (average / sculpt.deg - field) * finish_used * .5
+arc[used] = field[weld[used]]
+u = arc / lengths.sum() * 4
+new_weights = np.zeros((len(positions), 5))
+for j in range(-1, 6):
+    x = np.abs(u - j)
+    w = np.where(x < 1, 2 / 3 - x * x + .5 * x ** 3, np.where(x < 2, (2 - x) ** 3 / 6, 0))
+    new_weights[:, np.clip(j, 0, 4)] += w
+new_weights /= np.maximum(1e-8, new_weights.sum(axis=1))[:, None]
+weight_mask = smooth(.999, .99999, tail_weight) * smooth(.38, .46, -before_positions[:, 2])
+for vertex in np.flatnonzero(weight_mask > 0):
+    w = np.zeros(30)
+    np.add.at(w, ids[vertex], weights[vertex] * (1 - weight_mask[vertex]))
+    w[7:12] += new_weights[vertex] * weight_mask[vertex]
+    selected = np.argsort(w)[-4:][::-1]
+    ids[vertex], weights[vertex] = selected, w[selected] / w[selected].sum()
+# The free joints must not pull the collar sideways. Keep its existing body/tail
+# blend, but let the root joint carry the attachment instead of the distal joints.
+anchor = collar * (1 - smooth(.35, .45, -before_positions[:, 2]))
+for vertex in np.flatnonzero(anchor > 0):
+    w = np.zeros(30); np.add.at(w, ids[vertex], weights[vertex])
+    moved = w[8:12].sum() * anchor[vertex]
+    w[8:12] *= 1 - anchor[vertex]; w[7] += moved
+    selected = np.argsort(w)[-4:][::-1]
+    ids[vertex], weights[vertex] = selected, w[selected] / w[selected].sum()
+replace(primitive['attributes']['JOINTS_0'], ids)
+replace(primitive['attributes']['WEIGHTS_0'], weights)
+assert np.max(np.abs(weights.sum(axis=1) - 1)) < 1e-6
+surface_metrics = {'vertices': int(np.sum(move_mask > 0)), 'maxMove': float(np.max(np.linalg.norm(positions - before_positions, axis=1))),
+                   'radiusProfile': radii.tolist(),
+                   'method': 'Blender Taubin relaxation, continuous centre/radius profile and cubic four-joint weights'}
+doc['nodes'][0]['extras']['tailSurfaceRefinement'] = surface_metrics
+bpy.data.objects.remove(ob, do_unlink=True)
+
+# Pose-specific additive layers centre the curved plume around the body's midline.
+# Rotate about world up, expressed in each posed joint's local coordinates.
+doc['animations'] = [a for a in doc['animations'] if not a['name'].startswith('TailSway')]
 times = np.linspace(0, 7.2, 217)
 time_index = len(doc['accessors'])
 doc['accessors'].append({'bufferView': 0, 'componentType': 5126, 'count': 0, 'type': 'SCALAR', 'min': [0], 'max': [7.2]})
 replace(time_index, times)
-pose('Sit', 0)
-for j, amplitude in enumerate((.14, .065, .080, .085, .075)):
-    i = 16 + j
-    values = []
-    for time in times:
-        phase = (time - j * .30) / 7.2 * math.tau
-        angle = amplitude * (.82 * math.sin(phase) + .18 * math.sin(2 * phase))
-        bone(i).rotation_quaternion = Quaternion((0, 0, 1), angle)
-        bone(i).keyframe_insert(data_path='rotation_quaternion', frame=1 + time * 30)
-        q = (BI @ bone(i).matrix_basis @ B).to_quaternion().normalized()
-        values.append([q.x, q.y, q.z, q.w])
-    index = len(doc['accessors'])
-    doc['accessors'].append({'bufferView': 0, 'componentType': 5126, 'count': 0, 'type': 'VEC4'})
-    replace(index, values)
-    tail_animation['channels'].append({'sampler': j, 'target': {'node': i, 'path': 'rotation'}})
-    tail_animation['samplers'].append({'input': time_index, 'output': index, 'interpolation': 'LINEAR'})
-doc['animations'].append(tail_animation)
+tip_vertices = used[(positions[used, 2] < -.59) & (tail_weight[used] > .99999)]
+assert len(tip_vertices) > 50
+tail_specs = {}
+def load_tail_base(state, amount=1):
+    rig.animation_data_clear()
+    pose('Sit', 0)
+    if state == 'Idle':
+        return
+    animation = next(a for a in doc['animations'] if a['name'] == state)
+    for channel in animation['channels']:
+        node, path = channel['target']['node'], channel['target']['path']
+        if node not in range(1, 31):
+            continue
+        values = read(animation['samplers'][channel['sampler']]['output'])
+        value = values[0 if state == 'Walk' else round((len(values)-1)*amount)]
+        if path == 'rotation':
+            q = Quaternion((value[3], *value[:3]))
+            bone(node).rotation_quaternion = (B @ q.to_matrix().to_4x4() @ BI).to_quaternion()
+        elif path == 'translation':
+            bone(node).location = B.to_3x3() @ (Vector(value) - (rests[node] - rests.get(parents[node], Vector())))
+    bpy.context.view_layer.update()
+
+
+pose_collar = root_region * smooth(.02, .12, tail_weight)
+pose_collar_max = 0.
+for state, amount, key in [('Sit', 1, 0), ('Lie', 1, 1), ('Sit', .5, 2), ('Lie', .5, 3)]:
+    load_tail_base(state, amount)
+    qr, tr = deformation({i: global_matrix(i) for i in range(1, 31)})
+    target = primitive['targets'][key]
+    old_delta, old_normal = read(target['POSITION']), read(target['NORMAL'])
+    posed = rotate(qr, positions + old_delta) + tr
+    mesh = bpy.data.meshes.new(f'{state}_CollarFinish')
+    mesh.from_pydata((posed[representatives] @ np.array(B.to_3x3()).T).tolist(), [], weld_faces.tolist())
+    ob = bpy.data.objects.new(mesh.name, mesh); bpy.context.collection.objects.link(ob)
+    collar_sculpt = Sculptor(ob, symmetry_x=False)
+    mask = pose_collar[representatives]
+    collar_sculpt.mask = 1 - mask
+    collar_sculpt.edges = collar_sculpt.edges[np.any(mask[collar_sculpt.edges] > 0, axis=1)]
+    collar_sculpt.smooth(strength=.5, iterations=400, preserve_volume=True)
+    if state == 'Lie':
+        # The old lie corrective inflated this collar to compensate for the
+        # uneven source tube. Relax that excess after rebuilding the surface.
+        collar_sculpt.smooth(strength=.4, iterations=30, preserve_volume=False)
+    finished = collar_sculpt.co @ np.array(BI.to_3x3()).T
+    delta = np.zeros_like(positions)
+    delta[used] = finished[weld[used]] - posed[used]
+    length = np.linalg.norm(delta, axis=1)
+    delta *= (.0045 * np.tanh(length / .010) / np.maximum(1e-8, length))[:,None]
+    pose_collar_max = max(pose_collar_max, float(np.max(np.linalg.norm(delta, axis=1))))
+    inverse = qr.copy(); inverse[:, :3] *= -1
+    new_delta = old_delta.copy(); selected = pose_collar > 0
+    new_delta[selected] += rotate(inverse, delta)[selected]
+    finished_normals = np.zeros_like(normals)
+    finished_normals[used] = (collar_sculpt.vn @ np.array(BI.to_3x3()).T)[weld[used]]
+    local_normals = rotate(inverse, finished_normals)
+    new_normal = old_normal.copy()
+    new_normal[selected] += ((local_normals - normals - old_normal) * pose_collar[:,None] * .45)[selected]
+    replace(target['POSITION'], new_delta); replace(target['NORMAL'], new_normal)
+    bpy.data.objects.remove(ob, do_unlink=True)
+surface_metrics['poseCollarMaxMove'] = pose_collar_max
+
+bias_shares = (0, .15, .40, .45, 0)
+for state, amplitude in [('Idle', 1.), ('Walk', .9), ('Sit', .9), ('Lie', .85)]:
+    load_tail_base(state)
+    matrices = {i: global_matrix(i) for i in range(1, 31)}
+    axes = [matrices[i].to_quaternion().inverted() @ Vector((0, 1, 0)) for i in range(16, 21)]
+    base_rotations = [bone(i).rotation_quaternion.copy() for i in range(16, 21)]
+    # Keep the sacral attachment centred. Uncurl the plume over the free joints,
+    # instead of yawing the whole attachment by roughly fifty degrees.
+    lo, hi = 0., 2.4
+    for _ in range(24):
+        bias = (lo + hi) * .5
+        for j in range(5):
+            delta = B @ Quaternion(axes[j], bias * bias_shares[j]).to_matrix().to_4x4() @ BI
+            bone(16 + j).rotation_quaternion = base_rotations[j] @ delta.to_quaternion()
+        bpy.context.view_layer.update()
+        qr, tr = deformation({i: global_matrix(i) for i in range(1, 31)})
+        tip = Vector(np.mean((rotate(qr, positions) + tr)[tip_vertices], axis=0))
+        if tip.x > matrices[16].translation.x:
+            lo = bias
+        else:
+            hi = bias
+    strengths = np.array((.020, .045, .16, .18, .15)) * amplitude
+    tail_specs[state] = (bias, strengths, axes)
+    clip_name = 'TailSway' + (state if state != 'Idle' else '')
+    tail_animation = {'name': clip_name, 'channels': [], 'samplers': []}
+    for j, strength in enumerate(strengths):
+        i, values = 16 + j, []
+        for time in times:
+            phase = (time - j * .30) / 7.2 * math.tau
+            angle = bias * bias_shares[j] + strength * (.90 * math.sin(phase) + .10 * math.sin(2 * phase))
+            q = Quaternion(axes[j], angle)
+            bone(i).rotation_quaternion = (B @ q.to_matrix().to_4x4() @ BI).to_quaternion()
+            bone(i).keyframe_insert(data_path='rotation_quaternion', frame=1 + time * 30)
+            values.append([q.x, q.y, q.z, q.w])
+        index = len(doc['accessors'])
+        doc['accessors'].append({'bufferView': 0, 'componentType': 5126, 'count': 0, 'type': 'VEC4'})
+        replace(index, values)
+        tail_animation['channels'].append({'sampler': j, 'target': {'node': i, 'path': 'rotation'}})
+        tail_animation['samplers'].append({'input': time_index, 'output': index, 'interpolation': 'LINEAR'})
+    rig.animation_data.action.name = clip_name
+    doc['animations'].append(tail_animation)
+
+# Review both extremes with the same additive composition as the browser.
+rig.animation_data_clear()
+for state in ('Sit', 'Lie'):
+    for phase_time in (1.8, 5.4):
+        load_tail_base(state)
+        bias, strengths, axes = tail_specs[state]
+        for j, strength in enumerate(strengths):
+            phase = (phase_time - j * .30) / 7.2 * math.tau
+            angle = bias * bias_shares[j] + strength * (.90 * math.sin(phase) + .10 * math.sin(2 * phase))
+            delta = B @ Quaternion(axes[j], angle).to_matrix().to_4x4() @ BI
+            bone(16 + j).rotation_quaternion = bone(16 + j).rotation_quaternion @ delta.to_quaternion()
+        bpy.context.view_layer.update()
+        qr, tr = deformation({i: global_matrix(i) for i in range(1, 31)})
+        correction = read(primitive['targets'][0 if state == 'Sit' else 1]['POSITION'])
+        coords = (rotate(qr, positions + correction) + tr)[representatives] @ np.array(B.to_3x3()).T
+        mesh = bpy.data.meshes.new(f'{state}_tail_{phase_time}')
+        mesh.from_pydata(coords.tolist(), [], weld_faces.tolist()); mesh.shade_smooth()
+        ob = bpy.data.objects.new(mesh.name, mesh); bpy.context.collection.objects.link(ob)
+        snapshots[mesh.name] = ob
 
 # Compact buffer views so old replaced data do not increase the download size.
 views = set(a['bufferView'] for a in doc['accessors']) | set(i['bufferView'] for i in doc['images'])
@@ -549,6 +812,10 @@ for name, ob in snapshots.items():
     ob.hide_render = True
     ob.hide_set(True)
 bpy.data.objects.remove(rig, do_unlink=True)
+# Discard temporary authoring actions so imported clip names stay unambiguous.
+for action in list(bpy.data.actions):
+    if action.users == 0 and action.name.startswith('TailSway'):
+        bpy.data.actions.remove(action)
 bpy.ops.import_scene.gltf(filepath=str(OUTPUT))
 for ob in bpy.context.scene.objects:
     for modifier in ob.modifiers:
@@ -559,6 +826,8 @@ bpy.context.preferences.filepaths.save_version = 0
 bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT.with_suffix('.blend')))
 assert hashlib.sha256(SOURCE.read_bytes()).hexdigest() == source_hash
 report = {'blender': bpy.app.version_string, 'sourceSha256': source_hash, 'sourceUnchanged': True,
-          'output': OUTPUT.name, 'bytes': OUTPUT.stat().st_size, 'maxReachError': max_reach_error, 'poses': metrics}
+          'output': OUTPUT.name, 'bytes': OUTPUT.stat().st_size, 'maxReachError': max_reach_error, 'poses': metrics,
+          'tailSurface': surface_metrics,
+          'tailSway': {state: {'centreYaw': spec[0], 'centreShares': bias_shares, 'amplitudes': spec[1].tolist()} for state, spec in tail_specs.items()}}
 OUTPUT.with_name(OUTPUT.stem + '-build.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report))

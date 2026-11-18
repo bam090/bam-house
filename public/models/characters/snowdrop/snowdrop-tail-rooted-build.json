@@ -1,0 +1,79 @@
+{
+  "blender": "5.2.4 LTS",
+  "sourceSha256": "e1978d34c6f4ab4dd647569143b00d294c27dc9e2a97708c3884b8f1609f456d",
+  "sourceUnchanged": true,
+  "output": "snowdrop-tail-rooted.glb",
+  "bytes": 21092108,
+  "maxReachError": 0,
+  "poses": {},
+  "tailSway": {
+    "Idle": {
+      "centreYaw": 1.6132900714874268,
+      "centreShares": [
+        0,
+        0.15,
+        0.4,
+        0.45,
+        0
+      ],
+      "amplitudes": [
+        0.03,
+        0.045,
+        0.16,
+        0.18,
+        0.15
+      ]
+    },
+    "Walk": {
+      "centreYaw": 1.6753825664520265,
+      "centreShares": [
+        0,
+        0.15,
+        0.4,
+        0.45,
+        0
+      ],
+      "amplitudes": [
+        0.027,
+        0.0405,
+        0.14400000000000002,
+        0.162,
+        0.135
+      ]
+    },
+    "Sit": {
+      "centreYaw": 1.6753825664520265,
+      "centreShares": [
+        0,
+        0.15,
+        0.4,
+        0.45,
+        0
+      ],
+      "amplitudes": [
+        0.027,
+        0.0405,
+        0.14400000000000002,
+        0.162,
+        0.135
+      ]
+    },
+    "Lie": {
+      "centreYaw": 0.45266404151916495,
+      "centreShares": [
+        0,
+        0.15,
+        0.4,
+        0.45,
+        0
+      ],
+      "amplitudes": [
+        0.0255,
+        0.03825,
+        0.136,
+        0.153,
+        0.1275
+      ]
+    }
+  }
+}

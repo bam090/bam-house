@@ -1,0 +1,87 @@
+{
+  "preserved": [
+    "base mesh",
+    "UV",
+    "textures",
+    "weights",
+    "Walk",
+    "Jump",
+    "EarFlick",
+    "walk correctives"
+  ],
+  "clips": [
+    {
+      "name": "Sit",
+      "frames": 61,
+      "minimumY": -0.0009988163012138523,
+      "maximumTailError": 0.0058519058956465475,
+      "minimumRootWidthRatio": 0.9329976268244607,
+      "maximumRootWidthRatio": 1.000000203012194,
+      "minimumAnkleVolumeRatio": 0.5230498127315204,
+      "minimumAnkleWidthRatio": 0.9503345647555667,
+      "maximumAnkleWidthRatio": 0.9999999913127385,
+      "maximumIKError": 0.0000025584907569093962,
+      "pelvisY": 0.18000000715255737,
+      "chestY": 0.5175122426354917,
+      "haunchVolumeRatio": [
+        0.9568650230508667,
+        0.9677154430863142
+      ],
+      "rearPaws": [
+        {
+          "x": 0.07199999621028141,
+          "y": 0.027000008886017363,
+          "z": 0.10500003421616019
+        },
+        {
+          "x": -0.22200000217074586,
+          "y": 0.027000008886017404,
+          "z": 0.10500003421616029
+        }
+      ],
+      "swayMinimumY": 7.425452716530951e-9,
+      "swayRootMin": 0.9376446222200305,
+      "swayRootMax": 1.0244991907894236,
+      "attachmentMaxDrift": 0.011465453916729935
+    },
+    {
+      "name": "Lie",
+      "frames": 61,
+      "minimumY": -0.00047509523241278436,
+      "maximumTailError": 0.005854371754058507,
+      "minimumRootWidthRatio": 0.9297179058486184,
+      "maximumRootWidthRatio": 1.0120848595350531,
+      "minimumAnkleVolumeRatio": 0.3997506531707458,
+      "minimumAnkleWidthRatio": 0.9400688516112303,
+      "maximumAnkleWidthRatio": 0.9999999913127385,
+      "maximumIKError": 0.0000017239039974188827,
+      "pelvisY": 0.20000000298023224,
+      "chestY": 0.2973594319202586,
+      "haunchVolumeRatio": [
+        0.8012187896648111,
+        0.9892881152419452
+      ],
+      "rearPaws": [
+        {
+          "x": 0.054999995976890974,
+          "y": 0.027000009760259736,
+          "z": -0.019999963701289952
+        },
+        {
+          "x": -0.20499999821206516,
+          "y": 0.027000009760259736,
+          "z": -0.019999963701289925
+        }
+      ],
+      "swayMinimumY": 9.061529642597783e-9,
+      "swayRootMin": 0.9359942877805437,
+      "swayRootMax": 1.0076836038332555,
+      "attachmentMaxDrift": 0.004324204245130738
+    }
+  ],
+  "transitions": {
+    "frames": 600,
+    "transitionAnkleMin": 0.9400932914698414,
+    "transitionAnkleMax": 1.0000000189444518
+  }
+}

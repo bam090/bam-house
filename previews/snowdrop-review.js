@@ -14,7 +14,7 @@ $('#transition').add(new Option('누운 채 꼬리 살랑', 'lieHold'))
 const views = []
 let loaded = false, playing = false, time = 0, clipName = 'rest', duration = 1
 let walkSpeed = 0, tailTime = 0
-let transition='clip', runtime=null, runtimeTime=0
+let transition='clip', runtimes=[], runtimeTime=0
 const transitions={sit:['서기 → 앉기',null,'sit'],lie:['앉기 → 눕기','sit','lie'],sitBack:['눕기 → 앉기','lie','sit'],stand:['앉기 → 서기','sit','sit'],walk:['눕기 → 걷기','lie','walk'],sitHold:['앉은 채 꼬리 살랑','sit',null],lieHold:['누운 채 꼬리 살랑','lie',null]}
 function view(selector) {
   const host = $(selector), renderer = new T.WebGLRenderer({ antialias: true })
@@ -47,21 +47,26 @@ $('#close').onclick = () => camera([.44, .86, 1.35], [-.075, .77, .43])
 $('#face-front').onclick = () => camera([-.075, .78, 1.5], [-.075, .77, .43])
 $('#rear').onclick = () => camera([-.075,.85,-2.3],[-.075,.42,-.12])
 $('#rear-angle').onclick = () => camera([1.5,1.3,-1.7],[-.075,.42,-.12])
+$('#tail-close').onclick = () => camera([.90,.72,-1.30],[-.075,.25,-.36])
 $('#legs-close').onclick = () => camera([1.55,.32,.10],[-.075,.20,-.12])
 $('#legs-other').onclick = () => camera([-1.70,.32,.10],[-.075,.20,-.12])
 $('#light').onchange = () => views.forEach(v => { const shade = $('#light').value === 'shade'; v.key.intensity = shade ? .35 : 2.6; v.hemi.intensity = shade ? .85 : 1.35; v.fill.intensity = shade ? .5 : .8; v.scene.background.set(shade ? '#777e80' : '#d9d5cc') })
 function resetRuntime(){
-  runtime?.dispose();const v=views[1];v.mixer.stopAllAction()
-  for(const [o,p,q,s]of v.rest){o.position.copy(p);o.quaternion.copy(q);o.scale.copy(s)}
-  runtime=createCatAnimator(v.model,v.clips,walkSpeed);runtimeTime=0
+  runtimes.forEach(r=>r.dispose());runtimeTime=0
   const start=transitions[transition][1]
-  for(let frame=0;frame<120;frame++)runtime.update(1/60,{speed:0,grounded:true,verticalSpeed:0},frame===0?start:null)
+  runtimes=(compareRest?views:[views[1]]).map(v=>{
+    v.mixer.stopAllAction()
+    for(const [o,p,q,s]of v.rest){o.position.copy(p);o.quaternion.copy(q);o.scale.copy(s)}
+    const animator=createCatAnimator(v.model,v.clips,walkSpeed)
+    for(let frame=0;frame<120;frame++)animator.update(1/60,{speed:0,grounded:true,verticalSpeed:0},frame===0?start:null)
+    return animator
+  })
 }
 function sample(t) {
   if(transition!=='clip'){
-    if(!runtime||t<runtimeTime-1e-6)resetRuntime()
+    if(!runtimes.length||t<runtimeTime-1e-6)resetRuntime()
     const target=transitions[transition][2]
-    while(runtimeTime<t-1e-6){const dt=Math.min(1/60,t-runtimeTime);runtime.update(dt,{speed:target==='walk'?3:0,grounded:true,verticalSpeed:0},runtimeTime===0&&target!=='walk'?target:null);runtimeTime+=dt}
+    while(runtimeTime<t-1e-6){const dt=Math.min(1/60,t-runtimeTime);runtimes.forEach(r=>r.update(dt,{speed:target==='walk'?3:0,grounded:true,verticalSpeed:0},runtimeTime===0&&target!=='walk'?target:null));runtimeTime+=dt}
     return
   }
   for (const v of views) if (v.action) { v.action.time = t; if(v.swayAction)v.swayAction.time=tailTime%v.swayAction.getClip().duration; v.mixer.update(0); v.model.updateMatrixWorld(true); v.model.traverse(o => { if (o.isSkinnedMesh) o.skeleton.update() }) }
@@ -75,14 +80,14 @@ $('#play').onclick = () => { if(time>=duration)time=0; playing = !playing; $('#p
 function update() { $('#phase').value = Math.round(time / duration * 1000); $('#percent').value = `${(time / duration * 100).toFixed(1)}%` }
 function selectMotion() {
   if (!loaded) return
-  runtime?.dispose();runtime=null;transition='clip';$('#transition').value='clip'
+  runtimes.forEach(r=>r.dispose());runtimes=[];transition='clip';$('#transition').value='clip'
   clipName = $('#motion').value; time = 0; tailTime = 0; pause()
   if(clipName==='Jump')camera([2.2,1.15,2.3],[0,.68,0])
   for (const v of views) {
     v.mixer.stopAllAction(); v.action = null; v.swayAction = null
     for (const [o, p, q, s] of v.rest) { o.position.copy(p); o.quaternion.copy(q); o.scale.copy(s) }
     if (clipName !== 'rest') { const clip = v.clips.find(c => c.name === clipName); if(!clip)continue; duration = clip.duration; v.action = v.mixer.clipAction(clip); v.action.setLoop(T.LoopOnce, 1); v.action.clampWhenFinished = true; v.action.setEffectiveWeight(1).play() }
-    if(clipName==='Walk'&&v.tailClip)v.swayAction=v.mixer.clipAction(v.tailClip).setEffectiveWeight(.8).play()
+    if(clipName==='Walk'&&v.tailClip)v.swayAction=v.mixer.clipAction(createCatTailSwayClip(v.clips,'Walk')).setEffectiveWeight(1).play()
     v.model.updateMatrixWorld(true)
   }
   $('#phase').disabled = $('#play').disabled = clipName === 'rest'
@@ -108,13 +113,13 @@ $('#transition').onchange=()=>{
 window.addEventListener('keydown',e=>{if(e.repeat||e.target.closest?.('input,select,textarea,[contenteditable=true]'))return;const value={KeyX:'Sit',KeyC:'Lie'}[e.code];if(value){$('#motion').value=value;selectMotion();e.preventDefault()}})
 try {
   const rigVersion=new URLSearchParams(location.search).get('rig')
-  const loader = new GLTFLoader(), files = [compareRest?'snowdrop-rest-polished.glb':compareSides?SNOWDROP_MODEL_FILE:'snowdrop-source.glb',rigVersion==='previous'?'snowdrop-player.glb':rigVersion==='refined'?'snowdrop-rest-refined.glb':SNOWDROP_MODEL_FILE]
+  const loader = new GLTFLoader(), files = [compareRest?'snowdrop-tail-smooth.glb':compareSides?SNOWDROP_MODEL_FILE:'snowdrop-source.glb',rigVersion==='previous'?'snowdrop-player.glb':rigVersion==='refined'?'snowdrop-rest-refined.glb':SNOWDROP_MODEL_FILE]
   const models = await Promise.all(files.map(f => loader.loadAsync(`/models/characters/snowdrop/${f}`)))
   models.forEach((gltf, i) => {
     const box = new T.Box3().setFromObject(gltf.scene), size = box.getSize(new T.Vector3()), center = box.getCenter(new T.Vector3()); const v = views[i], group = new T.Group(); group.scale.setScalar(1 / size.y); group.position.set(-center.x / size.y, -box.min.y / size.y, -center.z / size.y)
     if(compareSides&&i===0){group.scale.x*=-1;group.position.x+=2*gltf.scene.getObjectByName('Spine').position.x/size.y}
     group.add(gltf.scene); v.scene.add(group); v.model = gltf.scene; v.clips = gltf.animations; v.mixer = new T.AnimationMixer(v.model); v.rest = []
-    if(i===1){v.tailClip=createCatTailSwayClip(v.clips);v.clips=[...v.clips.filter(c=>c.name!=='TailSway'),v.tailClip]}
+    if(i===1||compareRest){v.tailClip=createCatTailSwayClip(v.clips);v.clips=[...v.clips.filter(c=>c.name!=='TailSway'),v.tailClip]}
     v.model.traverse(o => { v.rest.push([o, o.position.clone(), o.quaternion.clone(), o.scale.clone()]); if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; if(o.isSkinnedMesh&&v.model.getObjectByName('Snowdrop')?.userData.skinning==='dualQuaternion')enableDualQuaternionSkinning(o) } })
   })
   views[1].helper=new T.SkeletonHelper(views[1].model);views[1].helper.visible=false;views[1].scene.add(views[1].helper)
@@ -126,11 +131,11 @@ try {
   walkSpeed = views[1].model.getObjectByName('Snowdrop').userData.gait.speed
   loaded = true; selectMotion(); $('#status').textContent = `원본·작업본과 ${models[1].animations.length}개 동작 로드 완료`
   if(compareRest){
-    $('h1').textContent='앉기 · 눕기 자세와 표면 비교'
+    $('h1').textContent='꼬리 곡선 · 표면 비교'
     $('h1').nextElementSibling.textContent='기존 적용본과 Blender 수정본을 같은 조명과 시점에서 비교합니다. X는 앉기, C는 눕기입니다.'
-    $('#source').previousElementSibling.firstChild.textContent='01 · 기존 밤하우스 적용본'
-    $('#source').previousElementSibling.querySelector('.muted').textContent='이전 자세'
-    $('#work').previousElementSibling.firstChild.textContent='02 · Blender 자세 수정본'
+    $('#source').previousElementSibling.firstChild.textContent='01 · 수정 전 꼬리'
+    $('#source').previousElementSibling.querySelector('.muted').textContent='이전 표면'
+    $('#work').previousElementSibling.firstChild.textContent='02 · 꼬리 곡선·표면 수정본'
     $('#motion').value='Sit';selectMotion();$('#side').click()
   }
   if(compareSides){

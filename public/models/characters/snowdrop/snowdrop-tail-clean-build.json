@@ -1,0 +1,14 @@
+{
+  "source": "snowdrop-tail-smooth.glb",
+  "sourceSha256": "6ae4075b7b3e1a87103141823345ebc42e230dac5a155c197bdffc793b34f4f2",
+  "sourceUnchanged": true,
+  "output": "snowdrop-tail-clean.glb",
+  "blender": "5.2.4 LTS",
+  "changedTexels": 253842,
+  "changedOutsideTail": 0,
+  "changedOrmTexels": 212312,
+  "roughness": 0.5333333611488342,
+  "tipColorContrastBefore": 0.2588235139846802,
+  "tipColorContrastAfter": 0.007843077182769775,
+  "method": "Blender UV-space colour and roughness/metalness healing; geometry, normals, skin, clips and normal map unchanged"
+}

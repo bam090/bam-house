@@ -18,7 +18,7 @@
 - 비교 화면: `/snowdrop-review.html?compare=rest` — 왼쪽은 커밋한 직전 `snowdrop-rest-polished.glb`, 오른쪽은 새 작업본.
 - 검수 화면: `docs/cat-reference/rest-paws-review/`
 
-원본과 직전 GLB·Blender 파일을 보존했다. 되돌리려면 `src/scene/cat-motion.ts`의 `SNOWDROP_MODEL_FILE`을 `snowdrop-rest-polished.glb`로 바꾼다. 이번 추가 수정은 직전 커밋과 구분해 작업 트리에 남겼다.
+원본과 직전 GLB·Blender 파일을 보존했다. 되돌리려면 `src/scene/cat-motion.ts`의 `SNOWDROP_MODEL_FILE`을 `snowdrop-rest-polished.glb`로 바꾼다. 이 추가 수정은 `1d65bc0`에 커밋했다. 이후 꼬리 좌우 움직임은 [별도 기록](snowdrop-tail-balanced.md)에 정리했다.
 
 ## 확인 결과
 
