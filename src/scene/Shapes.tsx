@@ -1,4 +1,6 @@
-import { Shape, Vector2 } from 'three'
+import { useLayoutEffect, useRef } from 'react'
+import { Color, Object3D, Shape, Vector2 } from 'three'
+import type { InstancedMesh } from 'three'
 import { Box } from './Box'
 import { palette } from './palette'
 
@@ -59,16 +61,23 @@ export function scatter(index: number, salt = 0) {
   return value - Math.floor(value)
 }
 
+const TUFT_COLORS = [palette.leafDark, palette.leaf, palette.leafLight]
+const LEAVES_PER_TUFT = 7
+
+function tuftLeaf(index: number, seed: number, leanScale: number) {
+  const angle = (index / LEAVES_PER_TUFT) * Math.PI * 2 + scatter(index, seed)
+  const lean = index === 0 ? 0 : (0.35 + scatter(index, seed + 1) * 0.3) * leanScale
+  const length = 0.6 + scatter(index, seed + 2) * 0.35
+  return { angle, lean, length, color: TUFT_COLORS[index % TUFT_COLORS.length] }
+}
+
 // 길쭉한 풀 한 포기. 가는 원뿔 여러 개를 바깥으로 기울여서 만든다.
 // lean은 잎이 바깥으로 기우는 정도다. 1보다 작게 주면 잎이 더 곧게 선다.
 export function Tuft({ position, scale = 1, seed = 0, lean: leanScale = 1 }: { position: Vec3; scale?: number; seed?: number; lean?: number }) {
-  const colors = [palette.leafDark, palette.leaf, palette.leafLight]
   return (
     <group position={position} scale={scale}>
-      {Array.from({ length: 7 }, (_, index) => {
-        const angle = (index / 7) * Math.PI * 2 + scatter(index, seed)
-        const lean = index === 0 ? 0 : (0.35 + scatter(index, seed + 1) * 0.3) * leanScale
-        const length = 0.6 + scatter(index, seed + 2) * 0.35
+      {Array.from({ length: LEAVES_PER_TUFT }, (_, index) => {
+        const { angle, lean, length, color } = tuftLeaf(index, seed, leanScale)
         return (
           <group key={index} rotation={[0, angle, 0]}>
             <Cylinder
@@ -77,7 +86,7 @@ export function Tuft({ position, scale = 1, seed = 0, lean: leanScale = 1 }: { p
               height={length}
               position={[Math.sin(lean) * length * 0.5, Math.cos(lean) * length * 0.5, 0]}
               rotation={[0, 0, -lean]}
-              color={colors[index % colors.length]}
+              color={color}
             />
           </group>
         )
@@ -105,22 +114,47 @@ export function Planter({ minX, maxX, minZ, maxZ, height, tufts, seed = 0 }: Pla
   const depth = maxZ - minZ
   const centerX = (minX + maxX) / 2
   const centerZ = (minZ + maxZ) / 2
+  const leaves = useRef<InstancedMesh>(null)
+  const leafCount = tufts * LEAVES_PER_TUFT
+
+  useLayoutEffect(() => {
+    const mesh = leaves.current
+    if (!mesh) return
+    const tuft = new Object3D()
+    const leaf = new Object3D()
+    const color = new Color()
+    tuft.add(leaf)
+    for (let index = 0; index < tufts; index += 1) {
+      const scale = 0.8 + scatter(index, seed + 5) * 0.5
+      const x = minX + 0.3 + (width - 0.6) * scatter(index, seed + 3)
+      const z = minZ + 0.3 + (depth - 0.6) * scatter(index, seed + 4)
+      tuft.scale.setScalar(scale)
+      for (let i = 0; i < LEAVES_PER_TUFT; i += 1) {
+        const blade = tuftLeaf(i, seed + index, 1)
+        tuft.position.set(x, height, z)
+        tuft.rotation.y = blade.angle
+        leaf.position.set(Math.sin(blade.lean) * blade.length / 2, Math.cos(blade.lean) * blade.length / 2, 0)
+        leaf.rotation.z = -blade.lean
+        leaf.scale.y = blade.length
+        tuft.updateMatrixWorld(true)
+        const instance = index * LEAVES_PER_TUFT + i
+        mesh.setMatrixAt(instance, leaf.matrixWorld)
+        mesh.setColorAt(instance, color.set(blade.color))
+      }
+    }
+    mesh.instanceMatrix.needsUpdate = true
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
+    mesh.computeBoundingSphere()
+  }, [depth, height, minX, minZ, seed, tufts, width])
+
   return (
     <group>
       <Box size={[width, height, depth]} position={[centerX, height / 2, centerZ]} color={palette.stone} />
       <Box size={[width - 0.3, 0.04, depth - 0.3]} position={[centerX, height + 0.01, centerZ]} color={palette.soil} />
-      {Array.from({ length: tufts }, (_, index) => (
-        <Tuft
-          key={index}
-          seed={seed + index}
-          scale={0.8 + scatter(index, seed + 5) * 0.5}
-          position={[
-            minX + 0.3 + (width - 0.6) * scatter(index, seed + 3),
-            height,
-            minZ + 0.3 + (depth - 0.6) * scatter(index, seed + 4),
-          ]}
-        />
-      ))}
+      <instancedMesh ref={leaves} args={[undefined, undefined, leafCount]} castShadow receiveShadow>
+        <cylinderGeometry args={[0, 0.05, 1, 10]} />
+        <meshStandardMaterial flatShading roughness={0.9} />
+      </instancedMesh>
     </group>
   )
 }

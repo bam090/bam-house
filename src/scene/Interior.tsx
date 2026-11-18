@@ -79,7 +79,7 @@ function Kitchen() {
       <Box size={[0.9, 0.9, 3.6]} position={[-5.55, 0.45, 2.3]} color={palette.wall} />
       <Box size={[0.9, 0.05, 3.6]} position={[-5.55, 0.925, 2.3]} color={palette.counter} />
       {[1.5, 3.1].map((z) => (
-        <LivingRoomModel file="kitchen/island-stool/island-stool-round-upholstered.glb" key={z} x={-4.75} z={z} y={0.021} height={0.479} originalMaterial />
+        <LivingRoomModel file="kitchen/island-stool/island-stool-round-upholstered-web-mesh.glb" key={z} x={-4.75} z={z} y={0.021} height={0.479} originalMaterial />
       ))}
 
       {/* 벽 선반과 조리대 위의 물건은 Decor.tsx에서 그린다. */}
@@ -417,9 +417,9 @@ function Lounge() {
   return (
     <group>
       <Box size={[6.2, 0.02, 5.2]} position={[1.5, SOFA_BASE - 0.01, -0.4]} color={palette.rugLiving} castShadow={false} />
-      <LivingRoomModel file="living-room/main-sofa/curved-boucle-wood-base/main-sofa-curved-boucle-wood-base-light-wood.glb" {...SOFA} y={SOFA_BASE} originalMaterial />
-      <LivingRoomModel file="living-room/lounge-chair/cream-boucle-wood-frame/lounge-chair-cream-boucle-wood-frame-main-sofa-palette.glb" {...SINGLE_SOFA} y={SOFA_BASE} originalMaterial />
-      <LivingRoomModel file="living-room/coffee-table/coffee-table-pale-wood-sculptural.glb" {...COFFEE_TABLE} y={SOFA_BASE} />
+      <LivingRoomModel file="living-room/main-sofa/curved-boucle-wood-base/main-sofa-curved-boucle-wood-base-light-wood-web-mesh.glb" {...SOFA} y={SOFA_BASE} originalMaterial />
+      <LivingRoomModel file="living-room/lounge-chair/cream-boucle-wood-frame/lounge-chair-cream-boucle-wood-frame-main-sofa-palette-web-mesh.glb" {...SINGLE_SOFA} y={SOFA_BASE} originalMaterial />
+      <LivingRoomModel file="living-room/coffee-table/coffee-table-pale-wood-sculptural-web-mesh.glb" {...COFFEE_TABLE} y={SOFA_BASE} />
     </group>
   )
 }

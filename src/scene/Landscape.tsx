@@ -212,8 +212,8 @@ export function Landscape() {
         <meshStandardMaterial color={palette.foam} transparent opacity={0.5} />
       </mesh>
 
-      {/* 덤불. 같은 모양을 여러 개 그릴 때는 Instances로 묶어서 한 번에 그린다. */}
-      <Instances limit={bushes.length} castShadow receiveShadow>
+      {/* 식물은 움직이지 않으므로 인스턴스의 위치와 색은 처음 한 번만 계산한다. */}
+      <Instances limit={bushes.length} frames={1} castShadow receiveShadow>
         <icosahedronGeometry args={[1, 0]} />
         <meshStandardMaterial flatShading />
         {bushes.map((bush, index) => (
@@ -228,7 +228,7 @@ export function Landscape() {
       </Instances>
 
       {/* 지피식물. 덤불 모양을 위아래로 납작하게 눌러서 땅에 낮게 깔리게 한다. */}
-      <Instances limit={covers.length} receiveShadow>
+      <Instances limit={covers.length} frames={1} receiveShadow>
         <icosahedronGeometry args={[1, 0]} />
         <meshStandardMaterial flatShading />
         {covers.map((cover, index) => (
@@ -243,7 +243,7 @@ export function Landscape() {
       </Instances>
 
       {/* 활엽수 줄기 */}
-      <Instances limit={trees.length} castShadow>
+      <Instances limit={trees.length} frames={1} castShadow>
         <cylinderGeometry args={[0.12, 0.2, TREE_TRUNK_HEIGHT, 6]} />
         <meshStandardMaterial color={palette.trunk} flatShading />
         {trees.map((tree, index) => (
@@ -257,7 +257,7 @@ export function Landscape() {
       </Instances>
 
       {/* 활엽수 잎 덩어리. 넓고 납작하게 펴서 줄기 위에 얹는다. */}
-      <Instances limit={trees.length} castShadow receiveShadow>
+      <Instances limit={trees.length} frames={1} castShadow receiveShadow>
         <icosahedronGeometry args={[1, 1]} />
         <meshStandardMaterial flatShading />
         {trees.map((tree, index) => (
@@ -280,7 +280,7 @@ export function Landscape() {
       </Instances>
 
       {/* 야자수 줄기 */}
-      <Instances limit={palms.length} castShadow>
+      <Instances limit={palms.length} frames={1} castShadow>
         <cylinderGeometry args={[0.1, 0.17, TRUNK_HEIGHT, 6]} />
         <meshStandardMaterial color={palette.trunk} flatShading />
         {palms.map((palm, index) => (
@@ -294,7 +294,7 @@ export function Landscape() {
       </Instances>
 
       {/* 야자수 잎. 줄기 꼭대기에서 일곱 장이 바깥으로 퍼진다. */}
-      <Instances limit={palms.length * LEAVES_PER_PALM} castShadow>
+      <Instances limit={palms.length * LEAVES_PER_PALM} frames={1} castShadow>
         <boxGeometry args={[1.8, 0.05, 0.45]} />
         <meshStandardMaterial flatShading />
         {palms.map((palm, palmIndex) =>

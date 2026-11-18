@@ -98,7 +98,7 @@ function Bedroom() {
         <Box size={[0.02, 0.2, 0.012]} position={[-0.08, 0.04, 0.02]} rotation={[0, 0, 1.1]} color={palette.columnCap} />
       </group>
       {/* 바다를 향한 침실 안락의자 */}
-      <LivingRoomModel file="living-room/lounge-chair/lounge-chair-cream-boucle.glb" {...BEDROOM_CHAIR} ivory />
+      <LivingRoomModel file="living-room/lounge-chair/lounge-chair-cream-boucle-web-mesh.glb" {...BEDROOM_CHAIR} ivory />
       {/* 안락의자 옆의 작은 원형 원목 탁자와 책과 컵 */}
       <Cylinder radius={0.22} height={0.03} position={[11.4, 0.435, 5.0]} color={palette.oak} />
       <Cylinder radius={0.03} height={0.4} position={[11.4, 0.22, 5.0]} color={palette.oak} />
@@ -162,19 +162,19 @@ function Bathroom() {
       <Box size={[0.65, 0.05, 2.8]} position={[7.475, 0.875, -3.9]} color={palette.counter} />
       {[-4.6, -3.2].map((z) => (
         <group key={z}>
-          <LivingRoomModel file="bathroom/vessel-sink/modern-white-sink.glb" x={7.55} y={0.9} z={z} width={0.36} height={0.18} originalMaterial />
+          <LivingRoomModel file="bathroom/vessel-sink/modern-white-sink-web-mesh.glb" x={7.55} y={0.9} z={z} width={0.36} height={0.18} originalMaterial />
           <LivingRoomModel file="bathroom/faucet/axor-uno-2-warm-white.glb" x={7.33} y={0.9} z={z - 0.084} height={0.30} turn={Math.PI / 2} originalMaterial />
-          <LivingRoomModel file="bathroom/mirror/organic-wood-mirror-light-oak.glb" x={7.16} y={1.25} z={z} turn={Math.PI / 2} height={1.0} />
+          <LivingRoomModel file="bathroom/mirror/organic-wood-mirror-light-oak-web-mesh.glb" x={7.16} y={1.25} z={z} turn={Math.PI / 2} height={1.0} />
         </group>
       ))}
 
       {/* 샤워부스. 트래버틴 벽과 가로 니치와 투명 유리와 브라스 수전(Shower.tsx) */}
       <Shower />
 
-      <LivingRoomModel file="bathroom/towel-rail/towel-rail-with-ivory-towel-champagne.glb" x={10.4} y={0.79} z={-1.225} turn={Math.PI} width={0.78} originalMaterial />
+      <LivingRoomModel file="bathroom/towel-rail/towel-rail-with-ivory-towel-champagne-optimized.glb" x={10.4} y={0.79} z={-1.225} turn={Math.PI} width={0.78} originalMaterial />
       {/* 나무 스툴과 화분. 스툴은 변기 칸 가는 길에 걸리지 않도록 수건 걸이 아래에 둔다. */}
       <Cylinder radius={0.17} radiusTop={0.2} height={0.45} position={[10.6, 0.225, -1.5]} color={palette.wood} />
-      <LivingRoomModel file="bathroom/potted-plant/potted_plant_01_4k-web.glb" x={8.4} z={-5.4} height={0.55} originalMaterial />
+      <LivingRoomModel file="bathroom/potted-plant/potted-plant-web-768.glb" x={8.4} z={-5.4} height={0.55} originalMaterial />
     </group>
   )
 }

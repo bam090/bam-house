@@ -260,7 +260,7 @@ function KitchenDecor() {
   const counter = 0.95
   return (
     <group>
-      <LivingRoomModel file="kitchen/cutting-board/cutting-boards-middle-pair.glb" x={-7.46} y={counter} z={1.32} turn={Math.PI / 2} width={0.40} originalMaterial />
+      <LivingRoomModel file="kitchen/cutting-board/cutting-boards-middle-pair-optimized.glb" x={-7.46} y={counter} z={1.32} turn={Math.PI / 2} width={0.40} originalMaterial />
       <LivingRoomModel file="kitchen/spice-jars/kitchen-set-8-glass-pots-stable.glb" x={-7.65} y={counter} z={3.2} turn={Math.PI / 2} width={0.405} originalMaterial />
       {/* 걸이 브래킷 뒤쪽을 정수기 옆판에 맞춘다. */}
       <LivingRoomModel file="kitchen/wooden-ladles-and-spoons/wooden-ladles-and-spoons-web.glb" x={-7.49} y={counter + 0.116} z={1.921} height={0.25} originalMaterial />
@@ -275,8 +275,8 @@ function KitchenDecor() {
       <LivingRoomModel file="kitchen/glass-vase/green-ribbed-glass-vase.glb" x={-7.71} y={1.2} z={-2.61} height={0.21} originalMaterial />
       <LivingRoomModel file="kitchen/candle-tray/candle-and-essence-web.glb" x={-7.71} y={1.7} z={-2.52} width={0.20} originalMaterial />
       <LivingRoomModel file="kitchen/tea-set/tea-set.glb" x={-7.71} y={1.7} z={-3.19} turn={Math.PI / 2} width={0.61} maxDepth={0.24} originalMaterial />
-      <LivingRoomModel file="kitchen/wooden-tray/wooden-serving-tray-web-bam.glb" x={-5.55} y={counter} z={2.45} turn={Math.PI / 2} width={0.44} originalMaterial />
-      <LivingRoomModel file="kitchen/ceramic-vase/matte-ceramic-organic-vase.glb" x={-5.55} y={counter + 0.012} z={2.4} height={0.23} originalMaterial />
+      <LivingRoomModel file="kitchen/wooden-tray/wooden-serving-tray-web-512.glb" x={-5.55} y={counter} z={2.45} turn={Math.PI / 2} width={0.44} originalMaterial />
+      <LivingRoomModel file="kitchen/ceramic-vase/matte-ceramic-organic-vase-web-mesh.glb" x={-5.55} y={counter + 0.012} z={2.4} height={0.23} originalMaterial />
       <LivingRoomModel file="kitchen/fruit-bowl/footed-fruit-bowl-bam.glb" x={-5.55} y={counter} z={3.35} width={0.31} originalMaterial />
       <Ball position={[-5.6, counter + 0.158, 3.32]} radius={0.04} color={palette.column} />
       <Ball position={[-5.5, counter + 0.16, 3.31]} radius={0.044} color={palette.leafLight} />
@@ -294,12 +294,12 @@ function LivingDecor() {
   return (
     <group>
       {/* 왼쪽 큰 벽감 (x -4.3~-2.9). 칸마다 한두 개만 놓아서 여백을 둔다. */}
-      <LivingRoomModel file="living-room/niche-basket/niche-basket-coiled-fiber.glb" x={-3.95} y={1} z={nicheZ} width={0.29} castShadow={false} />
+      <LivingRoomModel file="living-room/niche-basket/niche-basket-coiled-fiber-optimized.glb" x={-3.95} y={1} z={nicheZ} width={0.29} castShadow={false} />
       <StackedBooks position={[-3.3, 1.0, nicheZ]} />
       <Turned position={[-3.7, 1.5, nicheZ]} profile={FACETED_CYLINDER} color={palette.wall} segments={8} />
       <TravertineCandle position={[-3.2, 1.5, nicheZ]} />
       {/* 가운데 작은 벽감 (x -2.5~-1.8) */}
-      <LivingRoomModel file="living-room/niche-vase/niche-vase-matte-organic.glb" x={-2.15} y={1} z={nicheZ} width={0.3} height={0.34} castShadow={false} />
+      <LivingRoomModel file="living-room/niche-vase/niche-vase-matte-organic-web-mesh.glb" x={-2.15} y={1} z={nicheZ} width={0.3} height={0.34} castShadow={false} />
       <LiddedBasket position={[-2.15, 1.5, nicheZ]} />
       <BrassCandlestick position={[-2.15, 2.0, nicheZ]} />
       {/* 오른쪽 큰 벽감 (x 4.9~5.9) */}
@@ -321,17 +321,17 @@ function LivingDecor() {
       <ThreeWickCandle position={[1.7, tableTop(1.7, -0.72), -0.72]} />
       <Turned position={[1.95, tableTop(1.95, -0.95), -0.95]} profile={CARVED_BOWL} color={palette.sofaWood} />
 
-      <LivingRoomModel file="unassigned/floor-cushion/floor-cushion-green-boucle-stack.glb" {...GREEN_CUSHIONS} />
-      <LivingRoomModel file="living-room/floor-cushion/floor-cushion-round-velvet.glb" {...BROWN_CUSHION} />
+      <LivingRoomModel file="unassigned/floor-cushion/floor-cushion-green-boucle-stack-optimized.glb" {...GREEN_CUSHIONS} />
+      <LivingRoomModel file="living-room/floor-cushion/floor-cushion-round-velvet-web-mesh.glb" {...BROWN_CUSHION} />
       {/* 거실 앞 왼쪽 쌍기둥 옆의 큰 야자 화분 */}
-      <LivingRoomModel file="living-room/areca-palm/areca-palm-rattan-planter.glb" {...ARECA_PALM} />
+      <LivingRoomModel file="living-room/areca-palm/areca-palm-rattan-planter-web-blender.glb" {...ARECA_PALM} />
       {/* +Z 정면을 거실 안쪽으로 돌린다. */}
-      <LivingRoomModel file="living-room/wall-art/wall-art-cream-wave-relief.glb" x={6.82} y={0.9} z={-4.1} turn={-Math.PI / 2} height={1.3} castShadow={false} />
+      <LivingRoomModel file="living-room/wall-art/wall-art-cream-wave-relief-web-baked.glb" x={6.82} y={0.9} z={-4.1} turn={-Math.PI / 2} height={1.3} castShadow={false} />
 
       {/* 장난감 공 둘은 고양이가 굴릴 수 있어서 Toys.tsx에서 따로 그린다. */}
       <Toys />
 
-      <LivingRoomModel file="plants/olive-tree/olive-tree-planter.glb" {...OLIVE_TREE} />
+      <LivingRoomModel file="plants/olive-tree/olive-tree-planter-web-blender.glb" {...OLIVE_TREE} />
       {/* 주방 로봇청소기 옆의 바닥 화병과 팜파스 */}
       <Turned position={[FLOOR_VASE.x, FLOOR_VASE.y, FLOOR_VASE.z]} profile={FLOOR_VASE_PROFILE} color={palette.teak} segments={18} />
       {PAMPAS.map((stem, index) => (
@@ -391,7 +391,7 @@ function BathroomDecor() {
       <Box size={[0.055, 0.12, 0.055]} position={[12.3, 0.635, -4.9]} color={palette.green} />
       <Cylinder radius={0.012} height={0.03} position={[12.3, 0.71, -4.9]} color={palette.oak} />
       {/* 세면대: 대야 사이의 디스펜서와 끝에 접어 둔 수건 */}
-      <LivingRoomModel file="bathroom/soap-dispenser/soap-dispenser-scene-oat.glb" x={7.49} y={0.9} z={-3.91} height={0.16} originalMaterial />
+      <LivingRoomModel file="bathroom/soap-dispenser/soap-dispenser-scene-oat-optimized.glb" x={7.49} y={0.9} z={-3.91} height={0.16} originalMaterial />
       {[0, 1].map((index) => (
         <Box key={index} size={[0.3 - index * 0.02, 0.05, 0.22 - index * 0.02]} position={[7.5, 0.925 + index * 0.05, -2.78]} color={palette.white} roughness={1} />
       ))}
@@ -424,7 +424,7 @@ function LitterCabinet() {
   return (
     <group>
       <LivingRoomModel
-        file="bathroom/cat-litter-cabinet/cat-litter-cabinet-oak-refined.glb"
+        file="bathroom/cat-litter-cabinet/cat-litter-cabinet-oak-refined-optimized.glb"
         x={(minX + maxX) / 2}
         z={(minZ + maxZ) / 2}
         height={top}

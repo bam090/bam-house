@@ -21,7 +21,7 @@ function WarmGlass({ strength = 1.2 }: { strength?: number }) {
 function ArcFloorLamp() {
   return (
     <group>
-      <LivingRoomModel file="living-room/floor-lamp/floor-lamp-bronze-arc.glb" x={4.24} z={0.72} turn={-2.43} height={2.23} />
+      <LivingRoomModel file="living-room/floor-lamp/floor-lamp-bronze-arc-web-mesh.glb" x={4.24} z={0.72} turn={-2.43} height={2.23} />
       <pointLight position={[4.23, 1.65, 0.71]} intensity={7} distance={6} color={WARM} />
     </group>
   )
@@ -88,7 +88,7 @@ export function Lamps({ ceiling }: { ceiling: number }) {
   return (
     <group>
       {/* 아일랜드 위의 펜던트 */}
-      <LivingRoomModel file="kitchen/pendant-light/pendant-brass-linear-champagne.glb" x={-5.55} y={ceiling-1.65} z={2.3} width={2.4} height={1.65} turn={Math.PI / 2} originalMaterial />
+      <LivingRoomModel file="kitchen/pendant-light/pendant-brass-linear-champagne-web-mesh.glb" x={-5.55} y={ceiling-1.65} z={2.3} width={2.4} height={1.65} turn={Math.PI / 2} originalMaterial />
       {/* 소파 끝 뒤에 세운 아치 스탠드. 갓이 소파 쪽을 향한다. */}
       <ArcFloorLamp />
       {/* 침대 양옆 협탁 위의 버섯형 램프 */}
