@@ -20,8 +20,8 @@ from mathutils.bvhtree import BVHTree
 ROOT = Path(__file__).resolve().parents[1]
 FOLDER = ROOT / 'public/models/characters/snowdrop'
 SOURCE = FOLDER / 'snowdrop-volume.glb'
-OUTPUT = FOLDER / 'snowdrop-rest-polished.glb'
-REVIEW = ROOT / 'docs/cat-reference/rest-polished-review'
+OUTPUT = FOLDER / 'snowdrop-rest-paws.glb'
+REVIEW = ROOT / 'docs/cat-reference/rest-paws-review'
 SKILLS = Path.home() / '.codex/skills'
 sys.path.extend([str(SKILLS / 'blender-sculpting/scripts'), str(SKILLS / 'blender-expert/scripts')])
 from bx_sculpt import Sculptor
@@ -157,14 +157,14 @@ def pose(name, amount):
         upper, lower, end, foot = [names[n] for n in leg['jointNames']]
         a, b, c, d = [rests[i] for i in (upper, lower, end, foot)]
         target = d.copy()
-        target.z += ((-.02 if leg['front'] else .33) if name == 'Sit' else (.265 if leg['front'] else .305)) * s
+        target.z += ((-.02 if leg['front'] else .33) if name == 'Sit' else (.265 if leg['front'] else .205)) * s
         if not leg['front']:
-            target.x += leg['side'] * .052 * s
+            target.x += leg['side'] * (.052 if name == 'Sit' else .035) * s
         if not leg['front'] or name == 'Lie':
             target.y += .018 * math.sin(math.pi * s) ** 2
         offset = c - d
         if not leg['front'] or name == 'Lie':
-            height = .025 if leg['front'] else .060
+            height = .025 if leg['front'] else (.080 if name == 'Sit' else .100)
             offset = offset.lerp(Vector((0, height, -math.sqrt(offset.length_squared - height ** 2))), s)
         wrist = target + offset
         hip = global_matrix(upper).translation
@@ -220,9 +220,12 @@ weld_faces = weld[triangles]
 base = positions[representatives]
 tail_weight = np.sum(weights * np.isin(ids, range(7, 12)), axis=1)
 head_weight = np.sum(weights * np.isin(ids, range(3, 7)), axis=1)
+rear_ankle_weight = np.sum(weights * np.isin(ids, [18, 19, 26, 27]), axis=1)
 mask = smooth(.055, .13, positions[:, 1]) * (1 - smooth(.66, .75, positions[:, 1]))
 mask *= 1 - smooth(.34, .45, positions[:, 2])
 mask *= (1 - smooth(.98, .99999, tail_weight)) * (1 - smooth(.15, .65, head_weight))
+# The haunch relaxation must not melt the weight-bearing ankle into a thin strap.
+mask *= 1 - smooth(.25, .65, rear_ankle_weight)
 mask = mask[representatives]
 fold = mask * (1 - smooth(.27, .42, base[:, 1]))
 root_region = smooth(.25, .35, positions[:, 1]) * (1 - smooth(.64, .72, positions[:, 1])) * (1 - smooth(-.27, -.17, positions[:, 2]))
@@ -257,8 +260,8 @@ def sculpt_pose(name, amount):
     # Recover the broad oval thigh mass after relaxing the folded skin.
     p = sculpt.co @ np.array(BI.to_3x3()).T
     side = np.where(base[:, 0] > -.075, 1, -1)
-    center = np.column_stack((-.075 + side * .085, np.full(len(base), .155), np.full(len(base), -.135 if name == 'Sit' else -.22)))
-    radii = np.array([.12, .155, .18 if name == 'Sit' else .17])
+    center = np.column_stack((-.075 + side * .085, np.full(len(base), .155), np.full(len(base), -.135 if name == 'Sit' else -.17)))
+    radii = np.array([.12, .155, .18])
     radial = (p - center) / radii
     envelope = center + radial / np.maximum(np.linalg.norm(radial, axis=1)[:, None], 1e-8) * radii
     outer = haunch * smooth(.035, .08, np.abs(base[:, 0] + .075))
@@ -268,6 +271,18 @@ def sculpt_pose(name, amount):
     sculpt.smooth(strength=.42, iterations=120, preserve_volume=False)
     sculpt.mask = 1 - mask * amount
     sculpt.smooth(strength=.44, iterations=240, preserve_volume=True)
+    # Relax the exposed ankle gently after protecting it from the thigh correction.
+    ankle = smooth(.035, .13, base[:, 1]) * smooth(.25, .65, rear_ankle_weight[representatives])
+    sculpt.mask = 1 - ankle * amount
+    sculpt.smooth(strength=.35, iterations=24, preserve_volume=True)
+    # Keep a padded tarsus above the floor instead of the flattened DQ blend.
+    p = sculpt.co @ np.array(BI.to_3x3()).T
+    p[:, 1] += .010 * ankle * smooth(.008, .045, p[:, 1]) * amount ** 2
+    foot_x = np.where(side > 0, matrices[24].translation.x, matrices[28].translation.x)
+    p[:, 0] += (p[:, 0] - foot_x) * .12 * ankle * amount ** 2
+    sculpt.co = p @ np.array(B.to_3x3()).T
+    sculpt.mask = 1 - np.maximum(haunch, ankle) * amount
+    sculpt.smooth(strength=.35, iterations=40, preserve_volume=False)
     # The reference has a gently sloping bib, not a spherical chest in front of the forelegs.
     p = sculpt.co @ np.array(BI.to_3x3()).T
     chest = smooth(.30, .43, base[:, 1]) * (1 - smooth(.66, .74, base[:, 1]))
@@ -297,7 +312,8 @@ def sculpt_pose(name, amount):
     surface.commit()
     tree = BVHTree.FromPolygons(surface.co.tolist(), surface.tris.tolist(), all_triangles=True)
     transfer = np.zeros_like(sculpt.co)
-    for i in np.flatnonzero(root_region[representatives] > .001):
+    finish_region = np.maximum(root_region[representatives], haunch * .75)
+    for i in np.flatnonzero(finish_region > .001):
         target, _, _, _ = tree.find_nearest(Vector(sculpt.co[i]))
         if target is None:
             continue
@@ -311,9 +327,20 @@ def sculpt_pose(name, amount):
         transfer = .5 * transfer + .5 * average / sculpt.deg[:, None]
     limits = np.where(tail_weight[representatives] > .99999, .003, .018)
     transfer *= np.minimum(1, limits / np.maximum(1e-8, np.linalg.norm(transfer, axis=1)))[:, None]
-    sculpt.co += transfer * (root_region[representatives] * amount)[:, None]
+    sculpt.co += transfer * (finish_region * amount)[:, None]
+    sculpt.mask = 1 - haunch * amount
+    sculpt.smooth(strength=.35, iterations=30, preserve_volume=False)
+    sculpt._normals()
+    sculpt.co += sculpt.vn * (.003 * haunch * amount)[:, None]
     sculpt.mask = 1 - root_region[representatives] * amount
     sculpt.smooth(strength=.45, iterations=300, preserve_volume=False)
+    # Remove small facets along the plume without shrinking its cross-section.
+    tail_before = sculpt.co.copy()
+    sculpt.mask = 1 - smooth(.70, .99999, tail_weight[representatives]) * amount
+    sculpt.smooth(strength=.35, iterations=30, preserve_volume=False)
+    tail_delta = sculpt.co - tail_before
+    tail_delta *= np.minimum(1, .0035 / np.maximum(1e-8, np.linalg.norm(tail_delta, axis=1)))[:, None]
+    sculpt.co = tail_before + tail_delta
     # Restore section thickness around the mesh centreline, not the offset bone axis.
     # Re-inflating individual original radii reintroduced the AI mesh's corrugated collar.
     rest_axis = np.array((rests[17] - rests[16]).normalized())
@@ -533,5 +560,5 @@ bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT.with_suffix('.blend')))
 assert hashlib.sha256(SOURCE.read_bytes()).hexdigest() == source_hash
 report = {'blender': bpy.app.version_string, 'sourceSha256': source_hash, 'sourceUnchanged': True,
           'output': OUTPUT.name, 'bytes': OUTPUT.stat().st_size, 'maxReachError': max_reach_error, 'poses': metrics}
-(FOLDER / 'snowdrop-rest-polished-build.json').write_text(json.dumps(report, indent=2) + '\n')
+OUTPUT.with_name(OUTPUT.stem + '-build.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report))

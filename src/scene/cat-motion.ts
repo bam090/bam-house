@@ -13,7 +13,7 @@ export const CAT_REVIEW_SPOTS = {
 export type CatReviewSpot = keyof typeof CAT_REVIEW_SPOTS
 
 export const SNOWDROP_SCALE = 0.64
-export const SNOWDROP_MODEL_FILE = 'snowdrop-rest-polished.glb'
+export const SNOWDROP_MODEL_FILE = 'snowdrop-rest-paws.glb'
 export const SNOWDROP_WALK_SPEED = 3
 export const PLAYER_JUMP_SPEED = 4.6
 export type CatVariant = 'snowdrop' | 'legacy'

@@ -1,0 +1,14 @@
+{
+  "bones": 30,
+  "shapeKeys": 14,
+  "actions": [
+    "EarFlick",
+    "Jump",
+    "Lie",
+    "Sit",
+    "TailSway",
+    "Walk"
+  ],
+  "vertices": 35771,
+  "faces": 61938
+}

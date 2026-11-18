@@ -4,7 +4,7 @@ import * as T from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { createDualQuaternionPalette, deformCatVertex } from '../src/scene/dual-quaternion.ts'
 import { createCatContactIK } from '../src/scene/cat-contact-ik.ts'
-import { createCatTailSwayClip, SNOWDROP_MODEL_FILE } from '../src/scene/cat-motion.ts'
+import { createCatAnimator, createCatTailSwayClip, SNOWDROP_MODEL_FILE } from '../src/scene/cat-motion.ts'
 
 globalThis.ProgressEvent = class extends Event { constructor(type, data) { super(type); Object.assign(this, data) } }
 const folder = new URL('../public/models/characters/snowdrop/', import.meta.url)
@@ -16,7 +16,8 @@ async function unpack(path) {
   return { json, bin, view, accessor }
 }
 const original = await unpack(new URL('snowdrop-volume.glb', folder))
-const output = await unpack(process.argv.find(a => a.endsWith('.glb')) ?? new URL(SNOWDROP_MODEL_FILE, folder))
+const outputPath = process.argv.find(a => a.endsWith('.glb')) ?? new URL(SNOWDROP_MODEL_FILE, folder)
+const output = await unpack(outputPath)
 const sourceMesh = original.json.meshes[0].primitives[0], workMesh = output.json.meshes[0].primitives[0]
 for (const key of Object.keys(sourceMesh.attributes)) assert.deepEqual(output.accessor(workMesh.attributes[key]), original.accessor(sourceMesh.attributes[key]), `${key}: 기본 외형 변경`)
 assert.deepEqual(output.accessor(workMesh.indices), original.accessor(sourceMesh.indices))
@@ -51,7 +52,7 @@ const distalTail = tail.filter(i => p.getZ(i) < -.46)
 gltf.scene.updateMatrixWorld(true)
 const tailBone = gltf.scene.getObjectByName('Tail'), tailStart = tailBone.getWorldPosition(new T.Vector3())
 const tailAxis = gltf.scene.getObjectByName('Tail_002').getWorldPosition(new T.Vector3()).sub(tailStart).normalize()
-const rings = [0, 1, 2, 3].map(ring => tail.filter(i => {
+const rings = Array.from({ length: 12 }, (_, ring) => tail.filter(i => {
   const along = point.fromBufferAttribute(p, i).sub(tailStart).dot(tailAxis)
   return along >= ring * .035 && along < (ring + 1) * .035
 })).filter(vertices => vertices.length > 12)
@@ -78,12 +79,18 @@ function spread(vertices, values) {
   return Math.sqrt(Math.max(0, new T.Matrix3().fromArray(covariance).determinant()))
 }
 const haunches = [-1, 1].map(side => used.filter(i => p.getY(i) > .28 && p.getY(i) < .48 && p.getZ(i) > -.29 && p.getZ(i) < -.10 && (p.getX(i) + .075) * side > .06))
+const ankles = [-1, 1].map(side => used.filter(i => p.getY(i) > .10 && p.getY(i) < .15 && (p.getX(i) + .075) * side > 0 &&
+  [0, 1, 2, 3].reduce((sum, k) => sum + ([18, 19, 26, 27].includes(ids.array[i * 4 + k]) ? weights.array[i * 4 + k] : 0), 0) > .5))
+assert(ankles.every(vertices => vertices.length > 200), '뒷발목 검사 영역 누락')
+const ankleAxis = new T.Vector3(0, -.173, .115).normalize()
+const ankleBones = ['Foot_Back_R', 'Foot_Back_L'].map(name => gltf.scene.getObjectByName(name))
+const ankleAreas = ankles.map(vertices => sectionArea(vertices, p.array, ankleAxis))
 const report = { preserved: ['base mesh', 'UV', 'textures', 'weights', 'Walk', 'Jump', 'EarFlick', 'walk correctives'], clips: [] }
 for (const name of ['Sit', 'Lie']) {
   mixer.stopAllAction()
   const clip = gltf.animations.find(c => c.name === name), action = mixer.clipAction(clip)
   action.setLoop(T.LoopOnce, 1); action.clampWhenFinished = true; action.play()
-  let minimumY = Infinity, maximumTailError = 0, maximumIKError = 0, minimumRootWidthRatio = Infinity, maximumRootWidthRatio = 0
+  let minimumY = Infinity, maximumTailError = 0, maximumIKError = 0, minimumRootWidthRatio = Infinity, maximumRootWidthRatio = 0, minimumAnkleVolumeRatio = Infinity, minimumAnkleWidthRatio = Infinity, maximumAnkleWidthRatio = 0
   for (let frame = 0; frame <= 60; frame++) {
     action.time = clip.duration * frame / 60; mixer.update(0); gltf.scene.updateMatrixWorld(true)
     const rotations = mesh.skeleton.bones.map(b => b.quaternion.clone().normalize())
@@ -95,6 +102,13 @@ for (const name of ['Sit', 'Lie']) {
       assert(point.toArray().every(Number.isFinite), `${name}: 잘못된 정점`)
       points.set(point.toArray(), i * 3); minimumY = Math.min(minimumY, point.y)
     }
+    ankles.forEach((vertices, i) => {
+      minimumAnkleVolumeRatio = Math.min(minimumAnkleVolumeRatio, spread(vertices, points) / spread(vertices, p.array))
+      const axis = ankleAxis.clone().applyQuaternion(ankleBones[i].getWorldQuaternion(new T.Quaternion()))
+      const width = Math.sqrt(sectionArea(vertices, points, axis) / ankleAreas[i])
+      minimumAnkleWidthRatio = Math.min(minimumAnkleWidthRatio, width)
+      maximumAnkleWidthRatio = Math.max(maximumAnkleWidthRatio, width)
+    })
     const anchor = distalTail[0], a = new T.Vector3().fromArray(points, anchor * 3), restA = new T.Vector3().fromBufferAttribute(p, anchor)
     for (const i of distalTail) {
       const distance = point.fromArray(points, i * 3).distanceTo(a), restDistance = point.fromBufferAttribute(p, i).distanceTo(restA)
@@ -110,7 +124,10 @@ for (const name of ['Sit', 'Lie']) {
     assert(Math.abs(left.z - right.z) < 1e-5 && Math.abs(left.y - right.y) < 1e-5, '뒷발 접지가 좌우로 어긋남')
   }
   assert(minimumY > -.006, `${name}: 바닥 침범 ${minimumY}`)
-  assert(maximumTailError < .00002, `${name}: 꼬리 굵기/길이 변형 ${maximumTailError}`)
+  // The surface sculpt moves small facets; section checks independently protect thickness.
+  assert(maximumTailError < .008, `${name}: 꼬리 표면 보정 범위 초과 ${maximumTailError}`)
+  // A folded band becomes shorter; measure the cross-section, independently of its bend.
+  assert(minimumAnkleWidthRatio > .85 && maximumAnkleWidthRatio < 1.15, `${name}: 뒷발목 단면 손실/부풀음 ${minimumAnkleWidthRatio}..${maximumAnkleWidthRatio}`)
   assert(minimumRootWidthRatio > .9 && maximumRootWidthRatio < 1.1, `${name}: 꼬리 뿌리 단면 손실 ${minimumRootWidthRatio}..${maximumRootWidthRatio}`)
   assert(maximumIKError < .003, `${name}: 웹 IK와 Blender 포즈 불일치 ${maximumIKError}`)
   const pelvisY = gltf.scene.getObjectByName('Spine').getWorldPosition(new T.Vector3()).y
@@ -119,7 +136,7 @@ for (const name of ['Sit', 'Lie']) {
   const haunchVolumeRatio = haunches.map(vertices => spread(vertices, points) / spread(vertices, p.array))
   assert(Math.min(...haunchVolumeRatio) > .75, `${name}: 허벅지 부피 손실 ${haunchVolumeRatio}`)
   const rearPaws = ['Foot_Back_L2', 'Foot_Back_L2_002'].map(n => gltf.scene.getObjectByName(n).getWorldPosition(new T.Vector3()))
-  assert(rearPaws.every(p => p.z > (name === 'Sit' ? .10 : .075)), `${name}: 뒷발이 허벅지 뒤에 남음`)
+  assert(rearPaws.every(p => name === 'Sit' ? p.z > .10 : p.z > -.04 && p.z < .025), `${name}: 뒷발이 접힌 허벅지 아래에서 벗어남`)
   const sway = mixer.clipAction(createCatTailSwayClip(gltf.animations)).setEffectiveWeight(name === 'Sit' ? .45 : .35).play()
   let swayMinimumY = Infinity, swayRootMin = Infinity, swayRootMax = 0
   for (let frame = 0; frame <= 72; frame++) {
@@ -137,8 +154,30 @@ for (const name of ['Sit', 'Lie']) {
   }
   assert(swayMinimumY > -.006, `${name}: 살랑거리는 꼬리 바닥 침범 ${swayMinimumY}`)
   assert(swayRootMin > .9 && swayRootMax < 1.1, `${name}: 살랑거릴 때 꼬리 단면 손실 ${swayRootMin}..${swayRootMax}`)
-  report.clips.push({ name, frames: 61, minimumY, maximumTailError, minimumRootWidthRatio, maximumRootWidthRatio, maximumIKError, pelvisY, chestY, haunchVolumeRatio, rearPaws, swayMinimumY, swayRootMin, swayRootMax })
+  report.clips.push({ name, frames: 61, minimumY, maximumTailError, minimumRootWidthRatio, maximumRootWidthRatio, minimumAnkleVolumeRatio, minimumAnkleWidthRatio, maximumAnkleWidthRatio, maximumIKError, pelvisY, chestY, haunchVolumeRatio, rearPaws, swayMinimumY, swayRootMin, swayRootMax })
 }
-await fs.writeFile(new URL('../docs/snowdrop-rest-polished-validation.json', import.meta.url), JSON.stringify(report, null, 2) + '\n')
+mixer.stopAllAction()
+const animator = createCatAnimator(gltf.scene, gltf.animations, gltf.scene.getObjectByName('Snowdrop').userData.gait.speed)
+const motion = { speed: 0, grounded: true, verticalSpeed: 0, nearObject: false, moveRequested: false }
+let transitionAnkleMin = Infinity, transitionAnkleMax = 0
+for (const command of ['sit', 'lie', 'sit', 'lie', null]) {
+  motion.moveRequested = command === null
+  for (let frame = 0; frame < 120; frame++) {
+    const state = animator.update(1 / 60, motion, frame === 0 ? command : null)
+    if (state.startsWith('걷기')) break
+    gltf.scene.updateMatrixWorld(true); palette.update()
+    for (const i of ankles.flat()) { deformCatVertex(point, i, mesh, palette.palette); points.set(point.toArray(), i * 3) }
+    ankles.forEach((vertices, i) => {
+      const axis = ankleAxis.clone().applyQuaternion(ankleBones[i].getWorldQuaternion(new T.Quaternion()))
+      const width = Math.sqrt(sectionArea(vertices, points, axis) / ankleAreas[i])
+      transitionAnkleMin = Math.min(transitionAnkleMin, width); transitionAnkleMax = Math.max(transitionAnkleMax, width)
+    })
+  }
+}
+animator.dispose()
+assert(transitionAnkleMin > .85 && transitionAnkleMax < 1.15, `자세 전환 중 뒷발목 변형 ${transitionAnkleMin}..${transitionAnkleMax}`)
+report.transitions = { frames: 600, transitionAnkleMin, transitionAnkleMax }
+const outputName = String(outputPath).split('/').at(-1).replace('.glb', '-validation.json')
+await fs.writeFile(new URL(`../docs/${outputName}`, import.meta.url), JSON.stringify(report, null, 2) + '\n')
 console.log(JSON.stringify(report, null, 2))
 console.log('PASS: 원본 외형·기존 동작 보존, 낮은 휴식 자세, 접지, 좌우 뒷발, 꼬리 단면, 웹 IK 일치')

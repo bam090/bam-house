@@ -108,7 +108,7 @@ $('#transition').onchange=()=>{
 window.addEventListener('keydown',e=>{if(e.repeat||e.target.closest?.('input,select,textarea,[contenteditable=true]'))return;const value={KeyX:'Sit',KeyC:'Lie'}[e.code];if(value){$('#motion').value=value;selectMotion();e.preventDefault()}})
 try {
   const rigVersion=new URLSearchParams(location.search).get('rig')
-  const loader = new GLTFLoader(), files = [compareRest?'snowdrop-rest-refined.glb':compareSides?SNOWDROP_MODEL_FILE:'snowdrop-source.glb',rigVersion==='previous'?'snowdrop-player.glb':rigVersion==='refined'?'snowdrop-rest-refined.glb':SNOWDROP_MODEL_FILE]
+  const loader = new GLTFLoader(), files = [compareRest?'snowdrop-rest-polished.glb':compareSides?SNOWDROP_MODEL_FILE:'snowdrop-source.glb',rigVersion==='previous'?'snowdrop-player.glb':rigVersion==='refined'?'snowdrop-rest-refined.glb':SNOWDROP_MODEL_FILE]
   const models = await Promise.all(files.map(f => loader.loadAsync(`/models/characters/snowdrop/${f}`)))
   models.forEach((gltf, i) => {
     const box = new T.Box3().setFromObject(gltf.scene), size = box.getSize(new T.Vector3()), center = box.getCenter(new T.Vector3()); const v = views[i], group = new T.Group(); group.scale.setScalar(1 / size.y); group.position.set(-center.x / size.y, -box.min.y / size.y, -center.z / size.y)
