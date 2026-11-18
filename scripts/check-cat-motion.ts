@@ -6,7 +6,7 @@ import { createCatAnimator, createCatTailSwayClip, walkPlaybackRate, jumpWithout
 import { createDualQuaternionPalette, deformCatVertex } from '../src/scene/dual-quaternion.ts'
 
 Object.assign(globalThis, { ProgressEvent: class extends Event { constructor(type: string, data: object) { super(type); Object.assign(this, data) } } })
-const bytes = await fs.readFile(new URL(`../public/models/characters/snowdrop/${SNOWDROP_MODEL_FILE}`, import.meta.url))
+const bytes = await fs.readFile(process.argv.find(a => a.endsWith('.glb')) ?? new URL(`../public/models/characters/snowdrop/${SNOWDROP_MODEL_FILE}`, import.meta.url))
 const length = bytes.readUInt32LE(12), json = JSON.parse(bytes.subarray(20, 20 + length).toString())
 delete json.images; delete json.textures; json.materials = [{}]
 json.buffers[0].uri = `data:application/octet-stream;base64,${bytes.subarray(28 + length).toString('base64')}`
@@ -23,10 +23,13 @@ let coat: SkinnedMesh
 model.traverse(o => { if (o instanceof SkinnedMesh) coat = o })
 const controller = createDualQuaternionPalette(coat!)
 const point = new Vector3()
+const restBlendIndex = coat!.morphTargetDictionary?.RestBlendFold
+let restBlendPeak = 0
 const step = (n: number, checkSurface = false) => {
   let label = ''
   for (let i = 0; i < n; i++) {
     label = animation.update(1 / 60, motion, null)
+    if (restBlendIndex !== undefined) restBlendPeak = Math.max(restBlendPeak, coat!.morphTargetInfluences![restBlendIndex])
     if (checkSurface) {
       model.updateMatrixWorld(true); controller.update()
       for (let v = 0; v < coat!.geometry.attributes.position.count; v++) {
@@ -36,6 +39,19 @@ const step = (n: number, checkSurface = false) => {
     }
   }
   return label
+}
+const checkRestSway = (name: string) => {
+  const joints = ['Tail', 'Tail_002', 'Tail_004'].map(n => model.getObjectByName(n)!)
+  const start = joints.map(j => j.quaternion.clone().normalize()), ranges = joints.map(() => 0)
+  const paws = ['Foot_Back_L2', 'Foot_Back_L2_002'].map(n => model.getObjectByName(n)!)
+  model.updateMatrixWorld(true)
+  const contacts = paws.map(p => p.getWorldPosition(new Vector3()))
+  for (let frame = 0; frame < 216; frame++) {
+    step(1); model.updateMatrixWorld(true)
+    joints.forEach((j, i) => { ranges[i] = Math.max(ranges[i], start[i].angleTo(j.quaternion.clone().normalize())) })
+    paws.forEach((p, i) => assert(p.getWorldPosition(new Vector3()).distanceTo(contacts[i]) < .00001, `${name}: 꼬리 살랑거림이 뒷발 접지를 움직임`))
+  }
+  assert(ranges.every(r => r > .015), `${name}: 꼬리 뿌리·중간 살랑거림이 멈춤 ${ranges}`)
 }
 try {
   const tail = model.getObjectByName('Tail')!, tip = model.getObjectByName('Tail_007')!
@@ -52,7 +68,12 @@ try {
   const touchdowns = gait.legs.map((l: { phase: number }) => (1 - l.phase + 1) % 1).sort((a: number, b: number) => a - b)
   for (let i = 0; i < 4; i++) assert(Math.abs((touchdowns[(i + 1) % 4] - touchdowns[i] + 1) % 1 - .25) < 1e-6, 'Uneven four-beat footfalls')
   const walk = gltf.animations.find(c => c.name === 'Walk')!
-  for (const track of [...walk.tracks, ...createCatTailSwayClip().tracks]) {
+  const tailClip = createCatTailSwayClip(gltf.animations)
+  for (const track of tailClip.tracks) {
+    const yaw = Array.from(track.values).filter((_, i) => i % 4 === 1)
+    assert(Math.max(...yaw) - Math.min(...yaw) > .05, `${track.name}: 중간 마디가 거의 움직이지 않음`)
+  }
+  for (const track of [...walk.tracks, ...tailClip.tracks]) {
     const size = track.getValueSize()
     for (let i = 0; i < size; i++) assert(Math.abs(track.values[i] - track.values[track.values.length - size + i]) < 1e-5, `${track.name}: walk loop seam`)
   }
@@ -84,7 +105,13 @@ try {
   assert(head.quaternion.clone().normalize().angleTo(headQ) < 1e-5, '귀 털기가 머리를 회전시킴')
   step(60); motion.nearObject = false; step(1); motion.nearObject = true
   assert(!animation.update(1 / 60, motion, null).includes('귀 털기'), '접근 쿨다운 실패')
+  checkRestSway('Sit')
   animation.update(1 / 60, motion, 'lie'); assert.equal(step(150, true), '눕기')
+  checkRestSway('Lie')
+  if (restBlendIndex !== undefined) {
+    assert(restBlendPeak > .9, '앉기·눕기 사이 연결부 보정이 재생되지 않음')
+    assert(coat!.morphTargetInfluences![restBlendIndex] < .0001, '전환 보정이 정지 자세에 남음')
+  }
   const lieY = spine.position.y; assert(lieY < .27)
   animation.update(1 / 60, motion, 'sit'); assert.equal(step(150, true), '앉기')
   motion.speed = SNOWDROP_WALK_SPEED; assert.equal(step(80, true), '걷기')

@@ -1,0 +1,44 @@
+{
+  "preserved": [
+    "base mesh",
+    "UV",
+    "textures",
+    "weights",
+    "Walk",
+    "Jump",
+    "EarFlick",
+    "walk correctives"
+  ],
+  "clips": [
+    {
+      "name": "Sit",
+      "frames": 61,
+      "minimumY": -0.001746627794283741,
+      "maximumTailError": 6.344045527795217e-8,
+      "minimumRootWidthRatio": 0.981264835970522,
+      "maximumRootWidthRatio": 1.0050016012662637,
+      "maximumIKError": 0.0000025584907569093962,
+      "pelvisY": 0.18000000715255737,
+      "chestY": 0.5175122426354917,
+      "haunchVolumeRatio": [
+        1.1786744504669238,
+        1.218380851752728
+      ]
+    },
+    {
+      "name": "Lie",
+      "frames": 61,
+      "minimumY": -0.0017466350641700927,
+      "maximumTailError": 7.598458812152487e-8,
+      "minimumRootWidthRatio": 0.9769303604202085,
+      "maximumRootWidthRatio": 1.0237404318574448,
+      "maximumIKError": 0.0000017239039974188827,
+      "pelvisY": 0.20000000298023224,
+      "chestY": 0.2973594319202586,
+      "haunchVolumeRatio": [
+        0.8548651232531074,
+        1.0840323977766702
+      ]
+    }
+  ]
+}

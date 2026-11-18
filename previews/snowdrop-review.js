@@ -6,13 +6,16 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 const references=import.meta.glob('../docs/cat-reference/white-turkish-angora-*.png',{eager:true,query:'?url',import:'default'})
 const $ = s => document.querySelector(s)
 const compareSides=new URLSearchParams(location.search).get('compare')==='sides'
+const compareRest=new URLSearchParams(location.search).get('compare')==='rest'
 $('#speed').add(new Option('밤하우스 걷기 주기', 'scene', true, true), 0)
 $('#motion').add(new Option('꼬리 살랑 · 대기', 'TailSway'))
+$('#transition').add(new Option('앉은 채 꼬리 살랑', 'sitHold'))
+$('#transition').add(new Option('누운 채 꼬리 살랑', 'lieHold'))
 const views = []
 let loaded = false, playing = false, time = 0, clipName = 'rest', duration = 1
 let walkSpeed = 0, tailTime = 0
 let transition='clip', runtime=null, runtimeTime=0
-const transitions={sit:['서기 → 앉기',null,'sit'],lie:['앉기 → 눕기','sit','lie'],sitBack:['눕기 → 앉기','lie','sit'],stand:['앉기 → 서기','sit','sit'],walk:['눕기 → 걷기','lie','walk']}
+const transitions={sit:['서기 → 앉기',null,'sit'],lie:['앉기 → 눕기','sit','lie'],sitBack:['눕기 → 앉기','lie','sit'],stand:['앉기 → 서기','sit','sit'],walk:['눕기 → 걷기','lie','walk'],sitHold:['앉은 채 꼬리 살랑','sit',null],lieHold:['누운 채 꼬리 살랑','lie',null]}
 function view(selector) {
   const host = $(selector), renderer = new T.WebGLRenderer({ antialias: true })
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); renderer.toneMapping = T.ACESFilmicToneMapping
@@ -98,28 +101,38 @@ $('#transition').onchange=()=>{
   if(!loaded)return
   transition=$('#transition').value
   if(transition==='clip'){selectMotion();return}
-  clipName='transition';duration=2;time=0;pause();resetRuntime();sample(0);update()
+  clipName='transition';duration=transition.endsWith('Hold')?7.2:2;time=0;pause();resetRuntime();sample(0);update()
   $('#phase').disabled=$('#play').disabled=false;$('#pose-reference').hidden=true
   $('#metrics').textContent=`${transitions[transition][0]} · 실제 씬과 같은 자세 전환\n슬라이더로 중간 프레임을 멈춰 확인할 수 있습니다.`
 }
 window.addEventListener('keydown',e=>{if(e.repeat||e.target.closest?.('input,select,textarea,[contenteditable=true]'))return;const value={KeyX:'Sit',KeyC:'Lie'}[e.code];if(value){$('#motion').value=value;selectMotion();e.preventDefault()}})
 try {
-  const loader = new GLTFLoader(), files = [compareSides?SNOWDROP_MODEL_FILE:'snowdrop-source.glb',new URLSearchParams(location.search).get('rig')==='previous'?'snowdrop-player.glb':SNOWDROP_MODEL_FILE]
+  const rigVersion=new URLSearchParams(location.search).get('rig')
+  const loader = new GLTFLoader(), files = [compareRest?'snowdrop-rest-refined.glb':compareSides?SNOWDROP_MODEL_FILE:'snowdrop-source.glb',rigVersion==='previous'?'snowdrop-player.glb':rigVersion==='refined'?'snowdrop-rest-refined.glb':SNOWDROP_MODEL_FILE]
   const models = await Promise.all(files.map(f => loader.loadAsync(`/models/characters/snowdrop/${f}`)))
   models.forEach((gltf, i) => {
     const box = new T.Box3().setFromObject(gltf.scene), size = box.getSize(new T.Vector3()), center = box.getCenter(new T.Vector3()); const v = views[i], group = new T.Group(); group.scale.setScalar(1 / size.y); group.position.set(-center.x / size.y, -box.min.y / size.y, -center.z / size.y)
     if(compareSides&&i===0){group.scale.x*=-1;group.position.x+=2*gltf.scene.getObjectByName('Spine').position.x/size.y}
     group.add(gltf.scene); v.scene.add(group); v.model = gltf.scene; v.clips = gltf.animations; v.mixer = new T.AnimationMixer(v.model); v.rest = []
-    if(i===1){v.tailClip=createCatTailSwayClip();v.clips=[...v.clips,v.tailClip]}
+    if(i===1){v.tailClip=createCatTailSwayClip(v.clips);v.clips=[...v.clips.filter(c=>c.name!=='TailSway'),v.tailClip]}
     v.model.traverse(o => { v.rest.push([o, o.position.clone(), o.quaternion.clone(), o.scale.clone()]); if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; if(o.isSkinnedMesh&&v.model.getObjectByName('Snowdrop')?.userData.skinning==='dualQuaternion')enableDualQuaternionSkinning(o) } })
   })
   views[1].helper=new T.SkeletonHelper(views[1].model);views[1].helper.visible=false;views[1].scene.add(views[1].helper)
   document.querySelector('a[href$="snowdrop-interactions.glb"]').href=`/models/characters/snowdrop/${files[1]}`
-  document.querySelector('a[href$="snowdrop-interactions.blend"]').href='/models/characters/snowdrop/snowdrop-volume.blend'
-  $('#work').previousElementSibling.firstChild.textContent=files[1]===SNOWDROP_MODEL_FILE?'02 · Snowdrop 표면 수정본':'02 · 수정 전 Snowdrop'
-  if(files[1]!==SNOWDROP_MODEL_FILE)document.querySelector('a[href$="snowdrop-volume.blend"]').hidden=true
+  const blendLink=document.querySelector('a[href$="snowdrop-interactions.blend"]')
+  blendLink.href=`/models/characters/snowdrop/${files[1].replace('.glb','.blend')}`
+  $('#work').previousElementSibling.firstChild.textContent=rigVersion==='previous'?'02 · 수정 전 Snowdrop':'02 · Snowdrop 표면 수정본'
+  blendLink.hidden=rigVersion==='previous'
   walkSpeed = views[1].model.getObjectByName('Snowdrop').userData.gait.speed
-  loaded = true; selectMotion(); $('#status').textContent = '원본·작업본과 5개 동작 로드 완료'
+  loaded = true; selectMotion(); $('#status').textContent = `원본·작업본과 ${models[1].animations.length}개 동작 로드 완료`
+  if(compareRest){
+    $('h1').textContent='앉기 · 눕기 자세와 표면 비교'
+    $('h1').nextElementSibling.textContent='기존 적용본과 Blender 수정본을 같은 조명과 시점에서 비교합니다. X는 앉기, C는 눕기입니다.'
+    $('#source').previousElementSibling.firstChild.textContent='01 · 기존 밤하우스 적용본'
+    $('#source').previousElementSibling.querySelector('.muted').textContent='이전 자세'
+    $('#work').previousElementSibling.firstChild.textContent='02 · Blender 자세 수정본'
+    $('#motion').value='Sit';selectMotion();$('#side').click()
+  }
   if(compareSides){
     $('h1').textContent='앉기 · 오른쪽 기준으로 좌우 비교'
     $('h1').nextElementSibling.textContent='왼쪽 화면은 오른쪽 다리를 좌우 반전한 기준입니다. 같은 조명과 시점에서 오른쪽 화면의 왼쪽 다리와 비교합니다.'

@@ -1,5 +1,5 @@
 import { AdditiveAnimationBlendMode, AnimationClip, AnimationMixer, LoopOnce, NumberKeyframeTrack, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
-import type { Object3D } from 'three'
+import type { Object3D, SkinnedMesh } from 'three'
 import { createCatContactIK } from './cat-contact-ik.ts'
 
 export const CAT_REVIEW_SPOTS = {
@@ -13,7 +13,7 @@ export const CAT_REVIEW_SPOTS = {
 export type CatReviewSpot = keyof typeof CAT_REVIEW_SPOTS
 
 export const SNOWDROP_SCALE = 0.64
-export const SNOWDROP_MODEL_FILE = 'snowdrop-volume.glb'
+export const SNOWDROP_MODEL_FILE = 'snowdrop-rest-polished.glb'
 export const SNOWDROP_WALK_SPEED = 3
 export const PLAYER_JUMP_SPEED = 4.6
 export type CatVariant = 'snowdrop' | 'legacy'
@@ -43,7 +43,13 @@ export function walkPlaybackRate(speed: number, sourceSpeed: number) {
   return Math.min(speed / (sourceSpeed * SNOWDROP_SCALE), .8 * speed)
 }
 
-export function createCatTailSwayClip() {
+export function createCatTailSwayClip(clips: AnimationClip[] = []) {
+  const authored = clips.find(c => c.name === 'TailSway')
+  if (authored) {
+    const clip = authored.clone()
+    clip.blendMode = AdditiveAnimationBlendMode
+    return clip
+  }
   const duration = 8.4, times = Array.from({ length: 169 }, (_, i) => i * duration / 168)
   const axis = new Vector3(0, 1, 0), rotation = new Quaternion()
   const names = ['Tail', 'Tail_002', 'Tail_004', 'Tail_006', 'Tail_007']
@@ -70,7 +76,9 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
   if (morphTrack) idleTracks.push(new NumberKeyframeTrack(morphTrack.name, [0, 1], new Array(morphTrack.getValueSize() * 2).fill(0)))
   const mixer = new AnimationMixer(model)
   const solveContacts = createCatContactIK(model)
-  const actions = Object.fromEntries([...clips.filter(c => c.name !== 'TailSway'), createCatTailSwayClip(), new AnimationClip('Idle', 1, idleTracks)].map(c => {
+  const coat = model.getObjectByName('Snowdrop_Coat') as SkinnedMesh | undefined
+  const restBlend = coat?.morphTargetDictionary?.RestBlendFold
+  const actions = Object.fromEntries([...clips.filter(c => c.name !== 'TailSway'), createCatTailSwayClip(clips), new AnimationClip('Idle', 1, idleTracks)].map(c => {
     const clip = c.name === 'Jump' ? jumpWithoutLift(c, spine.position.y) : c.name === 'EarFlick'
       ? new AnimationClip('EarFlick', c.duration, c.tracks.filter(t => /^Ear(?:_006)?\.quaternion$/.test(t.name)), AdditiveAnimationBlendMode) : c
     const action = mixer.clipAction(clip).setLoop(LoopOnce, 1)
@@ -142,13 +150,17 @@ export function createCatAnimator(model: Object3D, clips: AnimationClip[], sourc
         if (name === 'EarFlick') action.setEffectiveWeight(earActive ? 1 : 0)
         else action.setEffectiveWeight(action.getEffectiveWeight() + ((name === target ? 1 : 0) - action.getEffectiveWeight()) * blend)
       }
-      // 걸음 주기와 분리하고 쉬는 자세·점프에 들어가면 자연스럽게 잦아들게 한다.
+      // 휴식 자세에서는 작은 폭으로 이어지고 점프 중에는 잦아든다.
       tailTime = (tailTime + dt) % actions.TailSway.getClip().duration
-      const tailWeight = motion.grounded ? actions.Idle.getEffectiveWeight() + .8 * actions.Walk.getEffectiveWeight() : 0
+      const tailWeight = motion.grounded ? actions.Idle.getEffectiveWeight() + .65 * actions.Walk.getEffectiveWeight() + .45 * actions.Sit.getEffectiveWeight() + .35 * actions.Lie.getEffectiveWeight() : 0
       const tailBlend = 1 - Math.exp(-dt * (tailWeight > actions.TailSway.getEffectiveWeight() ? 3 : 8))
       actions.TailSway.time = tailTime
       actions.TailSway.setEffectiveWeight(actions.TailSway.getEffectiveWeight() + (tailWeight - actions.TailSway.getEffectiveWeight()) * tailBlend)
       mixer.update(0)
+      if (restBlend !== undefined && coat?.morphTargetInfluences) {
+        const phase = Math.min(actions.Sit.time / actions.Sit.getClip().duration, actions.Lie.time / actions.Lie.getClip().duration)
+        coat.morphTargetInfluences[restBlend] = 4 * actions.Sit.getEffectiveWeight() * actions.Lie.getEffectiveWeight() * phase ** 2
+      }
       solveContacts()
       return label
     },

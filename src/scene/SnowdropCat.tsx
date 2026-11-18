@@ -17,7 +17,7 @@ class ModelBoundary extends Component<{ children: ReactNode; fallback: ReactNode
 }
 
 function Model({ motionRef, commandRef }: { motionRef: RefObject<PlayerStatus>; commandRef: RefObject<CatCommand> }) {
-  const gltf = useLoader(GLTFLoader, `${import.meta.env.BASE_URL}models/characters/snowdrop/${SNOWDROP_MODEL_FILE}?v=muzzle-smooth-1`)
+  const gltf = useLoader(GLTFLoader, `${import.meta.env.BASE_URL}models/characters/snowdrop/${SNOWDROP_MODEL_FILE}?v=rest-polished-1`)
   const contact = useRef<Mesh>(null)
   const contactMap = useMemo(() => {
     const canvas = document.createElement('canvas'); canvas.width = canvas.height = 64
